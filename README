@@ -1,1 +1,4 @@
 oh remzi...
+
+To run node_chat server:
+$ /usr/local/bin/node server.js
