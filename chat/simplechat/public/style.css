@@ -1,0 +1,8 @@
+#chat { display: none; }
+
+#text {
+	width: 700px;
+	height: 500px;
+}
+
+#msg { width: 500px; border: 1px solid #000; }

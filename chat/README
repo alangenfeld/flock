@@ -1,0 +1,41 @@
+
+A node backend for the project.
+
+Just testing node at the moment with simplechat.js. Most probably none of this code
+will end up in the actual implemention.
+
+============================
+
+Potential Technologies:
+    o Node.js - evented I/O for JS. Provides event loop as a
+                "language construct" with callback-based programming
+                http://nodejs.org/
+
+    o Redis - A key/value or "data structure" server. Fast, in-memory data
+              sharing and background-writing persistence.
+              http://redis.io
+
+    o Socket.IO - server and client side socket networking, cross-browser and
+                  very simple. Uses websockets if available, or flash if available,
+                  or ajax if available.
+                  http://socket.io
+
+    o Structr - Provide a simple class system for javascript. Looks clean and
+                can provide more advanced functionality if needed, like overloading,
+                properties, etc.
+                https://github.com/spiceapps/Structr
+
+    o JSDoc - using jsdoc style for commenting and documentation. Following
+              google javascript style guide
+              see http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
+              and http://code.google.com/p/jsdoc-toolkit/
+              and https://github.com/micmath/jsdoc
+
+    o Cluster - Multicore server manager for node. Can start multiple node
+                processes an manage them.
+                https://github.com/LearnBoost/cluster
+
+    o hook.io - A new version of node's event system that is distributed and
+                has nice features like namespaces. Can listen and fire events
+                cross-process and spawn new processes in callbacks.
+                http://www.hook.io
