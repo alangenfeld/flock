@@ -40,18 +40,29 @@ var Client = Class(
      * @param socket the Socket.IO socket object for this client
      * @param chat a reference to the ChatServer object
      */
-    __construct: function(socket, chat) {
+    __construct: function(socket, chat, fbid) {
         this.socket = socket;
         this.chat   = chat;
-        this.send   = function(cmd, data) { socket.emit(cmd, data) };
+        this.fbid   = fbid;
+        this.sid    = -1;
+        this.send   = function(cmd, data) { this.socket.emit(cmd, data) };
         this.on     = function(ev, fn) { this.socket.on(ev, fn); };
+    },
+    
+    setStream: function(sid) {
+        this.sid = sid;
     }
 });
+
+var COMMANDS = [
+    "pick_stream",
+    "msg"
+];
 
 var ChatServer = Class(
 /** @lends ChatServer# */
 {
-    /**msg
+    /**
      * ChatServer is responsible for managing the clients and coordinating
      * messages between them.
      * @constructs
@@ -67,7 +78,11 @@ var ChatServer = Class(
     addClient: function(cl) {
         var that = this;
         this.clients.push(cl);
-        cl.on("msg", function(data) { that.cmd_msg(cl, data); });
+        for (var i in COMMANDS) {
+            cl.on(COMMANDS[i], function (data) {
+                that["cmd_" + COMMANDS[i]].apply(that, [cl, data]);
+            });
+        }
     },
     
     /**
