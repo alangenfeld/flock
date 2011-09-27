@@ -1,4 +1,6 @@
 oh remzi...
 
-To run node_chat server:
-$ /usr/local/bin/node server.js
+Development is happening in the chat/ directory
+the others are node examples
+
+$ node chat/app.js
