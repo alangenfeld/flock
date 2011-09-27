@@ -34,57 +34,58 @@ var io = sio.listen(app);
 var Client = Class(
 /** @lends Client# */
 {
-	/**
-	 * Represents a client connected to the server
-	 * @constructs
-	 * @param socket the Socket.IO socket object for this client
-	 * @param chat a reference to the ChatServer object
-	 */
-	__construct: function(socket, chat) {
-		this.socket = socket;
-		this.chat   = chat;
-		this.send   = function(cmd, data) { socket.emit(cmd, data) };
-		this.on     = function(ev, fn) { this.socket.on(ev, fn); };
-	}
+    /**
+     * Represents a client connected to the server
+     * @constructs
+     * @param socket the Socket.IO socket object for this client
+     * @param chat a reference to the ChatServer object
+     */
+    __construct: function(socket, chat) {
+        this.socket = socket;
+        this.chat   = chat;
+        this.send   = function(cmd, data) { socket.emit(cmd, data) };
+        this.on     = function(ev, fn) { this.socket.on(ev, fn); };
+    }
 });
 
 var ChatServer = Class(
 /** @lends ChatServer# */
 {
-	/**msg
-	 * ChatServer is responsible for managing the clients and coordinating
-	 * messages between them.
-	 * @constructs
-	 */
-	__construct: function() {
-		this.clients = [];
-	},
-	
-	/**
-	 * add a new client for the server to listen to and broadcast to
-	 * @param cl instance of Client
-	 */
-	addClient: function(cl) {
-		var that = this;
-		this.clients.push(cl);
-		cl.on("msg", function(data) { that.cmd_msg(cl, data); });
-	},
-	
-	/**
-	 * Send a command to all clients not in except
-	 * @param cmd the command string to send
-	 * @param data javascript object to send
-	 * @param except clients to not broadcast to
-	 */
-	broadcast: function(cmd, data, except) {
-		except = except || [];
-		for (var cl in _.difference(this.clients, except))
-			this.clients[cl].send(cmd, data);
-	},
-	
-	cmd_msg: function(client, data) {
-		this.broadcast("msg", {nick:data.nick,msg:data.msg});
-	}
+    /**msg
+     * ChatServer is responsible for managing the clients and coordinating
+     * messages between them.
+     * @constructs
+     */
+    __construct: function() {
+        this.clients = [];
+    },
+    
+    /**
+     * add a new client for the server to listen to and broadcast to
+     * @param cl instance of Client
+     */
+    addClient: function(cl) {
+        var that = this;
+        this.clients.push(cl);
+        cl.on("msg", function(data) { that.cmd_msg(cl, data); });
+    },
+    
+    /**
+     * Send a command to all clients not in except
+     * @param cmd the command string to send
+     * @param data javascript object to send
+     * @param except clients to not broadcast to
+     */
+    broadcast: function(cmd, data, except) {
+        except = except || [];
+        var diff = _.difference(this.clients, except);
+        for (var cl in diff)
+            diff[cl].send(cmd, data);
+    },
+    
+    cmd_msg: function(client, data) {
+        this.broadcast("msg", {nick:data.nick,msg:data.msg});
+    }
 });
 
 var chat = new ChatServer();
@@ -92,9 +93,9 @@ var chat = new ChatServer();
 // Listen for new connections and create client
 // objects to add to the server
 io.sockets.on("connection", function(socket) {
-	var cl = new Client(socket, chat);
-	chat.addClient(cl);
-	cl.send("msg", {nick:"**Server**", msg:"Connected."});
+    var cl = new Client(socket, chat);
+    chat.addClient(cl);
+    cl.send("msg", {nick:"**Server**", msg:"Connected."});
 });
 
 console.log("Server started");
