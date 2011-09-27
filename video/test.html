@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title>Streaming Justin.tv channel</title>
+  </head>
+  <body>
+    <div id="fb-root"></div>
+    <script type="text/javascript" src="jquery-1.6.4.min.js"></script>
+    <script>
+      function display_message(channel, a, index)
+      {
+         var sizeOfTitle = a.innerHTML.indexOf("CURRENTLY PLAYING");
+         if(sizeOfTitle != -1)
+         {
+            a.innerHTML = a.innerHTML.substring(0, sizeOfTitle-9);
+            var d = document.getElementById("video");
+            var olddiv = document.getElementById(index);
+            d.removeChild(olddiv);
+         }
+         else
+         {
+            a.innerHTML= a.innerHTML + "<b><font color='red'> ---> CURRENTLY PLAYING (click again to remove)</font></b>";
+            var html_code = "<object type=application/x-shockwave-flash height=295 width=353 id=" + index + " data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + channel + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /><param name=flashvars value=channel=" + channel + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /></object>";
+            $("#video").append(html_code);
+         }
+      }
+    </script>
+    <script>
+      $(document).ready(function() {
+         var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
+         $.getJSON(category_query, function(categories)
+         {
+//          $.each(categories, function(i,category)
+//          {
+               var channel_query = 'http://api.justin.tv/api/stream/list.json?jsonp=?';
+               args = { 'category': 'sports' };
+               $.getJSON(channel_query, args, function(channels)
+               {
+                  $.each(channels, function(j, channel)
+                  {
+                     var onclick_args = "'" + channel.channel.login + "',this," + j;
+                     $("#mydiv").append("<a onmouseout=this.style.textDecoration='none' onmouseover=this.style.textDecoration='underline';this.style.cursor='pointer' onclick=display_message(" + onclick_args + ")>" + channel.title + "</a><br/>");
+                  });
+               });
+//          });
+         });
+      });
+    </script>
+    <div id="video" align="center"></div>
+    <div id="mydiv"/>
+  </body>
+</html>
