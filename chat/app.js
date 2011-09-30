@@ -1,27 +1,8 @@
 // Copyright 2011 Remzi's Entrepreneurs. Or something. All rights potentially reserved.
 
 /**
- * @fileoverview Simple test chat server.
+ * @fileoverview Node backend
  * @author jonanin@gmail.com (Jon 'Jonanin' Morton)
- */
-
-/*
- *  Uses Structr to provide a baisc class system for Javascript.
- * 
- * Socket.IO is used to provide a cross-browser and simple method for
- * client-server communication. It will use web-sockets, or flash, or ajax
- * in that order to try to establish a connection.
- * 
- * Uses express to render the client page.
- * 
- * Also using the underscore library which provides some basic algorithms
- * and functional programming utilities.
- * 
- * Using JSDoc for documentation, and following Google's javascript style
- * guide (somewhat...)
- *   see http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
- *   and http://code.google.com/p/jsdoc-toolkit/
- *   and https://github.com/micmath/jsdoc
  */
 
 var Class   = require("structr"),
