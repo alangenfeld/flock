@@ -13,7 +13,6 @@ var Class   = require("structr"),
 var io = sio.listen(app);
 
 var Client = Class(
-/** @lends Client# */
 {
     /**
      * Represents a client connected to the server
@@ -35,18 +34,18 @@ var Client = Class(
     }
 });
 
+// V0 client -> server commands
 var COMMANDS = [
+    "login",
     "pick_stream",
     "msg"
 ];
 
 var ChatServer = Class(
-/** @lends ChatServer# */
 {
     /**
      * ChatServer is responsible for managing the clients and coordinating
      * messages between them.
-     * @constructs
      */
     __construct: function() {
         this.clients = [];
@@ -57,11 +56,16 @@ var ChatServer = Class(
      * @param cl instance of Client
      */
     addClient: function(cl) {
-        var that = this;
         this.clients.push(cl);
-        for (var i in COMMANDS) {
-            cl.on(COMMANDS[i], function (data) {
-                that["cmd_" + COMMANDS[i]].apply(that, [cl, data]);
+        var that = this, len = COMMANDS.length;
+        for (var i = 0; i < len; i++) {
+            var cmd = COMMANDS[i], cmdStr = "cmd_" + cmd;
+            cl.on(cmd, function (data) {
+                try {
+                    that[cmdStr].call(that, cl, data);
+                } catch (e) {
+                    console.log("Executing cmd " + cmd + "failed: " + e);
+                }
             });
         }
     },
@@ -78,9 +82,13 @@ var ChatServer = Class(
         for (var cl in diff)
             diff[cl].send(cmd, data);
     },
+
+    cmd_login: function(cleint, data) {
+        
+    },
     
-    cmd_msg: function(client, data) {
-        this.broadcast("msg", {nick:data.nick,msg:data.msg});
+    cmd_pick_stream: function(client, data) {
+        
     }
 });
 
@@ -91,7 +99,6 @@ var chat = new ChatServer();
 io.sockets.on("connection", function(socket) {
     var cl = new Client(socket, chat);
     chat.addClient(cl);
-    cl.send("msg", {nick:"**Server**", msg:"Connected."});
 });
 
 console.log("Server started");
