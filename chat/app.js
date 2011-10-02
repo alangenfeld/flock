@@ -12,25 +12,31 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-var Client = Class(
-{
+var Content = Class({
+});
+
+var Room = Class({
+});
+
+/**
+ * Represents a client connected to the server
+ */
+var Client = Class({
     /**
-     * Represents a client connected to the server
-     * @constructs
      * @param socket the Socket.IO socket object for this client
      * @param chat a reference to the ChatServer object
      */
-    __construct: function(socket, chat, fbid) {
-        this.socket = socket;
-        this.chat   = chat;
-        this.fbid   = fbid;
-        this.sid    = -1;
-        this.send   = function(cmd, data) { this.socket.emit(cmd, data) };
-        this.on     = function(ev, fn) { this.socket.on(ev, fn); };
+    __construct: function(socket, server) {
+        this.socket  = socket;
+        this.server  = server;
+        this.uid     = -1; // User ID
+        this.content = -1;
+        this.send    = function(cmd, data) { this.socket.emit(cmd, data) };
+        this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
-    setStream: function(sid) {
-        this.sid = sid;
+    setContent: function(c) {
+        this.sid = c;
     }
 });
 
@@ -41,12 +47,12 @@ var COMMANDS = [
     "msg"
 ];
 
-var ChatServer = Class(
-{
-    /**
-     * ChatServer is responsible for managing the clients and coordinating
-     * messages between them.
-     */
+/**
+ * ChatServer is responsible for managing the clients and coordinating
+ * messages between them.
+ */
+var Server = Class({
+    
     __construct: function() {
         this.clients = [];
     },
@@ -84,15 +90,19 @@ var ChatServer = Class(
     },
 
     cmd_login: function(cleint, data) {
-        
+        // TODO
     },
     
     cmd_pick_stream: function(client, data) {
-        
+        // TODO
+    },
+    
+    cmd_msg: function(client, data) {
+        // TODO
     }
 });
 
-var chat = new ChatServer();
+var chat = new Server();
 
 // Listen for new connections and create client
 // objects to add to the server
