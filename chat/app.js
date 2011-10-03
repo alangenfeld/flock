@@ -89,7 +89,7 @@ var Server = Class({
             diff[cl].send(cmd, data);
     },
 
-    cmd_login: function(cleint, data) {
+    cmd_login: function(client, data) {
         // TODO
     },
     
