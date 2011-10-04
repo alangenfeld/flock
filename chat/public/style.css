@@ -28,14 +28,22 @@
 
 #chat { 
   display: none; 
+  height: 100%;
 }
 
 #text {
-  width: 700px;
-  height: 500px;
+  height: 100%;
 }
 
-#msg { 
-  width: 500px; 
-  border: 1px solid #000; 
+#bottomBox {
+  bottom: 26px;
+  position: relative;
+  width: 100%;
+}
+
+input#msg {
+  position: absolute;
+  right: 10px;
+  left: 30px;
+  bottom: 0;
 }

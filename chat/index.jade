@@ -1,21 +1,22 @@
 doctype 5
 html
-    head
-        link(href="style.css", rel="stylesheet", media="screen")
-        script(src="/socket.io/socket.io.js")
-        script(src="http://code.jquery.com/jquery-1.6.1.min.js")
-        script(src="client.js")
-    body
-        #container
-            #main
-                .center TV GOES HERE LOLOLOLOL
-            #side
-                form#setnick
-                div.center Nickname: 
-                    input#nick
-                    input(type="submit")#submit
-                #chat
-                    h2 chat.
-                    #text
-                    form#send
-                        input#msg
+  head
+    link(href="style.css", rel="stylesheet", media="screen")
+    script(src="/socket.io/socket.io.js")
+    script(src="http://code.jquery.com/jquery-1.6.1.min.js")
+    script(src="client.js")
+  body
+    #container
+      #main
+        .center TV GOES HERE LOLOLOLOL
+      #side
+        form#setnick
+          div.center Nickname: 
+          input#nick
+          input(type="submit")#submit
+        #chat
+          #text
+          #bottomBox
+              form#send
+                span  msg:
+                  input#msg
