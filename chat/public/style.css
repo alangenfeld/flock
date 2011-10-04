@@ -1,8 +1,49 @@
-#chat { display: none; }
-
-#text {
-	width: 700px;
-	height: 500px;
+#container {
+  border: 1px solid pink;
+  height: 96%;
+  width: 98%;
+  position: absolute;
 }
 
-#msg { width: 500px; border: 1px solid #000; }
+#main {
+  border: 1px solid black;
+  width: 73%;
+  height: 100%;
+  position: absolute;
+}
+
+#side {
+  border: 1px solid blue;
+  width: 25%;
+  height: 100%;
+  float: right;
+}
+
+.center {
+  text-align: center;
+  margin: 0 auto;
+  top: 50%;
+  position: relative;
+}
+
+#chat { 
+  display: none; 
+  height: 100%;
+}
+
+#text {
+  height: 100%;
+}
+
+#bottomBox {
+  bottom: 26px;
+  position: relative;
+  width: 100%;
+}
+
+input#msg {
+  position: absolute;
+  right: 10px;
+  left: 30px;
+  bottom: 0;
+}

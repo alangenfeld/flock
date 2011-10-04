@@ -1,27 +1,8 @@
 // Copyright 2011 Remzi's Entrepreneurs. Or something. All rights potentially reserved.
 
 /**
- * @fileoverview Simple test chat server.
+ * @fileoverview Node backend
  * @author jonanin@gmail.com (Jon 'Jonanin' Morton)
- */
-
-/*
- *  Uses Structr to provide a baisc class system for Javascript.
- * 
- * Socket.IO is used to provide a cross-browser and simple method for
- * client-server communication. It will use web-sockets, or flash, or ajax
- * in that order to try to establish a connection.
- * 
- * Uses express to render the client page.
- * 
- * Also using the underscore library which provides some basic algorithms
- * and functional programming utilities.
- * 
- * Using JSDoc for documentation, and following Google's javascript style
- * guide (somewhat...)
- *   see http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
- *   and http://code.google.com/p/jsdoc-toolkit/
- *   and https://github.com/micmath/jsdoc
  */
 
 var Class   = require("structr"),
@@ -31,42 +12,47 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-var Client = Class(
-/** @lends Client# */
-{
+var Content = Class({
+});
+
+var Room = Class({
+});
+
+/**
+ * Represents a client connected to the server
+ */
+var Client = Class({
     /**
-     * Represents a client connected to the server
-     * @constructs
      * @param socket the Socket.IO socket object for this client
      * @param chat a reference to the ChatServer object
      */
-    __construct: function(socket, chat, fbid) {
-        this.socket = socket;
-        this.chat   = chat;
-        this.fbid   = fbid;
-        this.sid    = -1;
-        this.send   = function(cmd, data) { this.socket.emit(cmd, data) };
-        this.on     = function(ev, fn) { this.socket.on(ev, fn); };
+    __construct: function(socket, server) {
+        this.socket  = socket;
+        this.server  = server;
+        this.uid     = -1; // User ID
+        this.content = -1;
+        this.send    = function(cmd, data) { this.socket.emit(cmd, data) };
+        this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
-    setStream: function(sid) {
-        this.sid = sid;
+    setContent: function(c) {
+        this.sid = c;
     }
 });
 
+// V0 client -> server commands
 var COMMANDS = [
+    "login",
     "pick_stream",
     "msg"
 ];
 
-var ChatServer = Class(
-/** @lends ChatServer# */
-{
-    /**
-     * ChatServer is responsible for managing the clients and coordinating
-     * messages between them.
-     * @constructs
-     */
+/**
+ * ChatServer is responsible for managing the clients and coordinating
+ * messages between them.
+ */
+var Server = Class({
+    
     __construct: function() {
         this.clients = [];
     },
@@ -76,11 +62,16 @@ var ChatServer = Class(
      * @param cl instance of Client
      */
     addClient: function(cl) {
-        var that = this;
         this.clients.push(cl);
-        for (var i in COMMANDS) {
-            cl.on(COMMANDS[i], function (data) {
-                that["cmd_" + COMMANDS[i]].apply(that, [cl, data]);
+        var that = this, len = COMMANDS.length;
+        for (var i = 0; i < len; i++) {
+            var cmd = COMMANDS[i], cmdStr = "cmd_" + cmd;
+            cl.on(cmd, function (data) {
+                try {
+                    that[cmdStr].call(that, cl, data);
+                } catch (e) {
+                    console.log("Executing cmd " + cmd + "failed: " + e);
+                }
             });
         }
     },
@@ -97,20 +88,27 @@ var ChatServer = Class(
         for (var cl in diff)
             diff[cl].send(cmd, data);
     },
+
+    cmd_login: function(client, data) {
+        // TODO
+    },
+    
+    cmd_pick_stream: function(client, data) {
+        // TODO
+    },
     
     cmd_msg: function(client, data) {
-        this.broadcast("msg", {nick:data.nick,msg:data.msg});
+        // TODO
     }
 });
 
-var chat = new ChatServer();
+var chat = new Server();
 
 // Listen for new connections and create client
 // objects to add to the server
 io.sockets.on("connection", function(socket) {
     var cl = new Client(socket, chat);
     chat.addClient(cl);
-    cl.send("msg", {nick:"**Server**", msg:"Connected."});
 });
 
 console.log("Server started");
