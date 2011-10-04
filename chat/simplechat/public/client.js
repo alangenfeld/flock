@@ -1,29 +1,88 @@
-
 var socket = 0;
-var nick   = "NoNameJoe";
+var user = new User();
 
-$(document).ready(function() {
-	$("#setnick").submit(function() {
-		nick = $("#nick").val();
-		$("#setnick").hide();
-		$("#chat").show();
-		socket = io.connect();
-		
-		socket.on("connect", function() {
+var Chat =
+{
+    init : function() 
+    {
+ 	socket.on("msg", this.getMsg.bind(this));
+	$("#send").submit(this.sendMsg.bind(this));
+    },
 
-		});
+    getMsg : function(data) {
+	var uid = data["userID"];
+	var m = data["msg"];
+	// TODO: get facebook info for uid
+	$("#text").append(
+	    "<b>" + uid + "</b>: " + m + "<br />");
+	return false;
+    },
 
-		socket.on("msg", function(data) {
-			var n = data["nick"];
-			var m = data["msg"];
-			$("#text").append("<b>" + n + "</b>: " + m + "<br />");
-		});
-		
-		$("#send").submit(function () {
-			socket.emit("msg", {"nick":nick, "msg": $("#msg").val()});
-			$("#msg").val("");
-			return false;
-		});
-		return false;
-	});
-});
+    sendMsg : function() {
+	socket.emit("msg", {"msg": $("#msg").val()});
+	$("#msg").val("");
+	return false;
+    },
+};
+
+function User()
+{
+    this.fbid = 0;
+    // Additional flock-related user data
+};
+
+function Room() 
+{
+    // Room info
+};
+
+function Content()
+{
+    this.contentID = 0;
+    this.contentType = 0;
+    
+    // content types should implement this method.  We should talk about this
+    // API
+    function render() {
+
+    }
+};
+
+JTVStream.prototype = new Content();
+
+function JTVStream() {
+    function render() {
+	// render JTVStream
+    }
+}
+
+var Flock = 
+{
+    init : function() 
+    {
+ 	var that = this;
+ 	socket.on("room_info", this.updateRoomInfo.bind(this));
+    },
+
+    updateRoomInfo : function(data) {
+	// Update UI with room info
+    },
+
+    pickContent : function(content) {
+	socket.emit("pick_content", {"contentID" : content.contentID, "contentType" : content.contentType});
+	// Render room info; content.render();
+    }
+
+    
+};
+
+$(document).ready(
+    function() {
+	socket = io.connect();
+	socket.on("connect", 
+		  function() {
+		      
+		  });
+	Chat.init();
+    }
+);
