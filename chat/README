@@ -1,12 +1,9 @@
 
 A node backend for the project.
 
-Just testing node at the moment with simplechat.js. Most probably none of this code
-will end up in the actual implemention.
-
 ============================
 
-Potential Technologies:
+We're using:
     o Node.js - evented I/O for JS. Provides event loop as a
                 "language construct" with callback-based programming
                 http://nodejs.org/
@@ -31,11 +28,4 @@ Potential Technologies:
               and http://code.google.com/p/jsdoc-toolkit/
               and https://github.com/micmath/jsdoc
 
-    o Cluster - Multicore server manager for node. Can start multiple node
-                processes an manage them.
-                https://github.com/LearnBoost/cluster
-
-    o hook.io - A new version of node's event system that is distributed and
-                has nice features like namespaces. Can listen and fire events
-                cross-process and spawn new processes in callbacks.
-                http://www.hook.io
+    o Express/Jade - express is a node web framework, jade is a templating engine.
