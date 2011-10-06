@@ -58,6 +58,9 @@ $(document).ready(
     socket.on("connect", function() {});
     Chat.init();
     Room.init();
+
+      //DEBUG
+      $("testLogin").click(Chat.loggedIn());
   }
 );
 
