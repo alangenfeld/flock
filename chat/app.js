@@ -12,6 +12,8 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
+io.set("log level", 0);
+
 var ClientList = Class({
     '__construct': function() {
         this.clients = [];
@@ -95,7 +97,7 @@ var COMMANDS = [
  */
 var Server = ClientList.extend({
     
-    'override__construct': function() {
+    'override __construct': function() {
         this._super();
         this.contents = [];
     },
@@ -107,16 +109,22 @@ var Server = ClientList.extend({
     'addClient': function(cl) {
         this.clients.push(cl);
         var that = this, len = COMMANDS.length;
-        for (var i = 0; i < len; i++) {
-            var cmd = COMMANDS[i], cmdStr = "cmd_" + cmd;
-            cl.on(cmd, function (data) {
-                try {
-                    that[cmdStr].call(that, cl, data);
-                } catch (e) {
-                    console.log("Executing cmd " + cmd + "failed: " + e);
-                }
-            });
-        }
+        for (var i = 0; i < len; i++)
+            this.registerCallback(cl, COMMANDS[i]);
+    },
+    
+    'registerCallback': function(client, cmd) {
+        var cmdStr = "cmd_" + cmd;
+        var that = this;
+        console.log(cmd);
+        client.on(cmd, function (data) {
+            console.log(" Received command: " + cmd + " - " + data["userID"]);
+            try {
+                that[cmdStr].call(that, client, data);
+            } catch (e) {
+                console.log("Executing cmd " + cmd + "failed: " + e);
+            }
+        });        
     },
 
     'cmd_login': function(client, data) {
@@ -132,11 +140,13 @@ var Server = ClientList.extend({
             if (this.contents[i].id == cid && this.contents[i].type == type) {
                 this.contents[i].addClient(client);
                 client.send("room_info", {room_name:"foo"});
+                return;
             }
         }
         var c = new Content(cid, type);
         c.addClient(client);
         this.contents.push(c);
+        client.send("room_info", {room_name:"foo"});
     },
     
     'cmd_msg': function(client, data) {

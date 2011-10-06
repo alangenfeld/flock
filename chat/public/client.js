@@ -5,15 +5,18 @@ var Chat = {
     init : function() {
       socket.on("msg", this.getMsg.bind(this));
       $("#send").submit(this.sendMsg.bind(this));
+      Chat.uid = 0;
     },
 
-    loggedIn : function(info) {
-        console.log(info);
+    loggedIn : function(uid) {
+        console.log(uid);
+        this.uid = uid;
         $("#login").hide();
         $("#chat").show();
     },
     
     getMsg : function(data) {
+      console.log(data);
       var uid = data["userID"];
       var m = data["msg"];
       var name = "Unknown";
@@ -42,9 +45,11 @@ var Room = {
 
     updateRoomInfo : function(data) {
       $("#roomName").innerHTML = data.name;
+      console.log(data);
     },
 
     pickContent : function(cid, type) {
+      socket.emit("login", {"userID": Chat.uid});
       socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
     }
 };
@@ -55,6 +60,11 @@ $(document).ready(
     socket.on("connect", function() {});
     Chat.init();
     Room.init();
+
+      //DEBUG
+      $("testLogin").click(function(){
+	  	Chat.loggedIn(0)
+	});
   }
 );
 

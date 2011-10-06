@@ -6,7 +6,6 @@ window.fbAsyncInit = function() {
 	/* All the events registered */
 	FB.Event.subscribe('auth.login', function(response) {
 	    // do something with response
-	alert(response.session.access_token);
 		Chat.loggedIn(getUserInfo());
 		token = response.session.access_token;
 	});
@@ -17,7 +16,8 @@ window.fbAsyncInit = function() {
 	FB.getLoginStatus(function(response) {
 	    if (response.session) {
 		// logged in and connected user, someone you know
-            Chat.loggedIn();
+          token = response.session.access_token;
+            Chat.loggedIn(response.session.uid);
 	    }
 	});
 };
@@ -53,6 +53,9 @@ function getFriends(){
 
 function getUserName(id){
 
+  if(id == 0){
+    return "test";
+  }
 	return $.getJSON('https://graph.facebook.com/'+id+'/?access_token='+token+'&callback=?', function(json){
 		return json["name"];
 	});
