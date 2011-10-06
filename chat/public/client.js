@@ -59,9 +59,6 @@ $(document).ready(
       socket.emit("login", {"userID":1});
       Chat.init();
       Room.init();
-
-        //DEBUG
-      //  $("testLogin").click(Chat.loggedIn());
     });
   }
 );
