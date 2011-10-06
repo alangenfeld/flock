@@ -1,9 +1,9 @@
 doctype 5
-html
-  head
+html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fbml")  head
     link(href="style.css", rel="stylesheet", media="screen")
     script(src="/socket.io/socket.io.js")
     script(src="http://code.jquery.com/jquery-1.6.1.min.js")
+    script(src="fb.js")
     script(src="client.js")
   body
     #container
@@ -11,9 +11,8 @@ html
         .center STEVE JOBS TV GOES HERE LOLOLOLOL
       #side
         form#setnick
-          div.center Nickname: 
-          input#nick
-          input(type="submit")#submit
+		fb:login-button(autologoutlink="true"
+        perms="user_about_me,friends_about_me,publish_stream")
         #chat
           #text
           #bottomBox
