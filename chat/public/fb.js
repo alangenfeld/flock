@@ -1,4 +1,4 @@
-var $JQ = jQuery.noConflict();
+
  
 window.fbAsyncInit = function() {
 	FB.init({appId: '235795953137510', status: true, cookie: true, xfbml: true}); //need to register app to http://ec2-107-20-121-60.compute-1.amazonaws.com/
@@ -32,7 +32,7 @@ window.fbAsyncInit = function() {
 
 function getUserInfo(token){
 	alert("hello"+token);
-	return $JQ.getJSON('https://graph.facebook.com/me/?access_token='+token+'&callback=?', function(json){
+	return $.getJSON('https://graph.facebook.com/me/?access_token='+token+'&callback=?', function(json){
 		user_info = new Object();
 		user_info.name = json.name;
 		user_info.hometown = json.hometown;
@@ -44,7 +44,7 @@ function getUserInfo(token){
 
 function getFriends(token){
 
-	return $JQ.getJSON('https://graph.facebook.com/me/friends?access_token='+token+'&callback=?', function(json){
+	return $.getJSON('https://graph.facebook.com/me/friends?access_token='+token+'&callback=?', function(json){
 		user_info = new Object();
 		user_info.friends = json["data"];
 		alert(user_info.friends[0].name);

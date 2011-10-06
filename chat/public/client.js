@@ -9,6 +9,12 @@ var Chat =
 	$("#send").submit(this.sendMsg.bind(this));
     },
 
+    loggedIn : function(info) {
+        console.log(info);
+        $("#login").hide();
+        $("#chat").show();
+    },
+    
     getMsg : function(data) {
 	var uid = data["userID"];
 	var m = data["msg"];
