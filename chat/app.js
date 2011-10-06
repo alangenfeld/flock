@@ -37,6 +37,7 @@ var Content = ClientList.extend({
     'addClient': function(client) {
         this.clients.push(client);
         this.room.addClient(client);
+        return this.room;
     }
 });
 
@@ -46,10 +47,9 @@ var Room = ClientList.extend({
     },
     
     'addClient': function(client) {
-      if (client in this.clients) {
-        return;
-      }
-      this.clients.push(client);
+        if (client in this.clients)
+            return;
+        this.clients.push(client);
     }
 });
 
@@ -123,7 +123,6 @@ var Server = ClientList.extend({
     'registerCallback': function(client, cmd) {
         var cmdStr = "cmd_" + cmd;
         var that = this;
-        console.log(cmd);
         client.on(cmd, function (data) {
             console.log(" Received command: " + cmd);
             try {
@@ -143,18 +142,22 @@ var Server = ClientList.extend({
     'cmd_pick_content': function(client, data) {
         var cid  = Number(data["contentID"]);
         var type = Number(data["contentType"]);
+        var cont = null;
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {
-                this.contents[i].addClient(client);
-                client.send("room_info", {room_name:"foo"});
-                return;
+                cont = this.contents[i];
+                break;
             }
         }
-        var c = foo;
-        c.addClient(client);
-        this.contents.push(c);
+        if (cont === null) {
+            cont = new Content(cid, type);
+            this.contents.push(cont);
+        }
+
+        var room = cont.addClient(client);
+        client.setContent(cont);
+        client.setRoom(room);
         client.send("room_info", {room_name:"foo"});
-        client.setRoom(c);
     },
     
     'cmd_msg': function(client, data) {
