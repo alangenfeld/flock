@@ -12,6 +12,8 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
+io.set("log level", 0);
+
 var ClientList = Class({
     '__construct': function() {
         this.clients = [];
@@ -95,7 +97,7 @@ var COMMANDS = [
  */
 var Server = ClientList.extend({
     
-    'override__construct': function() {
+    'override __construct': function() {
         this._super();
         this.contents = [];
     },
@@ -110,6 +112,7 @@ var Server = ClientList.extend({
         for (var i = 0; i < len; i++) {
             var cmd = COMMANDS[i], cmdStr = "cmd_" + cmd;
             cl.on(cmd, function (data) {
+                console.log(" Received command: " + cmd + " - " + data);
                 try {
                     that[cmdStr].call(that, cl, data);
                 } catch (e) {
