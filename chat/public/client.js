@@ -50,7 +50,6 @@ var Room = {
     },
 
     pickContent : function(cid, type) {
-      socket.emit("login", {"userID": Chat.uid});
       socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
     }
 };
