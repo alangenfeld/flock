@@ -16,6 +16,7 @@ window.fbAsyncInit = function() {
 	FB.getLoginStatus(function(response) {
 	    if (response.session) {
 		// logged in and connected user, someone you know
+            Chat.loggedIn();
 	    }
 	});
 };
