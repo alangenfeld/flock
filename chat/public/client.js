@@ -9,6 +9,7 @@ var Chat = {
     },
 
     loggedIn : function(uid) {
+        console.emit("login", {"userID":uid});
         console.log(uid);
         this.uid = uid;
         $("#login").hide();
