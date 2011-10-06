@@ -10,7 +10,7 @@ var Chat = {
 
     loggedIn : function(info) {
         console.log(info);
-        data['userID'] = info['uid'];
+        this.uid = info.uid;
         $("#login").hide();
         $("#chat").show();
     },
