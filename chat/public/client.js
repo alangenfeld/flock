@@ -16,6 +16,7 @@ var Chat = {
     },
     
     getMsg : function(data) {
+      console.log(data);
       var uid = data["userID"];
       var m = data["msg"];
       var name = "Unknown";
@@ -44,6 +45,7 @@ var Room = {
 
     updateRoomInfo : function(data) {
       $("#roomName").innerHTML = data.name;
+      console.log(data);
     },
 
     pickContent : function(cid, type) {
