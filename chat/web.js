@@ -15,7 +15,7 @@ app.get("/", function (req, res) {
 	res.render("index", {layout: false});
 });
 
-app.listen(8000, function () {
+app.listen(process.argv[2], function () {
 	var addr = app.address();
 	console.log("  app listening on " + addr.address + ":" + addr.port);
 });

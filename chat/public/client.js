@@ -18,7 +18,7 @@ var Chat = {
       var m = data["msg"];
       var name = "Unknown";
       if (!(uid in names)) {
-        fbid_names[uid] = uid;//  lookupName(uid);
+        fbid_names[uid] = getUserName(uid);
       }
 
       $("#text").append(
@@ -33,22 +33,11 @@ var Chat = {
     },
 };
 
-function Content()
-{
-    this.contentID = 0;
-    this.contentType = 0;
-    
-    // content types should implement this method.  We should talk about this
-    // API
-    function render() {
-
-    }
-};
-
 var Room = {
     init : function() {
       var that = this;
       socket.on("room_info", function(data) { that.updateRoomInfo(data); });
+      this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
@@ -65,6 +54,7 @@ $(document).ready(
     socket = io.connect();
     socket.on("connect", function() {});
     Chat.init();
+    Room.init();
   }
 );
 
