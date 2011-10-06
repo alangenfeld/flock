@@ -55,12 +55,14 @@ var Room = {
 $(document).ready(
   function() {
     socket = io.connect();
-    socket.on("connect", function() {});
-    Chat.init();
-    Room.init();
+    socket.on("connect", function() {
+      socket.emit("login", {"userID":1});
+      Chat.init();
+      Room.init();
 
-      //DEBUG
-      $("testLogin").click(Chat.loggedIn());
+        //DEBUG
+      //  $("testLogin").click(Chat.loggedIn());
+    });
   }
 );
 
