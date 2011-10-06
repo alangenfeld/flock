@@ -16,15 +16,20 @@ var Chat = {
     },
     
     getMsg : function(data) {
-      var uid = data["userID"];
-      var m = data["msg"];
-      var name = "Unknown";
-      if (!(uid in names)) {
-        fbid_names[uid] = getUserName(uid);
+      var add = function(name, m) {
+        $("#text").append("<b>" + name + "</b>: " + m + "<br />");
       }
 
-      $("#text").append(
-          "<b>" + fbid_names[uid] + "</b>: " + m + "<br />");
+      var uid = data["userID"];
+      var _m = data["msg"];
+      console.log(_m);
+      var name = "Unknown";
+      if (!(uid in fbid_names)) {
+        console.log(uid);
+        getUserName(uid, function(name) { fbid_names[uid] = name; add(name, _m); });
+      } else {
+        add(fbid_names[uid], _m);
+      }
       return false;
     },
 
