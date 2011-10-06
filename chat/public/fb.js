@@ -18,7 +18,7 @@ window.fbAsyncInit = function() {
 	    if (response.session) {
 		// logged in and connected user, someone you know
           token = response.session.access_token;
-          Chat.loggedIn();
+            Chat.loggedIn(response.session);
 	    }
 	});
 };
