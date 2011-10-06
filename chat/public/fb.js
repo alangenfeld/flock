@@ -51,17 +51,13 @@ function getFriends(){
 	});
 }
 
-function getUserName(id){
+function getUserName(id, cb){
 
   if(id == 0){
     return "test";
   }
-	return $.getJSON('https://graph.facebook.com/'+id+'/?access_token='+token+'&callback=?', function(json){
-		return json["name"];
-	});
 
+  FB.api(id, function(response) {
+    cb(response.name);
+  });
 }
-
-
-
-
