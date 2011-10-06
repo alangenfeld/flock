@@ -37,6 +37,8 @@
 #login {
   height: 100%;
   border-radius: 15px;
+  padding-top: 20px;
+  overflow: scroll;
 }
 
 #bottomBox {
