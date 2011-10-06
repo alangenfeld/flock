@@ -30,7 +30,14 @@ $(document).ready(function() {
 $("#selectVideo").change(function(){
   var e = document.getElementById("selectVideo");
   var str = e.options[e.selectedIndex].value;
-  var html_code = "<object type=application/x-shockwave-flash height=295 width=353 data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + str + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /><param name=flashvars value=channel=" + str + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /></object>";
+  var html_code = "<div class='floatDiv' id='" + str + "'><object type=application/x-shockwave-flash height=295 width=353 data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + str + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /><param name=flashvars value=channel=" + str + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /></object><br/><button onclick=removeStream('" + str + "')>Remove Stream</button></div>;
    chooseContent(str, 'justin.tv');
    $("#video").append(html_code);
 });
+
+function removeStream(streamID)
+{
+   var d = document.getElementById("video");
+   var oldDiv = document.getElementById(streamID);
+   d.removeChild(oldDiv);
+}
