@@ -17,7 +17,7 @@ window.fbAsyncInit = function() {
 	FB.getLoginStatus(function(response) {
 	    if (response.session) {
 		// logged in and connected user, someone you know
-            Chat.loggedIn();
+            Chat.loggedIn(response.session);
 	    }
 	});
 };
@@ -53,6 +53,9 @@ function getFriends(){
 
 function getUserName(id){
 
+  if(id == 0){
+    return "test";
+  }
 	return $.getJSON('https://graph.facebook.com/'+id+'/?access_token='+token+'&callback=?', function(json){
 		return json["name"];
 	});
