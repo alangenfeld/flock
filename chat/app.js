@@ -20,8 +20,9 @@ var ClientList = Class({
     },
     
     'broadcast': function(cmd, data) {
-        for (var i = 0; i < this.clients.length; i++)
+        for (var i = 0; i < this.clients.length; i++) {
             this.clients[i].send(cmd, data);
+        }
     }
 });
 
@@ -91,6 +92,9 @@ var COMMANDS = [
     "msg"
 ];
 
+
+var foo = new Room();
+
 /**
  * ChatServer is responsible for managing the clients and coordinating
  * messages between them.
@@ -143,15 +147,15 @@ var Server = ClientList.extend({
                 return;
             }
         }
-        var c = new Content(cid, type);
+        var c = foo;
         c.addClient(client);
         this.contents.push(c);
-        console.log("sending derp " + client.id);
         client.send("room_info", {room_name:"foo"});
+        client.setRoom(c);
     },
     
     'cmd_msg': function(client, data) {
-        client.room.broadcast("msg", {msg:"herp", userID:client.id});
+        client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     }
 });
 
