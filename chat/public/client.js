@@ -18,7 +18,7 @@ var Chat = {
       var m = data["msg"];
       var name = "Unknown";
       if (!(uid in names)) {
-        fbid_names[uid] = uid;//  lookupName(uid);
+        fbid_names[uid] = getUserName(uid);
       }
 
       $("#text").append(
