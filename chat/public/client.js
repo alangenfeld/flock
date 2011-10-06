@@ -23,7 +23,6 @@ var Chat = {
       var uid = data["userID"];
       var _m = data["msg"];
       console.log(_m);
-      var name = "Unknown";
       if (!(uid in fbid_names)) {
         console.log(uid);
         getUserName(uid, function(name) { fbid_names[uid] = name; add(name, _m); });
