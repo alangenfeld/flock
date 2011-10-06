@@ -56,6 +56,7 @@ $(document).ready(
   function() {
     socket = io.connect();
     socket.on("connect", function() {
+      console.log("about to login");
       socket.emit("login", {"userID":1});
       Chat.init();
       Room.init();
