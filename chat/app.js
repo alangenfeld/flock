@@ -12,10 +12,39 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-var Content = Class({
+var ClientList = Class({
+    '__construct': function() {
+        this.clients = [];
+    },
+    
+    'broadcast': function(cmd, data) {
+        for (var i = 0; i < this.clients.length; i++)
+            this.clients[i].send(cmd, data);
+    }
 });
 
-var Room = Class({
+var Content = ClientList.extend({
+    'override __construct': function(cid, type) {
+        this._super();
+        this.id = cid;
+        this.type = type;
+        this.room = new Room();
+    },
+    
+    'addClient': function(client) {
+        this.clients.push(client);
+        this.room.addClient(client);
+    }
+});
+
+var Room = ClientList.extend({
+    'override __construct': function() {
+        this._super();
+    },
+    
+    'addClient': function(client) {
+        this.clients.push(client);
+    }
 });
 
 /**
@@ -26,24 +55,37 @@ var Client = Class({
      * @param socket the Socket.IO socket object for this client
      * @param chat a reference to the ChatServer object
      */
-    __construct: function(socket, server) {
+    'override __construct': function(socket, server) {
         this.socket  = socket;
         this.server  = server;
-        this.uid     = -1; // User ID
-        this.content = -1;
-        this.send    = function(cmd, data) { this.socket.emit(cmd, data) };
+        this.uid     = -1;
+        this.content = null;
+        this.room    = null;
+        this.send    = function(cmd, data) { this.socket.emit(cmd, data); };
         this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
-    setContent: function(c) {
-        this.sid = c;
-    }
+    'logIn': function(uid) {
+        this.uid = uid;
+    },
+    
+    'setContent': function(c) {
+        this.content = c;
+    },
+    
+    'setRoom': function(r) {
+        this.room = r;
+    },
+    
+    'inRoom': function() { return this.room !== null; },
+    'loggedIn': function() { return this.uid !== -1; },
+    'hasContent': function() { return this.content !== null; } 
 });
 
 // V0 client -> server commands
 var COMMANDS = [
     "login",
-    "pick_stream",
+    "pick_content",
     "msg"
 ];
 
@@ -51,17 +93,18 @@ var COMMANDS = [
  * ChatServer is responsible for managing the clients and coordinating
  * messages between them.
  */
-var Server = Class({
+var Server = ClientList.extend({
     
-    __construct: function() {
-        this.clients = [];
+    'override__construct': function() {
+        this._super();
+        this.contents = [];
     },
     
     /**
      * add a new client for the server to listen to and broadcast to
      * @param cl instance of Client
      */
-    addClient: function(cl) {
+    'addClient': function(cl) {
         this.clients.push(cl);
         var that = this, len = COMMANDS.length;
         for (var i = 0; i < len; i++) {
@@ -75,30 +118,29 @@ var Server = Class({
             });
         }
     },
-    
-    /**
-     * Send a command to all clients not in except
-     * @param cmd the command string to send
-     * @param data javascript object to send
-     * @param except clients to not broadcast to
-     */
-    broadcast: function(cmd, data, except) {
-        except = except || [];
-        var diff = _.difference(this.clients, except);
-        for (var cl in diff)
-            diff[cl].send(cmd, data);
-    },
 
-    cmd_login: function(client, data) {
-        // TODO
+    'cmd_login': function(client, data) {
+        var lid = Number(data["clientID"]);
+        client.logIn(lid);
+        console.log("Client logged in with ID " + lid);
     },
     
-    cmd_pick_stream: function(client, data) {
-        // TODO
+    'cmd_pick_content': function(client, data) {
+        var cid  = Number(data["contentID"]);
+        var type = Number(data["contentType"]);
+        for (var i = 0; i < this.contents.length; i++) {
+            if (this.contents[i].id == cid && this.contents[i].type == type) {
+                this.contents[i].addClient(client);
+                client.send("room_info", {room_name:"foo"});
+            }
+        }
+        var c = new Content(cid, type);
+        c.addClient(client);
+        this.contents.push(c);
     },
     
-    cmd_msg: function(client, data) {
-        // TODO
+    'cmd_msg': function(client, data) {
+        
     }
 });
 
