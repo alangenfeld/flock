@@ -1,39 +1,36 @@
 var socket = 0;
-var user = new User();
+var fbid_names = {};
 
-var Chat =
-{
-    init : function() 
-    {
- 	socket.on("msg", this.getMsg.bind(this));
-	$("#send").submit(this.sendMsg.bind(this));
+var Chat = {
+    init : function() {
+      socket.on("msg", this.getMsg.bind(this));
+      $("#send").submit(this.sendMsg.bind(this));
     },
 
+    loggedIn : function(info) {
+        console.log(info);
+        $("#login").hide();
+        $("#chat").show();
+    },
+    
     getMsg : function(data) {
-	var uid = data["userID"];
-	var m = data["msg"];
-	// TODO: get facebook info for uid
-	$("#text").append(
-	    "<b>" + uid + "</b>: " + m + "<br />");
-	return false;
+      var uid = data["userID"];
+      var m = data["msg"];
+      var name = "Unknown";
+      if (!(uid in names)) {
+        fbid_names[uid] = uid;//  lookupName(uid);
+      }
+
+      $("#text").append(
+          "<b>" + fbid_names[uid] + "</b>: " + m + "<br />");
+      return false;
     },
 
     sendMsg : function() {
-	socket.emit("msg", {"msg": $("#msg").val()});
-	$("#msg").val("");
-	return false;
+      socket.emit("msg", {"msg": $("#msg").val()});
+      $("#msg").val("");
+      return false;
     },
-};
-
-function User()
-{
-    this.fbid = 0;
-    // Additional flock-related user data
-};
-
-function Room() 
-{
-    // Room info
 };
 
 function Content()
@@ -48,41 +45,31 @@ function Content()
     }
 };
 
-JTVStream.prototype = new Content();
-
-function JTVStream() {
-    function render() {
-	// render JTVStream
-    }
-}
-
-var Flock = 
-{
-    init : function() 
-    {
- 	var that = this;
- 	socket.on("room_info", this.updateRoomInfo.bind(this));
+var Room = {
+    init : function() {
+      var that = this;
+      socket.on("room_info", function(data) { that.updateRoomInfo(data); });
     },
 
     updateRoomInfo : function(data) {
-	// Update UI with room info
+      $("#roomName").innerHTML = data.name;
     },
 
-    pickContent : function(content) {
-	socket.emit("pick_content", {"contentID" : content.contentID, "contentType" : content.contentType});
-	// Render room info; content.render();
+    pickContent : function(cid, type) {
+      socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
     }
-
-    
 };
 
 $(document).ready(
-    function() {
-	socket = io.connect();
-	socket.on("connect", 
-		  function() {
-		      
-		  });
-	Chat.init();
-    }
+  function() {
+    socket = io.connect();
+    socket.on("connect", function() {});
+    Chat.init();
+    Room.init();
+  }
 );
+
+
+function chooseContent(cid, type) {
+  Room.pickContent(cid, type);
+}
