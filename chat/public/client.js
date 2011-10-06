@@ -8,9 +8,9 @@ var Chat = {
       Chat.uid = 0;
     },
 
-    loggedIn : function(info) {
-        console.log(info);
-        this.uid = info.uid;
+    loggedIn : function(uid) {
+        console.log(uid);
+        this.uid = uid;
         $("#login").hide();
         $("#chat").show();
     },
@@ -47,7 +47,7 @@ var Room = {
     },
 
     pickContent : function(cid, type) {
-      //socket.emit("login", {"userID": Chat.uid});
+      socket.emit("login", {"userID": Chat.uid});
       socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
     }
 };
@@ -55,12 +55,12 @@ var Room = {
 $(document).ready(
   function() {
     socket = io.connect();
-    socket.on("connect", function() {
-      console.log("about to login");
-      socket.emit("login", {"userID":1});
-      Chat.init();
-      Room.init();
-    });
+    socket.on("connect", function() {});
+    Chat.init();
+    Room.init();
+
+      //DEBUG
+      $("testLogin").click(Chat.loggedIn(0));
   }
 );
 
