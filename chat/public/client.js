@@ -10,14 +10,12 @@ var Chat = {
 
     loggedIn : function(uid) {
         socket.emit("login", {"userID":uid});
-        console.log(uid);
         this.uid = uid;
         $("#login").hide();
         $("#chat").show();
     },
     
     getMsg : function(data) {
-      console.log(data);
       var uid = data["userID"];
       var m = data["msg"];
       var name = "Unknown";
@@ -40,13 +38,14 @@ var Chat = {
 var Room = {
     init : function() {
       var that = this;
-      socket.on("room_info", function(data) { that.updateRoomInfo(data); });
+      socket.on("room_info", function(data) { 
+          that.updateRoomInfo(data);
+      });
       this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
-      $("#roomName").innerHTML = data.name;
-      console.log(data);
+      $("#roomName").text(data.room_name);
     },
 
     pickContent : function(cid, type) {
