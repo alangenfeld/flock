@@ -17,6 +17,7 @@
   width: 25%;
   height: 100%;
   float: right;
+  position: relative;
 }
 
 .center {
@@ -37,15 +38,20 @@
 }
 
 #bottomBox {
-  bottom: 26px;
-  position: relative;
+  bottom: 5px;
+  left: 5px;
+  position: absolute;
   width: 100%;
 }
 
 #roomName {
   top: 0px;
-  position: relative;
+  position: absolute;
   width: 100%;
+  font-size:0.875em; /* 14px/16=0.875em */
+  text-align: center;
+  color: white;
+  background-color: blue;
 }
 
 input#msg {
