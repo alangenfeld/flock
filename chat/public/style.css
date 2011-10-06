@@ -31,12 +31,19 @@
   height: 100%;
 }
 
-#text {
+#text,
+#login {
   height: 100%;
 }
 
 #bottomBox {
   bottom: 26px;
+  position: relative;
+  width: 100%;
+}
+
+#roomName {
+  top: 0px;
   position: relative;
   width: 100%;
 }
