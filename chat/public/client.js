@@ -57,7 +57,7 @@ $(document).ready(
     Room.init();
 
       //DEBUG
-      $("testLogin").click(Chat.loggedIn());
+      $("testLogin").click(Chat.loggedIn);
   }
 );
 
