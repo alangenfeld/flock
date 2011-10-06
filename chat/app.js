@@ -60,7 +60,7 @@ var Client = Class({
     'override __construct': function(socket, server) {
         this.socket  = socket;
         this.server  = server;
-        this.uid     = -1;
+        this.id     = -1;
         this.content = null;
         this.room    = null;
         this.send    = function(cmd, data) { this.socket.emit(cmd, data); };
@@ -68,7 +68,7 @@ var Client = Class({
     },
     
     'logIn': function(uid) {
-        this.uid = uid;
+        this.id = uid;
     },
     
     'setContent': function(c) {
@@ -80,7 +80,7 @@ var Client = Class({
     },
     
     'inRoom': function() { return this.room !== null; },
-    'loggedIn': function() { return this.uid !== -1; },
+    'loggedIn': function() { return this.id !== -1; },
     'hasContent': function() { return this.content !== null; } 
 });
 
@@ -118,7 +118,7 @@ var Server = ClientList.extend({
         var that = this;
         console.log(cmd);
         client.on(cmd, function (data) {
-            console.log(" Received command: " + cmd + " - " + data["userID"]);
+            console.log(" Received command: " + cmd);
             try {
                 that[cmdStr].call(that, client, data);
             } catch (e) {
@@ -128,7 +128,7 @@ var Server = ClientList.extend({
     },
 
     'cmd_login': function(client, data) {
-        var lid = Number(data["clientID"]);
+        var lid = Number(data["userID"]);
         client.logIn(lid);
         console.log("Client logged in with ID " + lid);
     },
@@ -146,11 +146,12 @@ var Server = ClientList.extend({
         var c = new Content(cid, type);
         c.addClient(client);
         this.contents.push(c);
+        console.log("sending derp " + client.id);
         client.send("room_info", {room_name:"foo"});
     },
     
     'cmd_msg': function(client, data) {
-        
+        client.room.broadcast("msg", {msg:"herp", userID:client.id});
     }
 });
 

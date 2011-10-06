@@ -9,14 +9,13 @@ var Chat = {
     },
 
     loggedIn : function(uid) {
-        console.log(uid);
+        socket.emit("login", {"userID":uid});
         this.uid = uid;
         $("#login").hide();
         $("#chat").show();
     },
     
     getMsg : function(data) {
-      console.log(data);
       var uid = data["userID"];
       var m = data["msg"];
       var name = "Unknown";
@@ -39,17 +38,17 @@ var Chat = {
 var Room = {
     init : function() {
       var that = this;
-      socket.on("room_info", function(data) { that.updateRoomInfo(data); });
+      socket.on("room_info", function(data) { 
+          that.updateRoomInfo(data);
+      });
       this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
-      $("#roomName").innerHTML = data.name;
-      console.log(data);
+      $("#roomName").text(data.room_name);
     },
 
     pickContent : function(cid, type) {
-      socket.emit("login", {"userID": Chat.uid});
       socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
     }
 };
@@ -62,8 +61,8 @@ $(document).ready(
     Room.init();
 
       //DEBUG
-      $("testLogin").click(function(){
-	  	Chat.loggedIn(0)
+      $("#testLogin").click(function(){
+	  	Chat.loggedIn(0);
 	});
   }
 );
