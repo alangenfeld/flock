@@ -65,6 +65,7 @@ $(document).ready(
     socket = io.connect();
     socket.on("connect", function() {});
     Chat.init();
+    Room.init();
   }
 );
 
