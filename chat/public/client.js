@@ -63,8 +63,8 @@ $(document).ready(
     Room.init();
 
       //DEBUG
-      $("testLogin").click(function(){
-	  	Chat.loggedIn(0)
+      $("#testLogin").click(function(){
+	  	Chat.loggedIn(0);
 	});
   }
 );
