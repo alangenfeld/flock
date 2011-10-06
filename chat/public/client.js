@@ -33,22 +33,11 @@ var Chat = {
     },
 };
 
-function Content()
-{
-    this.contentID = 0;
-    this.contentType = 0;
-    
-    // content types should implement this method.  We should talk about this
-    // API
-    function render() {
-
-    }
-};
-
 var Room = {
     init : function() {
       var that = this;
       socket.on("room_info", function(data) { that.updateRoomInfo(data); });
+      this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
