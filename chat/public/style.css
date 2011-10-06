@@ -46,6 +46,10 @@
   top: 0px;
   position: relative;
   width: 100%;
+  font-size:0.875em; /* 14px/16=0.875em */
+  text-align: center;
+  color: white;
+  background-color: blue;
 }
 
 input#msg {
