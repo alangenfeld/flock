@@ -71,3 +71,7 @@ input#msg {
   left: 30px;
   bottom: 0;
 }
+
+.floatDiv {
+    float:left;
+}

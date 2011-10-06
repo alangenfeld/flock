@@ -46,7 +46,10 @@ var Room = ClientList.extend({
     },
     
     'addClient': function(client) {
-        this.clients.push(client);
+      if (client in this.clients) {
+        return;
+      }
+      this.clients.push(client);
     }
 });
 
