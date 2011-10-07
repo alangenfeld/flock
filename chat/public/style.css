@@ -29,16 +29,18 @@
 }
 
 #chat { 
-  display: none; 
   height: 100%;
 }
 
 #text,
 #login {
-  height: 100%;
+  width: 100%;
   border-radius: 15px;
-  padding-top: 20px;
-  overflow: scroll;
+  overflow: auto;
+  word-wrap: break-word;
+  position: absolute;
+  top: 20px;
+  bottom: 35px;
 }
 
 #bottomBox {
@@ -49,14 +51,15 @@
 }
 
 #roomName {
-  top: 0px;
+  height: 20px;
   position: absolute;
   width: 100%;
   font-size:0.875em; /* 14px/16=0.875em */
   text-align: center;
   color: white;
   background-color: blue;
-  border-radius: 15px;
+  border-top-left-radius: 15px 15px;
+  border-top-right-radius: 15px 15px;
 }
 
 #selectVideo {
