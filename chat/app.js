@@ -44,6 +44,7 @@ var Content = ClientList.extend({
 var Room = ClientList.extend({
     'override __construct': function() {
         this._super();
+        this.name = "Political Debate #" + Math.floor(Math.random() * 100000);
     },
     
     'addClient': function(client) {
@@ -146,6 +147,7 @@ var Server = ClientList.extend({
                 break;
             }
         }
+        
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
@@ -154,7 +156,7 @@ var Server = ClientList.extend({
         var room = cont.addClient(client);
         client.setContent(cont);
         client.setRoom(room);
-        client.send("room_info", {room_name:"foo"});
+        client.send("room_info", {room_name:room.name});
     },
     
     'cmd_msg': function(client, data) {
