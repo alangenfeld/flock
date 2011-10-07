@@ -95,9 +95,6 @@ var COMMANDS = [
     "msg"
 ];
 
-
-var foo = new Room();
-
 /**
  * ChatServer is responsible for managing the clients and coordinating
  * messages between them.
