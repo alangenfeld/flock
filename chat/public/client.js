@@ -19,6 +19,7 @@ var Chat = {
       var add = function(name, m) {
         $("#text").append("<b>" + name + "</b>: " + m + "<br />");
         $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
+        $("#text").emoticonize({});
       }
 
       var uid = data["userID"];

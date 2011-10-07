@@ -32,8 +32,17 @@
   height: 100%;
 }
 
-#text,
 #login {
+  position: absolute;
+  width: 100%;
+  border-radius: 15px;
+  top: 20px;
+  bottom: 35px;
+  z-index: 999;
+}
+
+#text {
+  position: absolute;
   width: 100%;
   border-radius: 15px;
   overflow: auto;
