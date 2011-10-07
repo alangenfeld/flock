@@ -17,13 +17,25 @@ io.set("log level", 0);
 var ClientList = Class({
     '__construct': function() {
         this.clients = [];
+        this.start = (new Date()).getTime();
+        this.acts = 0;
     },
     
     'broadcast': function(cmd, data) {
         for (var i = 0; i < this.clients.length; i++) {
             this.clients[i].send(cmd, data);
         }
+    },
+    
+    'act': function() {
+        this.acts += 1;
+    },
+    
+    'getAcvitiy': function() {
+        return;
     }
+    
+    
 });
 
 var Content = ClientList.extend({
