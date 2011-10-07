@@ -17,6 +17,7 @@ var Chat = {
     
     getMsg : function(data) {
       var add = function(name, m) {
+        console.log("put " + name + m);
         $("#text").append("<b>" + name + "</b>: " + m + "<br />");
         $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
       }
