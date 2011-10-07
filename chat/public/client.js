@@ -19,7 +19,7 @@ var Chat = {
       var add = function(name, m) {
         $("#text").append("<b>" + name + "</b>: " + m + "<br />");
         $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
-      }
+      };
 
       var uid = data["userID"];
       var _m = data["msg"];
@@ -37,7 +37,7 @@ var Chat = {
       socket.emit("msg", {"msg": $("#msg").val()});
       $("#msg").val("");
       return false;
-    },
+    }
 };
 
 var Room = {
@@ -46,7 +46,6 @@ var Room = {
       socket.on("room_info", function(data) { 
           that.updateRoomInfo(data);
       });
-      this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
