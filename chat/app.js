@@ -139,7 +139,7 @@ var Server = ClientList.extend({
     
     'cmd_pick_content': function(client, data) {
         var cid  = Number(data["contentID"]);
-        var type = Number(data["contentType"]);
+        var type = String(data["contentType"]);
         var cont = null;
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {
