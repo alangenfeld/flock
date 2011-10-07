@@ -3,6 +3,10 @@ var express = require("express");
 
 var app = express.createServer();
 
+var port = 8000;
+if (process.argv.length >= 3)
+    port = Number(process.argv[2]);
+
 // configure express to serve static files and use jade tempalting
 app.configure(function () {
 	app.use(express.static(__dirname + "/public"));
@@ -15,7 +19,7 @@ app.get("/", function (req, res) {
 	res.render("index", {layout: false});
 });
 
-app.listen(process.argv[2], function () {
+app.listen(port, function () {
 	var addr = app.address();
 	console.log("  app listening on " + addr.address + ":" + addr.port);
 });

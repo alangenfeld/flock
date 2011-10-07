@@ -17,17 +17,24 @@ var Chat = {
     
     getMsg : function(data) {
       var add = function(name, m) {
+        console.log("put " + name + m);
         $("#text").append("<b>" + name + "</b>: " + m + "<br />");
         $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
+<<<<<<< HEAD
         $("#text").emoticonize({});
       }
+=======
+      };
+>>>>>>> 8c74dfda834bd6d01ae7f70132c25e37fae02f4a
 
       var uid = data["userID"];
       var _m = data["msg"];
       console.log(_m);
       if (!(uid in fbid_names)) {
-        console.log(uid);
-        getUserName(uid, function(name) { fbid_names[uid] = name; add(name, _m); });
+        getUserName(uid, function(name) {
+            fbid_names[uid] = name; 
+            add(name, _m);
+        });
       } else {
         add(fbid_names[uid], _m);
       }
@@ -68,7 +75,7 @@ $(document).ready(
 
       //DEBUG
       $("#testLogin").click(function(){
-	  	Chat.loggedIn(0);
+	  	  Chat.loggedIn(0);
 	});
   }
 );

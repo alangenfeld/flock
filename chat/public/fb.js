@@ -52,12 +52,11 @@ function getFriends(){
 }
 
 function getUserName(id, cb){
-
   if(id == 0){
-    return "test";
+    cb("test");
+  } else {
+    FB.api("/" + id, function(response) {
+        cb(response.name);
+    });      
   }
-
-  FB.api("/" + id, function(response) {
-    cb(response.name);
-  });
 }
