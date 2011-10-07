@@ -37,9 +37,11 @@ var Chat = {
     },
 
     sendMsg : function() {
-      socket.emit("msg", {"msg": $("#msg").val()});
-      $("#msg").val("");
-      return false;
+      if ($("#msg").val()) {
+        socket.emit("msg", {"msg": $("#msg").val()});
+        $("#msg").val("");
+        return false;
+      }
     },
 };
 
