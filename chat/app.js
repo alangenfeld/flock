@@ -29,9 +29,15 @@ var ClientList = Class({
         }
     },
     
+    /**
+     * Return the total of all client activity from the start
+     * @return acts per minute
+     */
     'getActivity': function() {
         var sum = 0;
-        
+        // TODO cache this.
+        this.clients.forEach(function(c) { sum += c.acts; });
+        return sum * 60 / ((new Date()).getTime() - this.start);
     }
 });
 
@@ -152,7 +158,8 @@ var Server = ClientList.extend({
         var cmdStr = "cmd_" + cmd;
         var that = this;
         client.on(cmd, function (data) {
-            console.log(" Received command: " + cmd);
+            console.log("Received command: " + cmd);
+            console.log(data);
             try {
                 that[cmdStr].call(that, client, data);
             } catch (e) {
@@ -164,7 +171,6 @@ var Server = ClientList.extend({
     'cmd_login': function(client, data) {
         var lid = Number(data["userID"]);
         client.logIn(lid);
-        console.log("Client logged in with ID " + lid);
     },
     
     'cmd_pick_content': function(client, data) {
@@ -190,7 +196,7 @@ var Server = ClientList.extend({
     },
     
     'cmd_msg': function(client, data) {
-        client
+        client.act();
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     }
 });
