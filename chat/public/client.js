@@ -20,12 +20,8 @@ var Chat = {
         console.log("put " + name + m);
         $("#text").append("<b>" + name + "</b>: " + m + "<br />");
         $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
-<<<<<<< HEAD
         $("#text").emoticonize({});
-      }
-=======
       };
->>>>>>> 8c74dfda834bd6d01ae7f70132c25e37fae02f4a
 
       var uid = data["userID"];
       var _m = data["msg"];
@@ -45,7 +41,7 @@ var Chat = {
       socket.emit("msg", {"msg": $("#msg").val()});
       $("#msg").val("");
       return false;
-    },
+    }
 };
 
 var Room = {
