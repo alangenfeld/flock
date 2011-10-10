@@ -17,12 +17,21 @@ io.set("log level", 0);
 var ClientList = Class({
     '__construct': function() {
         this.clients = [];
+        this.start = (new Date()).getTime();
     },
     
+    /**
+     * Send a cmd with data to all clients on this object
+     */
     'broadcast': function(cmd, data) {
         for (var i = 0; i < this.clients.length; i++) {
             this.clients[i].send(cmd, data);
         }
+    },
+    
+    'getActivity': function() {
+        var sum = 0;
+        
     }
 });
 
@@ -68,10 +77,31 @@ var Client = Class({
         this.id     = -1;
         this.content = null;
         this.room    = null;
+        this.start = (new Date()).getTime();
+        this.acts = 0;
         this.send    = function(cmd, data) { this.socket.emit(cmd, data); };
         this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
+    /**
+     * Record one unit of activity on this object
+     */
+    'act': function() {
+        this.acts += 1;
+    },
+    
+    /**
+     * Calculate the objects total activity
+     * @return acts per minute
+     */
+    'getActivity': function() {
+        return this.acts * 60 / ((new Date()).getTime() - this.start);
+    },
+    
+    /**
+     * Set the user as logged in to the system
+     * @param uid a unique ID representing the user
+     */
     'logIn': function(uid) {
         this.id = uid;
     },
@@ -160,6 +190,7 @@ var Server = ClientList.extend({
     },
     
     'cmd_msg': function(client, data) {
+        client
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     }
 });
