@@ -30,8 +30,10 @@ var ClientList = Class({
     },
     
     'getActivity': function() {
-        var sum = 0;
-        
+        // TODO: cache this
+        return _.reduce(this.clients, function(sum, c) {
+            return sum + c.getAcvitiy();
+        });
     }
 });
 
@@ -95,7 +97,7 @@ var Client = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        return this.acts * 60 / ((new Date()).getTime() - this.start);
+        return this.acts * 1060 / ((new Date()).getTime() - this.start);
     },
     
     /**
@@ -190,7 +192,7 @@ var Server = ClientList.extend({
     },
     
     'cmd_msg': function(client, data) {
-        client
+        client.act();
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     }
 });
