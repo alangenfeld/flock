@@ -7,11 +7,12 @@ var port = 8000;
 if (process.argv.length >= 3)
     port = Number(process.argv[2]);
 
-// configure express to serve static files and use jade tempalting
+// configure express to serve static files and use jade templating
 app.configure(function () {
 	app.use(express.static(__dirname + "/public"));
 	app.set("views", __dirname);
 	app.set("view engine", "jade");
+    app.set("view options", {pretty:true});
 });
 
 // express stuff
