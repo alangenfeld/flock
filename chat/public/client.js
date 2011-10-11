@@ -5,7 +5,7 @@ var Chat = {
     init : function() {
         socket.on("msg", this.getMsg.bind(this));
         $("#send").submit(this.sendMsg.bind(this));
-        Chat.uid = 0;
+        this.uid = 0;
     },
 
     loggedIn : function(uid) {
@@ -41,8 +41,12 @@ var Chat = {
 
     sendMsg : function() {
         var message = $("#msg").val();
+        
+        if (message.length == 0)
+            return false;
+        
         // Check to see if user is performing action
-        if (message.length > 1 && message.charAt(0) == "/") {
+        if (message.charAt(0) == "/") {
             var actionString = message.substring(1); 
             var actionEndIndex = actionString.indexOf(" ");
             if (actionEndIndex == -1)
@@ -53,13 +57,12 @@ var Chat = {
             if (actionEndIndex != -1) {
                 extra = actionString.substring(actionEndIndex + 1);
             }
-        
+
             socket.emit("action", {"action": action, "extra": extra}); 
-            $("#msg").val("");
-            return false;
+        } else { 
+            socket.emit("msg", {"msg": message});           
         }
         
-        socket.emit("msg", {"msg": message});
         $("#msg").val("");
         return false;
     }
