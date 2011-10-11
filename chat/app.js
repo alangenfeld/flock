@@ -161,7 +161,8 @@ var Server = ClientList.extend({
         var cmdStr = "cmd_" + cmd;
         var that = this;
         client.on(cmd, function (data) {
-            console.log(" Received command: " + cmd);
+            console.log("Received command: " + cmd);
+            console.log(data);
             try {
                 that[cmdStr].call(that, client, data);
             } catch (e) {

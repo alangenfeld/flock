@@ -45,7 +45,10 @@ var Chat = {
         if (message.length > 1 && message.charAt(0) == "/") {
             var actionString = message.substring(1); 
             var actionEndIndex = actionString.indexOf(" ");
+            if (actionEndIndex == -1)
+                actionEndIndex = actionString.length;
             var action = actionString.substring(0, actionEndIndex);
+            
             var extra = "";
             if (actionEndIndex != -1) {
                 extra = actionString.substring(actionEndIndex + 1);
