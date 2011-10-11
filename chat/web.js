@@ -1,6 +1,5 @@
 
-var express = require("express"),
-    stylus  = require("stylus");
+var express = require("express");
 
 var app = express.createServer();
 
@@ -8,21 +7,10 @@ var port = 8000;
 if (process.argv.length >= 3)
     port = Number(process.argv[2]);
 
-function compileStylus(str, path) {
-    return stylus(str)
-        .set('filename', path)
-        .set('compress', false);
-}
-
 // configure express to serve static files and use jade templating
 app.configure(function () {
 	app.use(express.static(__dirname + "/public"));
-    app.use(stylus.middleware({
-        src:  __dirname + "/views",
-        dest: __dirname + "/public",
-        compile: compileStylus
-    }));
-	app.set("views", __dirname + "/views");
+	app.set("views", __dirname);
 	app.set("view engine", "jade");
     app.set("view options", {pretty:true});
 });
