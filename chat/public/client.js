@@ -11,14 +11,14 @@ var Chat = {
     loggedIn : function(uid) {
         socket.emit("login", {"userID":uid});
         this.uid = uid;
-        $("#login").hide();
-        $("#chat").show();
+        $("#landing").hide();
+        $("#container").show();
     },
     
     getMsg : function(data) {
         var add = function(name, m) {
             console.log("put " + name + m);
-            $("#text").append("<b>" + name + "</b>: " + m + "<br />");
+            $("#text").append("<b>" + name + ":</b> " + m + "<br />");
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
         };

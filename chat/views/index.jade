@@ -1,10 +1,10 @@
 doctype 5
 html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fbfml")
   head
-    link(href="style.css", rel="stylesheet", media="screen")
+    link(href="/main.css", rel="stylesheet", media="screen")
     script(src="http://code.jquery.com/jquery-1.6.1.min.js")
     script(src="/socket.io/socket.io.js")
-    script(src="client.js")
+    script(src="/client.js")
     script(src="jquery.cssemoticons.js")
     link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")
   body
@@ -18,12 +18,11 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
         select#selectVideo
         #video
       #side            
-        #chat
-          #roomName
-          #text
-          #bottomBox
-            form#send
-              input#msg
+        #roomName
+        #text
+        #bottomBox
+          form#send
+            input#msg
   footer
     script(src="fb.js")
     script(src="video.js")	
