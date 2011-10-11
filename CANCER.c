@@ -1,4 +1,4 @@
-// gcc CANCER.c && ./a.out && firefox http://localhost:6660/
+// gcc CANCER.c && ./a.out & firefox http://localhost:6660/
 
 #include \
 <stdio.h>
