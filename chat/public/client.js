@@ -25,8 +25,10 @@ var Chat = {
 
         var uid = data["userID"];
         var _m = data["msg"];
-        console.log(_m);
-        if (!(uid in fbid_names)) {
+
+        if (uid == -1) {
+            add("**Server**", _m);
+        } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
                 add(name, _m);
