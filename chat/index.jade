@@ -9,21 +9,21 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
     link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")
   body
     #fb-root
+    #landing
+      div Welcome to Flock
+      fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
+      button#testLogin TEST LOG IN
     #container
       #main
         select#selectVideo
         #video
-      #side
-        #login
-          .center
-            fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
-            button#testLogin TEST LOG IN
+      #side            
         #chat
           #roomName
           #text
           #bottomBox
-              form#send
-                  input#msg
+            form#send
+              input#msg
   footer
     script(src="fb.js")
     script(src="video.js")	

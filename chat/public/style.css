@@ -3,7 +3,21 @@ body {
     font-size: 0.8em;
 }
 
+#landing {
+    margin-top: 200px;
+    width: 500px;
+    text-align: center;
+    margin: 200px auto;
+}
+
+#landing div {
+    font-size: 3em;
+    font-weight: bold;
+    margin-bottom: 100px;
+}
+
 #container {
+  display: none;
   height: 96%;
   width: 98%;
   position: absolute;
@@ -37,7 +51,7 @@ body {
   height: 100%;
 }
 
-#text{
+#text {
   width: 100%;
   border-radius: 15px;
   overflow: auto;
@@ -45,14 +59,6 @@ body {
   word-wrap: break-word;
   top: 20px;
   bottom: 35px;
-}
-#login {
-  position: absolute;
-  width: 100%;
-  border-radius: 15px;
-  top: 20px;
-  bottom: 35px;
-  z-index: 999;
 }
 
 #text {
@@ -76,7 +82,6 @@ body {
   height: 20px;
   position: absolute;
   width: 100%;
-  font-size:0.875em; /* 14px/16=0.875em */
   text-align: center;
   color: white;
   background-color: blue;
