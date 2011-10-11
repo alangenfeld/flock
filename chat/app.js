@@ -85,15 +85,19 @@ var Client = Class({
         this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
+    'info': function(text) {
+        this.send("msg", {"msg": text, userID: -1});
+    },
+    
     /**
-     * Record one unit of activity on this object
+     * Record one unit of activity on this client
      */
     'act': function() {
         this.acts += 1;
     },
     
     /**
-     * Calculate the objects total activity
+     * Calculate the object's total activity
      * @return acts per minute
      */
     'getActivity': function() {
@@ -125,7 +129,8 @@ var Client = Class({
 var COMMANDS = [
     "login",
     "pick_content",
-    "msg"
+    "msg",
+    "action"
 ];
 
 /**
@@ -165,6 +170,8 @@ var Server = ClientList.extend({
 
     'cmd_login': function(client, data) {
         var lid = Number(data["userID"]);
+        if (lid == -1)
+            throw new Exception("Client tried to login with ID -1");
         client.logIn(lid);
         console.log("Client logged in with ID " + lid);
     },
@@ -173,6 +180,8 @@ var Server = ClientList.extend({
         var cid  = Number(data["contentID"]);
         var type = String(data["contentType"]);
         var cont = null;
+        
+        // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {
                 cont = this.contents[i];
@@ -180,6 +189,7 @@ var Server = ClientList.extend({
             }
         }
         
+        // make a new one
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
@@ -194,6 +204,15 @@ var Server = ClientList.extend({
     'cmd_msg': function(client, data) {
         client.act();
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
+    },
+    
+    'cmd_action': function(client, data) {
+        var action = String(data["action"]);
+        var extra  = ("extra" in data) ? String(data["extra"]) : "";
+        
+        if (action == "activity") {
+            client.info("Your activity: " + client.getActivity());
+        }
     }
 });
 
