@@ -5,7 +5,7 @@ var Chat = {
     init : function() {
         socket.on("msg", this.getMsg.bind(this));
         $("#send").submit(this.sendMsg.bind(this));
-        Chat.uid = 0;
+        this.uid = 0;
     },
 
     loggedIn : function(uid) {
@@ -19,14 +19,16 @@ var Chat = {
         var add = function(name, m) {
             console.log("put " + name + m);
             $("#text").append("<b>" + name + "</b>: " + m + "<br />");
-            $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
+            $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
         };
 
         var uid = data["userID"];
         var _m = data["msg"];
-        console.log(_m);
-        if (!(uid in fbid_names)) {
+
+        if (uid == -1) {
+            add("**Server**", _m);
+        } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
                 add(name, _m);
@@ -38,7 +40,29 @@ var Chat = {
     },
 
     sendMsg : function() {
-        socket.emit("msg", {"msg": $("#msg").val()});
+        var message = $("#msg").val();
+        
+        if (message.length == 0)
+            return false;
+        
+        // Check to see if user is performing action
+        if (message.charAt(0) == "/") {
+            var actionString = message.substring(1); 
+            var actionEndIndex = actionString.indexOf(" ");
+            if (actionEndIndex == -1)
+                actionEndIndex = actionString.length;
+            var action = actionString.substring(0, actionEndIndex);
+            
+            var extra = "";
+            if (actionEndIndex != -1) {
+                extra = actionString.substring(actionEndIndex + 1);
+            }
+
+            socket.emit("action", {"action": action, "extra": extra}); 
+        } else { 
+            socket.emit("msg", {"msg": message});           
+        }
+        
         $("#msg").val("");
         return false;
     }
@@ -50,7 +74,7 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
-        this.pickContent(1, "Test");
+        $("#roomName").text("-- no room --");
     },
 
     updateRoomInfo : function(data) {
@@ -72,6 +96,7 @@ $(document).ready(
         //DEBUG
         $("#testLogin").click(function(){
 	  	    Chat.loggedIn(0);
+            Room.pickContent(1, "Test");
 	    });
     }
 );

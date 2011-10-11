@@ -34,10 +34,10 @@ var ClientList = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        var sum = 0;
-        // TODO cache this.
-        this.clients.forEach(function(c) { sum += c.acts; });
-        return sum * 60 / ((new Date()).getTime() - this.start);
+        // TODO: cache this
+        return _.reduce(this.clients, function(sum, c) {
+            return sum + c.getActivity();
+        }, 0);
     }
 });
 
@@ -46,13 +46,15 @@ var Content = ClientList.extend({
         this._super();
         this.id = cid;
         this.type = type;
-        this.room = new Room();
+        this.rooms = []; // new Room();
     },
     
     'addClient': function(client) {
+        if (this.rooms.length == 0)
+            this.rooms[0] = new Room();
         this.clients.push(client);
-        this.room.addClient(client);
-        return this.room;
+        this.rooms[0].addClient(client);
+        return this.rooms[0];
     }
 });
 
@@ -89,19 +91,23 @@ var Client = Class({
         this.on      = function(ev, fn) { this.socket.on(ev, fn); };
     },
     
+    'info': function(text) {
+        this.send("msg", {"msg": text, userID: -1});
+    },
+    
     /**
-     * Record one unit of activity on this object
+     * Record one unit of activity on this client
      */
     'act': function() {
         this.acts += 1;
     },
     
     /**
-     * Calculate the objects total activity
+     * Calculate the object's total activity
      * @return acts per minute
      */
     'getActivity': function() {
-        return this.acts * 60 / ((new Date()).getTime() - this.start);
+        return this.acts * 1000 * 60 / ((new Date()).getTime() - this.start);
     },
     
     /**
@@ -129,7 +135,8 @@ var Client = Class({
 var COMMANDS = [
     "login",
     "pick_content",
-    "msg"
+    "msg",
+    "action"
 ];
 
 /**
@@ -170,6 +177,8 @@ var Server = ClientList.extend({
 
     'cmd_login': function(client, data) {
         var lid = Number(data["userID"]);
+        if (lid == -1)
+            throw new Exception("Client tried to login with ID -1");
         client.logIn(lid);
     },
     
@@ -177,6 +186,8 @@ var Server = ClientList.extend({
         var cid  = Number(data["contentID"]);
         var type = String(data["contentType"]);
         var cont = null;
+        
+        // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {
                 cont = this.contents[i];
@@ -184,6 +195,7 @@ var Server = ClientList.extend({
             }
         }
         
+        // make a new one
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
@@ -193,11 +205,26 @@ var Server = ClientList.extend({
         client.setContent(cont);
         client.setRoom(room);
         client.send("room_info", {room_name:room.name});
+        client.info("Connected to room.");
     },
     
     'cmd_msg': function(client, data) {
         client.act();
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
+    },
+    
+    'cmd_action': function(client, data) {
+        var action = String(data["action"]);
+        var extra  = ("extra" in data) ? String(data["extra"]) : "";
+        
+        if (action == "activity") {
+            client.info(
+                "Your activity: " + client.getActivity() + "<br />"+
+                "Room activity: " + client.room.getActivity() + "<br />"+
+                "Content activity: " +client.content.getActivity() + "<br />"+ 
+                "Server activity: " + this.getActivity()
+            );
+        }
     }
 });
 

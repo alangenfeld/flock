@@ -1,3 +1,8 @@
+body {
+    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+    font-size: 0.8em;
+}
+
 #container {
   height: 96%;
   width: 98%;
