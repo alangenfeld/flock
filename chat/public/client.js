@@ -52,7 +52,6 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
-        this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
@@ -74,6 +73,7 @@ $(document).ready(
         //DEBUG
         $("#testLogin").click(function(){
 	  	    Chat.loggedIn(0);
+            Room.pickContent(1, "Test");
 	    });
     }
 );
