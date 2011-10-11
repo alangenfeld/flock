@@ -19,7 +19,7 @@ var Chat = {
         var add = function(name, m) {
             console.log("put " + name + m);
             $("#text").append("<b>" + name + "</b>: " + m + "<br />");
-            $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
+            $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
         };
 
@@ -38,7 +38,23 @@ var Chat = {
     },
 
     sendMsg : function() {
-        socket.emit("msg", {"msg": $("#msg").val()});
+        var message = $("#msg").val();
+        // Check to see if user is performing action
+        if (message.length > 1 && message.charAt(0) == "/") {
+            var actionString = message.substring(1); 
+            var actionEndIndex = actionString.indexOf(" ");
+            var action = actionString.substring(0, actionEndIndex);
+            var extra = "";
+            if (actionEndIndex != -1) {
+                extra = actionString.substring(actionEndIndex + 1);
+            }
+        
+            socket.emit("action", {"action": action, "extra": extra}); 
+            $("#msg").val("");
+            return false;
+        }
+        
+        socket.emit("msg", {"msg": message});
         $("#msg").val("");
         return false;
     }
