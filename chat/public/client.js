@@ -25,8 +25,10 @@ var Chat = {
 
         var uid = data["userID"];
         var _m = data["msg"];
-        console.log(_m);
-        if (!(uid in fbid_names)) {
+
+        if (uid == -1) {
+            add("**Server**", _m);
+        } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
                 add(name, _m);
@@ -66,7 +68,6 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
-        this.pickContent(1, "Test");
     },
 
     updateRoomInfo : function(data) {
@@ -88,6 +89,7 @@ $(document).ready(
         //DEBUG
         $("#testLogin").click(function(){
 	  	    Chat.loggedIn(0);
+            Room.pickContent(1, "Test");
 	    });
     }
 );

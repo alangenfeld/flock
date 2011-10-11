@@ -201,6 +201,7 @@ var Server = ClientList.extend({
         client.setContent(cont);
         client.setRoom(room);
         client.send("room_info", {room_name:room.name});
+        client.info("Connected to room.");
     },
     
     'cmd_msg': function(client, data) {
