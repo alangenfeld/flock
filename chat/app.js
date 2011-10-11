@@ -42,13 +42,15 @@ var Content = ClientList.extend({
         this._super();
         this.id = cid;
         this.type = type;
-        this.room = new Room();
+        this.rooms = []; // new Room();
     },
     
     'addClient': function(client) {
+        if (this.rooms.length == 0)
+            this.rooms[0] = new Room();
         this.clients.push(client);
-        this.room.addClient(client);
-        return this.room;
+        this.rooms[0].addClient(client);
+        return this.rooms[0];
     }
 });
 
