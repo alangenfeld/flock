@@ -74,6 +74,7 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
+        $("#roomName").text("-- no room --");
     },
 
     updateRoomInfo : function(data) {
