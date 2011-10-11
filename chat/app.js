@@ -32,8 +32,8 @@ var ClientList = Class({
     'getActivity': function() {
         // TODO: cache this
         return _.reduce(this.clients, function(sum, c) {
-            return sum + c.getAcvitiy();
-        });
+            return sum + c.getActivity();
+        }, 0);
     }
 });
 
@@ -103,7 +103,7 @@ var Client = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        return this.acts * 1060 / ((new Date()).getTime() - this.start);
+        return this.acts * 1000 * 60 / ((new Date()).getTime() - this.start);
     },
     
     /**
@@ -215,7 +215,12 @@ var Server = ClientList.extend({
         var extra  = ("extra" in data) ? String(data["extra"]) : "";
         
         if (action == "activity") {
-            client.info("Your activity: " + client.getActivity());
+            client.info(
+                "Your activity: " + client.getActivity() + "<br />"+
+                "Room activity: " + client.room.getActivity() + "<br />"+
+                "Content activity: " +client.content.getActivity() + "<br />"+ 
+                "Server activity: " + this.getActivity()
+            );
         }
     }
 });
