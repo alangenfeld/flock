@@ -1,57 +1,98 @@
 
+html { height: 100%; overflow: hidden; }
+body { width: 100%; height: 100%; }
+
+html, body, div, span { margin: 0; padding: 0; }
+
 body {
     font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
     font-size: 0.8em;
+    background-color: #e0e0e0;
 }
 
+/******** LANDING PAGE ********/
+
 #landing {
-    margin-top: 200px;
     width: 500px;
     text-align: center;
-    margin: 200px auto;
+    margin: 120px auto;
 }
 
 #landing div {
-    font-size: 3em;
+    font-size: 4em;
     font-weight: bold;
     margin-bottom: 100px;
 }
 
+/******** MAIN PAGE ********/
+
+.rf { float: left; position: relative; }
+
 #container {
+    width: 100%; height: 100%;
+    overflow: hidden;
     display: none;
-    height: 96%;
-    width: 99%;
-    position: absolute;
+    padding-top: 10px;
+    clear: both;
+}
+
+#header {
+    height: 45px;
+    font-size: 3em;
+    font-weight:bold;
+}
+
+#content {
+    border: 1px solid #aaa;
+    background-color: #fff;
+    padding: 10px;
+    width: 100%;
+}
+
+#selectVideo {
+    display: block;
+    width: 60%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.floatDiv {
+    float:left;
+}
+
+
+/*** special width elements ***/
+
+#container-inner {
+    width: 100%; height: 100%;
+    right: 29%;
 }
 
 #main {
-    border: 1px solid black;
-    width: 74.5%;
-    height: 100%;
-    position: absolute;
-    border-radius: 15px;
+    width: 67%; left: 30%;
 }
 
 #side {
-    width: 25%;
-    height: 100%;
-    float: right;
-    position: relative;
-    background-color: #abcdef;
+    width: 26%; left: 33%;
+    height: 90%;
+    background-color: #fff;
+    border: 1px solid #aaa;
 }
+
+/*** end special width elements ***/
 
 #roomName {
     width: 100%; height: 25px;
     padding-top: 9px;
     text-align: center;
     color: #ffffff;
-    background-color: #0033AA;
     font-weight: bold;
     font-size: 1.1em;
+    background-color: #aaa;
 }
 
 #text {
-    width: 100%;
+    width: 97%; height: 85%;
     border-radius: 15px;
     overflow: auto;
     padding: 3px; 
@@ -62,25 +103,13 @@ body {
 }
 
 #bottomBox {
-    bottom: 5px;
-    left: 5px;
     position: absolute;
-    width: 100%;
+    bottom: 5px; left: 5px; right: 5px;
 }
 
 input#msg {
-    width: 97%;
-    border: 1px solid #000;
+
+    width: 100%;
+    border: 1px solid #aaa;
     height: 20px;
-}
-
-
-#selectVideo {
-    width: 60%;
-    position: relative;
-    left: 20%;
-}
-
-.floatDiv {
-    float:left;
 }
