@@ -165,12 +165,12 @@ var Server = ClientList.extend({
         var cmdStr = "cmd_" + cmd;
         var that = this;
         client.on(cmd, function (data) {
-            console.log("Received command: " + cmd);
+            console.log("Received command: " + cmd + ", from uid: " + client.id);
             console.log(data);
             try {
                 that[cmdStr].call(that, client, data);
             } catch (e) {
-                console.log("Executing cmd " + cmd + "failed: " + e);
+                console.log("Executing cmd " + cmd + " failed: " + e);
             }
         });        
     },
@@ -183,10 +183,10 @@ var Server = ClientList.extend({
     },
     
     'cmd_pick_content': function(client, data) {
-        var cid  = Number(data["contentID"]);
+        var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
         var cont = null;
-        
+
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {

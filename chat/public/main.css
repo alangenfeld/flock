@@ -56,6 +56,9 @@ body {
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
+    top: 35px;
+    bottom: 31px;
+    position: absolute;
 }
 
 #bottomBox {
