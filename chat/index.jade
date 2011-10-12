@@ -10,19 +10,18 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
   body
     #fb-root
     #landing
-      div Welcome to Flock
+      #landing-text Welcome to Flock
       fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
       button#testLogin TEST LOG IN
-    #container.rf
-      #container-inner.rf
-        #main.rf
-          #header
-            span Flock.
-          #content
-            select#selectVideo
-            #video
-            div(style="clear: both;")
-        #side.rf         
+    #container
+      #header
+        span Flock.
+      #main
+        #content
+          select#selectVideo
+          #video
+          div(style="clear: both;")
+        #side         
           #roomName
           #text
           #bottomBox

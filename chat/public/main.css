@@ -1,7 +1,5 @@
 
-html { height: 100%; overflow: hidden; }
-body { width: 100%; height: 100%; }
-
+html, body { height: 100%; overflow: hidden; }
 html, body, div, span { margin: 0; padding: 0; }
 
 body {
@@ -18,7 +16,7 @@ body {
     margin: 120px auto;
 }
 
-#landing div {
+#landing-text {
     font-size: 4em;
     font-weight: bold;
     margin-bottom: 100px;
@@ -26,14 +24,11 @@ body {
 
 /******** MAIN PAGE ********/
 
-.rf { float: left; position: relative; }
-
 #container {
     width: 100%; height: 100%;
     overflow: hidden;
     display: none;
-    padding-top: 10px;
-    clear: both;
+    margin: 10px;
 }
 
 #header {
@@ -42,11 +37,19 @@ body {
     font-weight:bold;
 }
 
+/**** VIDEO AREA STYLES ****/
+
+#main {
+    width: 100%; height: 100%;
+    position: relative;
+}
+
 #content {
     border: 1px solid #aaa;
     background-color: #fff;
     padding: 10px;
-    width: 100%;
+    float: left;
+    width: 68%;
 }
 
 #selectVideo {
@@ -60,40 +63,28 @@ body {
     float:left;
 }
 
-
-/*** special width elements ***/
-
-#container-inner {
-    width: 100%; height: 100%;
-    right: 29%;
-}
-
-#main {
-    width: 67%; left: 30%;
-}
+/**** SIDE STYLES ****/
 
 #side {
-    width: 26%; left: 33%;
-    height: 90%;
+    width: 25%; height: 90%;
+    float: left;
     background-color: #fff;
     border: 1px solid #aaa;
+    margin-left: 10px;
+    position: relative;
 }
-
-/*** end special width elements ***/
 
 #roomName {
     width: 100%; height: 25px;
     padding-top: 9px;
     text-align: center;
     color: #ffffff;
-    font-weight: bold;
-    font-size: 1.1em;
+    font-weight: bold; font-size: 1.1em;
     background-color: #aaa;
 }
 
 #text {
     width: 97%; height: 85%;
-    border-radius: 15px;
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
@@ -101,11 +92,10 @@ body {
 
 #bottomBox {
     position: absolute;
-    bottom: 5px; left: 5px; right: 5px;
+    bottom: 5px; left: 5px; right: 7px;
 }
 
 input#msg {
-
     width: 100%;
     border: 1px solid #aaa;
     height: 20px;
