@@ -84,13 +84,11 @@ body {
 }
 
 #text {
-    width: 97%; height: 85%;
+    position: absolute;
+    width: 97%; top: 35px; bottom: 31px;
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
-    top: 35px;
-    bottom: 31px;
-    position: absolute;
 }
 
 #bottomBox {
