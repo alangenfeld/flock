@@ -32,22 +32,22 @@ window.fbAsyncInit = function() {
 }());
 
 
-function getUserInfo(){
-	return $.getJSON('https://graph.facebook.com/me/?access_token='+token+'&callback=?', function(json){
+function getUserInfo(cb){
+	$.getJSON('https://graph.facebook.com/me/?access_token='+token+'&callback=?', function(json){
 		user_info = new Object();
 		user_info.name = json.name;
 		user_info.hometown = json.hometown;
 		user_info.location = json.location;
-		return user_info;
+		cb(user_info);
 	});
 }
 
-function getFriends(){
+function getFriends(cb){
 
-	return $.getJSON('https://graph.facebook.com/me/friends?access_token='+token+'&callback=?', function(json){
+	$.getJSON('https://graph.facebook.com/me/friends?access_token='+token+'&callback=?', function(json){
 		user_info = new Object();
 		user_info.friends = json["data"];
-		return user_info;
+		cb(user_info);
 	});
 }
 
