@@ -40,6 +40,14 @@ var Chat = {
     },
 
     sendMsg : function() {
+<<<<<<< HEAD
+      if ($("#msg").val()) {
+        socket.emit("msg", {"msg": $("#msg").val()});
+        $("#msg").val("");
+        return false;
+      }
+    },
+=======
         var message = $("#msg").val();
         
         if (message.length == 0)
@@ -66,6 +74,7 @@ var Chat = {
         $("#msg").val("");
         return false;
     }
+>>>>>>> 76da6dc4c6f64a46c0e35d566198030e1ab198d8
 };
 
 var Room = {
