@@ -56,7 +56,7 @@ var Content = ClientList.extend({
         this._super();
         this.id = cid;
         this.type = type;
-        this.rooms = []; // new Room();
+        this.rooms = [];
     },
     
     'addClient': function(client) {
@@ -70,6 +70,7 @@ var Content = ClientList.extend({
                     break;
                 }
             if (room == null) {
+                console.log("-- Creating new room");
                 room = new Room();
                 this.rooms.push(room);
             }
