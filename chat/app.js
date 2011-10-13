@@ -8,7 +8,8 @@
 var Class   = require("structr"),
     sio     = require("socket.io"),
     _       = require("underscore"),
-    app     = require("./web.js");
+    app     = require("./web.js"),
+    db      = require("./db.js");
 
 var io = sio.listen(app);
 
@@ -51,6 +52,8 @@ var ClientList = Class({
 
 var MAX_ROOM_CLIENTS = 2;
 
+var global_room_count = 0;
+
 var Content = ClientList.extend({
     'override __construct': function(cid, type) {
         this._super();
@@ -62,7 +65,7 @@ var Content = ClientList.extend({
     'addClient': function(client) {
         var room = null;
         if (this.rooms.length == 0)
-            room = this.rooms[0] = new Room();
+            room = this.rooms[0] = new Room(global_room_count++);
         else {
             for (var i = 0; i < this.rooms.length; i++)
                 if (this.rooms[i].numClients() < MAX_ROOM_CLIENTS) {
@@ -71,7 +74,7 @@ var Content = ClientList.extend({
                 }
             if (room == null) {
                 console.log("-- Creating new room");
-                room = new Room();
+                room = new Room(global_room_count++);
                 this.rooms.push(room);
             }
         }
@@ -82,8 +85,9 @@ var Content = ClientList.extend({
 });
 
 var Room = ClientList.extend({
-    'override __construct': function() {
+    'override __construct': function(rid) {
         this._super();
+        this.id = rid;
         this.name = "Political Debate #" + Math.floor(Math.random() * 100000);
     },
     
@@ -250,6 +254,7 @@ var Server = ClientList.extend({
     
     'cmd_msg': function(client, data) {
         client.act();
+        db.logChat(client.content.id, client.room.id, client.id, data.msg);
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     },
     
