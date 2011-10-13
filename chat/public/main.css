@@ -70,6 +70,55 @@ body {
   border-bottom: 1px solid #E6E6E6;
 }
 
+.contentViewers {
+  float: left;
+  width: 95px;
+  text-align: right;
+  font-weight: normal;
+  padding: 20px 0;
+}
+
+.contentViewersCount {
+  font-size: 40px;
+  color: #161616;
+  letter-spacing: -1px;
+  line-height: 38px;
+}
+
+.contentViewersLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #161616;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.contentInformation {
+  float: left;
+  padding: 20px 0;
+  width: 485px;
+  margin-left: 20px;
+  margin-right: 5px;
+  overflow: hidden;
+}
+
+.contentTitle {
+  display: block;
+  font-weight: bold;
+  font-size: 18px;
+  color: #161616;
+}
+
+.contentCategory {
+  display: block;
+  font-size: 13px;
+  color: #454545;
+}
+
+.contentListItemClear {
+  clear: both;
+}
+
 #selectVideo {
     display: block;
     width: 60%;

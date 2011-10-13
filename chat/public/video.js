@@ -44,14 +44,14 @@ function listChannels(channels)
   $.each(channels, function(j, channel)
   {
     var html = 
-      "<div class=\"contentListItem\">" +
+      "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', \'" + channel.title + "\');\">" +
       "<div class=\"contentViewers\">" +
-        "<div class=\"contentViewersCount\">" + channel.channel.views_count + "</div>" +
+        "<div class=\"contentViewersCount\">" + channel.channel_count + "</div>" +
         "<div class=\"contentViewersLabel\">people</div>" +
       "</div>" +
       "<div class=\"contentInformation\">" +
         "<span class=\"contentTitle\">" + channel.title + "</span>" +
-        "<span class=\"contentCategory\">" + channel.category + "</span>" + 
+        "<span class=\"contentCategory\">" + channel.channel.category_title + "</span>" + 
       "</div>" +
       "<div class=\"contentListItemClear\"></div>"
       "</div>";
