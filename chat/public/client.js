@@ -98,7 +98,6 @@ $(document).ready(
         //DEBUG
         $("#testLogin").click(function(){
 	  	    Chat.loggedIn(0);
-            Room.pickContent(1, "Test");
 	    });
     }
 );
