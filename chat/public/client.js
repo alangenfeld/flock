@@ -12,6 +12,7 @@ var Chat = {
         socket.emit("login", {"userID":uid});
         this.uid = uid;
         $("#landing").hide();
+        $("#side").hide();
         $("#container").show();
     },
     
@@ -83,6 +84,7 @@ var Room = {
 
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
+        $("#side").show();
     }
 };
 
