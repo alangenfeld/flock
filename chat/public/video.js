@@ -21,6 +21,14 @@ $(document).ready(function()
    });
 });
 
+window.onresize = function() {
+    var children = $("#video").children();
+    if (children && children.children()) {
+        children.children().height($("#side").height()*0.8);
+        children.children().width($("#content").width());
+    }
+};
+
 $("#selectVideo").change(function()
 {
     document.getElementById("video").innerHTML = "";

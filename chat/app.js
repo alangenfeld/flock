@@ -8,7 +8,8 @@
 var Class   = require("structr"),
     sio     = require("socket.io"),
     _       = require("underscore"),
-    app     = require("./web.js");
+    app     = require("./web.js"),
+    db      = require("./db.js");
 
 var io = sio.listen(app);
 
@@ -18,6 +19,14 @@ var ClientList = Class({
     '__construct': function() {
         this.clients = [];
         this.start = (new Date()).getTime();
+    },
+    
+    'removeClient': function(client) {
+        this.clients = _.without(this.clients, client);
+    },
+    
+    'numClients': function () {
+        return this.clients.length;
     },
     
     /**
@@ -41,27 +50,44 @@ var ClientList = Class({
     }
 });
 
+var MAX_ROOM_CLIENTS = 2;
+var global_room_count = 0;
+
 var Content = ClientList.extend({
     'override __construct': function(cid, type) {
         this._super();
         this.id = cid;
         this.type = type;
-        this.rooms = []; // new Room();
+        this.rooms = [];
     },
     
     'addClient': function(client) {
+        var room = null;
         if (this.rooms.length == 0)
-            this.rooms[0] = new Room();
+            room = this.rooms[0] = new Room(global_room_count++);
+        else {
+            for (var i = 0; i < this.rooms.length; i++)
+                if (this.rooms[i].numClients() < MAX_ROOM_CLIENTS) {
+                    room = this.rooms[i];
+                    break;
+                }
+            if (room == null) {
+                console.log("-- Creating new room");
+                room = new Room(global_room_count++);
+                this.rooms.push(room);
+            }
+        }
         this.clients.push(client);
-        this.rooms[0].addClient(client);
-        return this.rooms[0];
+        room.addClient(client);
+        return room;
     }
 });
 
 var Room = ClientList.extend({
-    'override __construct': function() {
+    'override __construct': function(rid) {
         this._super();
-        this.name = "Political Debate #" + Math.floor(Math.random() * 100000);
+        this.id = rid;
+        this.name = "Room #" + rid;
     },
     
     'addClient': function(client) {
@@ -122,11 +148,25 @@ var Client = Class({
         this.content = c;
     },
     
+    'removeContent': function() {
+        if (!this.hasContent())
+            return;
+        this.content.removeClient(this);
+        this.content = null;
+    },
+    
     'setRoom': function(r) {
         this.room = r;
     },
     
-    'inRoom': function() { return this.room !== null; },
+    'removeRoom': function() {
+        if (!this.hasRoom())
+            return;
+        this.room.removeClient(this);
+        this.room = null;
+    },
+    
+    'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
     'hasContent': function() { return this.content !== null; } 
 });
@@ -200,6 +240,9 @@ var Server = ClientList.extend({
             cont = new Content(cid, type);
             this.contents.push(cont);
         }
+        
+        client.removeRoom();
+        client.removeContent();
 
         var room = cont.addClient(client);
         client.setContent(cont);
@@ -210,6 +253,7 @@ var Server = ClientList.extend({
     
     'cmd_msg': function(client, data) {
         client.act();
+        db.logChat(client.content.id, client.room.id, client.id, data.msg);
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     },
     
