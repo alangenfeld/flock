@@ -51,7 +51,6 @@ var ClientList = Class({
 });
 
 var MAX_ROOM_CLIENTS = 2;
-
 var global_room_count = 0;
 
 var Content = ClientList.extend({
@@ -88,7 +87,7 @@ var Room = ClientList.extend({
     'override __construct': function(rid) {
         this._super();
         this.id = rid;
-        this.name = "Political Debate #" + Math.floor(Math.random() * 100000);
+        this.name = "Room #" + rid;
     },
     
     'addClient': function(client) {
