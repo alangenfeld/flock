@@ -20,6 +20,10 @@ var ClientList = Class({
         this.start = (new Date()).getTime();
     },
     
+    'removeClient': function(client) {
+        this.clients = _.without(this.clients, client);
+    },
+    
     /**
      * Send a cmd with data to all clients on this object
      */
@@ -122,11 +126,25 @@ var Client = Class({
         this.content = c;
     },
     
+    'removeContent': function() {
+        if (!this.hasContent())
+            return;
+        this.content.removeClient(this);
+        this.content = null;
+    },
+    
     'setRoom': function(r) {
         this.room = r;
     },
     
-    'inRoom': function() { return this.room !== null; },
+    'removeRoom': function() {
+        if (!this.hasRoom())
+            return;
+        this.room.removeClient(this);
+        this.room = null;
+    },
+    
+    'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
     'hasContent': function() { return this.content !== null; } 
 });
@@ -200,6 +218,9 @@ var Server = ClientList.extend({
             cont = new Content(cid, type);
             this.contents.push(cont);
         }
+        
+        client.removeRoom();
+        client.removeContent();
 
         var room = cont.addClient(client);
         client.setContent(cont);
