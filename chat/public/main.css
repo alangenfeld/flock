@@ -44,6 +44,7 @@ body {
     bottom: 0px; left: 0px; right: 0px;
     height: 45px;
     text-align: center;
+    z-index: 2;
 }
 
 /**** VIDEO AREA STYLES ****/
@@ -60,6 +61,8 @@ body {
     padding: 10px;
     float: left;
     width: 68%;
+    height: 95%;
+    position: relative;
 }
 
 #selectVideo {
@@ -67,6 +70,15 @@ body {
     width: 60%;
     margin: 0 auto;
     margin-bottom: 20px;
+    z-index: 2;
+    position: relative;
+}
+
+#video {
+  top: 50px;
+  position: absolute;
+  padding-bottom: 30px;
+  z-index: 1;
 }
 
 .floatDiv {
