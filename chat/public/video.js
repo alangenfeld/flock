@@ -9,6 +9,7 @@ $(document).ready(function()
          args = { 'category': 'sports' };
          $.getJSON(channel_query, args, function(channels)
          {
+            listChannels(channels);
             var elSel = document.getElementById('selectVideo');
             $.each(channels, function(j, channel)
             {
@@ -37,6 +38,27 @@ $("#selectVideo").change(function()
    chooseContent(val, 'justin.tv');
   $("#video").append(html_code);
 });
+
+function listChannels(channels)
+{
+  $.each(channels, function(j, channel)
+  {
+    var html = 
+      "<div class=\"contentListItem\">" +
+      "<div class=\"contentViewers\">" +
+        "<div class=\"contentViewersCount\">" + channel.channel.views_count + "</div>" +
+        "<div class=\"contentViewersLabel\">people</div>" +
+      "</div>" +
+      "<div class=\"contentInformation\">" +
+        "<span class=\"contentTitle\">" + channel.title + "</span>" +
+        "<span class=\"contentCategory\">" + channel.category + "</span>" + 
+      "</div>" +
+      "<div class=\"contentListItemClear\"></div>"
+      "</div>";
+
+    $("#contentList").append(html);
+  });
+}
 
 function removeStream(streamID)
 {

@@ -61,6 +61,15 @@ body {
     width: 68%;
 }
 
+.contentListItem {
+  clear: both;
+  overflow: visible;
+  width: 667px;
+  margin: 0 3px;
+  cursor: pointer;
+  border-bottom: 1px solid #E6E6E6;
+}
+
 #selectVideo {
     display: block;
     width: 60%;
