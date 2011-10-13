@@ -61,6 +61,13 @@ function displayVideo(login, title)
     var html_code = "<div class='floatDiv' id='" + login + "'><object type=application/x-shockwave-flash height=295 width=353 data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /><param name=flashvars value=channel=" + login + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /></object><br/><center><p><b>Title:</b> " + title.substring(0,35) + "<br/><a onmouseout=this.style.textDecoration='none' onmouseover=this.style.textDecoration='underline';this.style.cursor='pointer' onclick=removeStream('" + login + "')>Click to Remove Stream</a></center></p></div>";
     chooseContent(login, 'justin.tv');
     document.getElementById("video").innerHTML = html_code;
+    
+    var children = $("#video").children();
+    if (children && children.children()) {
+        children.children().height($("#side").height()*0.8);
+        children.children().width($("#content").width());
+    }
+
 }
 
 function removeStream(streamID)
