@@ -24,6 +24,10 @@ var ClientList = Class({
         this.clients = _.without(this.clients, client);
     },
     
+    'numClients': function () {
+        return this.clients.length;
+    },
+    
     /**
      * Send a cmd with data to all clients on this object
      */
@@ -45,6 +49,8 @@ var ClientList = Class({
     }
 });
 
+var MAX_ROOM_CLIENTS = 2;
+
 var Content = ClientList.extend({
     'override __construct': function(cid, type) {
         this._super();
@@ -54,11 +60,23 @@ var Content = ClientList.extend({
     },
     
     'addClient': function(client) {
+        var room = null;
         if (this.rooms.length == 0)
-            this.rooms[0] = new Room();
+            room = this.rooms[0] = new Room();
+        else {
+            for (var i = 0; i < this.rooms.length; i++)
+                if (this.rooms[i].numClients() < MAX_ROOM_CLIENTS) {
+                    room = this.rooms[i];
+                    break;
+                }
+            if (room == null) {
+                room = new Room();
+                this.rooms.push(room);
+            }
+        }
         this.clients.push(client);
-        this.rooms[0].addClient(client);
-        return this.rooms[0];
+        room.addClient(client);
+        return room;
     }
 });
 
