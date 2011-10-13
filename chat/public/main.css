@@ -72,6 +72,11 @@ body {
     float:left;
 }
 
+.clickable:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 /**** SIDE STYLES ****/
 
 #side {
