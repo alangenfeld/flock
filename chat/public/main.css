@@ -36,6 +36,7 @@ body {
     height: 45px;
     font-size: 3em;
     font-weight:bold;
+    color: #333;
 }
 
 #footer {
@@ -54,7 +55,7 @@ body {
 }
 
 #content {
-    border: 1px solid #aaa;
+    border: 1px solid #888;
     background-color: #fff;
     padding: 10px;
     float: left;
@@ -78,7 +79,7 @@ body {
     width: 25%; height: 95%;
     float: left;
     background-color: #fff;
-    border: 1px solid #aaa;
+    border: 1px solid #888;
     margin-left: 10px;
     position: relative;
 }
@@ -89,7 +90,7 @@ body {
     text-align: center;
     color: #ffffff;
     font-weight: bold; font-size: 1.1em;
-    background-color: #aaa;
+    background-color: #888;
 }
 
 #text {
@@ -107,6 +108,6 @@ body {
 
 input#msg {
     width: 100%;
-    border: 1px solid #aaa;
+    border: 1px solid #888;
     height: 20px;
 }
