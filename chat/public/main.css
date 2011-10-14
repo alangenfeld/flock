@@ -33,14 +33,14 @@ body {
 }
 
 #header {
-    height: 45px;
+   /* height: 45px;
     font-size: 3em;
     font-weight:bold;
-    color: #333;
+    color: #333; */
 }
 
 #flockLogo {
-    height: 40px;
+    height: 25px;
 }
 
 #footer {
@@ -56,7 +56,7 @@ body {
 #main {
     position: absolute;
     left: 0px; right:   0px;
-    top: 45px; bottom: 45px;
+    top: 30px; bottom: 45px;
 }
 
 #content {
