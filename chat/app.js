@@ -177,6 +177,7 @@ var Client = Class({
 var COMMANDS = [
     "login",
     "pick_content",
+    "remove_content",
     "msg",
     "action"
 ];
@@ -252,6 +253,11 @@ var Server = ClientList.extend({
         client.send("room_info", {room_name:room.name});
     },
     
+    'cmd_remove_content':function(client) {
+        client.removeRoom();
+        client.removeContent();
+    },
+
     'cmd_msg': function(client, data) {
         client.act();
         db.logChat(client.content.id, client.room.id, client.id, data.msg);

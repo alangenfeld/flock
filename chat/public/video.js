@@ -96,6 +96,7 @@ function displayVideo(login, title)
 
 function removeStream(streamID)
 {
+   removeContent();
    var d = document.getElementById("video");
    var olddiv = document.getElementById(streamID);
    d.removeChild(olddiv);

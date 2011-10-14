@@ -85,6 +85,10 @@ var Room = {
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         $("#side").show();
+    },
+
+    removeContent : function() {
+        socket.emit("remove_content");
     }
 };
 
@@ -105,4 +109,8 @@ $(document).ready(
 
 function chooseContent(cid, type) {
     Room.pickContent(cid, type);
+}
+
+function removeContent() {
+    Room.removeContent();
 }
