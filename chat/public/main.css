@@ -39,6 +39,11 @@ body {
     color: #333;
 }
 
+#flockLogo {
+    height: 40px;
+    width: 140px;
+}
+
 #footer {
     position: absolute;
     bottom: 0px; left: 0px; right: 0px;
