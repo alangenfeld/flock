@@ -1,22 +1,20 @@
+var globals = {};
+globals.contentLimit = 20;
+globals.contentOffset = 0;
+
 $(document).ready(function()
 {
    var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
    $.getJSON(category_query, function(categories)
    {
-      var elSel = document.getElementById('selectVideo');
+      var elSel = $("#selectVideo");
+
+      elSel.append($("<option></option>").attr("value",-1).text("Please select a stream category"));
+
       // populate dropdown with categories to choose from
       $.each(categories, function(i,category)
       {
-        var elOptNew = document.createElement('option');
-        elOptNew.text = category.name;
-        elOptNew.value = i;
-        var elOptOld = elSel.options[elSel.selectedIndex];  
-        try {
-            elSel.add(elOptNew, elSel.length);// standards compliant; doesn't work in IE
-        }
-        catch(ex) {
-            elSel.add(elOptNew, elSel.selectedIndex); // IE only
-        }
+        elSel.append($("<option></option>").attr("value",i).text(category.name));
       });
    });
 });
@@ -31,21 +29,35 @@ window.onresize = function() {
 
 $("#selectVideo").change(function()
 {
-    document.getElementById("video").innerHTML = "";
-    var e = document.getElementById("selectVideo");
-    var val = e.options[e.selectedIndex].value;
-    var channel_query = 'http://api.justin.tv/api/stream/list.json?jsonp=?';
-    var args = { 'category': val };
-    $.getJSON(channel_query, args, function(channels)
-    {
-        listChannels(channels);
-    });
+    $("#video").html(""); // Clear the old video stream
+    $("#contentList").html(""); // Clear the old content list
+    globals.contentOffset = 0; // Reset the offset
+    getMoreChannels();
 });
 
-function listChannels(channels)
+function getMoreChannels()
+{
+    var e = document.getElementById("selectVideo");
+    var val = e.options[e.selectedIndex].value;
+    if (val == -1) return;
+    var channel_query = 'http://api.justin.tv/api/stream/list.json?jsonp=?';
+    var args = { 'category': val , 'limit': globals.contentLimit, 'offset': globals.contentOffset};
+    $.getJSON(channel_query, args, function(channels)
+    { 
+      globals.contentOffset += channels.length;
+      addChannels(channels);
+    });
+}
+
+$("#content").scroll(function() {
+    if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
+        getMoreChannels();
+    }
+});
+
+function addChannels(channels)
 {
   var contentList = $("#contentList");
-  contentList.html(""); // Clear the old list
 
   $.each(channels, function(j, channel)
   {

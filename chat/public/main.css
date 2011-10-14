@@ -74,6 +74,14 @@ body {
   border-bottom: 1px solid #E6E6E6;
 }
 
+.contentListItem:nth-child(even) {
+  background-color: #F6F6F6;
+}
+
+.contentListItem:hover {
+  background: #F0F0F0;
+}
+
 .contentViewers {
   float: left;
   width: 95px;
