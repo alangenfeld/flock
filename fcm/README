@@ -5,3 +5,10 @@ Provide a system for aggegrating information from various content sources
 (for now just justintv) and putting that information in the redis server
 
 Written in go
+
+To build/run this project:
+   - get/build go: http://golang.org/doc/install.html
+     (make sure you have $GOROOT set or export it in your bashrc)
+   - "goinstall gb"
+   - in fcm directory, type "gb"
+   - ... todo ...

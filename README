@@ -5,10 +5,10 @@ _/  (/_(_)(__/ |_
 
 --- Remzi's Entrepeneurs ---
 
-Scalable chat.
+Scalable chat. And stuff.
 
 Project dirs:
 	chat/ - javascript, node server backend and client side stuff
 	analysis/ - python text analysis daemon
-	fcm/ - Go, content aggregrating system
+	fcm/ - Go, content aggregration system
 
