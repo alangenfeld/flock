@@ -1,4 +1,6 @@
+Node backend for Flock
 
-This is how you run the thing:
-
-node app.js [port]
+app.js - main javascript server
+db.js - redis stuff
+public/client.js - primary client-side code
+index.jade - website template

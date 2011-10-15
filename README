@@ -1,6 +1,14 @@
-oh remzi...
+ _______         
+(  /  //       / 
+ -/--// __ _, /< 
+_/  (/_(_)(__/ |_
 
-Development is happening in the chat/ directory
-the others are node examples
+--- Remzi's Entrepeneurs ---
 
-$ node chat/app.js
+Scalable chat.
+
+Project dirs:
+	chat/ - javascript, node server backend and client side stuff
+	analysis/ - python text analysis daemon
+	fcm/ - Go, content aggregrating system
+
