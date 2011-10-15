@@ -1,0 +1,7 @@
+Flock content manager
+---------------------
+
+Provide a system for aggegrating information from various content sources
+(for now just justintv) and putting that information in the redis server
+
+Written in go
