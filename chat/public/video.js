@@ -41,7 +41,7 @@ function getMoreChannels()
     var val = e.options[e.selectedIndex].value;
     if (val == -1) return;
     var channel_query = 'http://api.justin.tv/api/stream/list.json?jsonp=?';
-    var args = { 'category': val , 'limit': globals.contentLimit, 'offset': globals.contentOffset};
+    var args = { 'category': val , 'language':"en", 'limit': globals.contentLimit, 'offset': globals.contentOffset};
     $.getJSON(channel_query, args, function(channels)
     { 
       globals.contentOffset += channels.length;
@@ -61,20 +61,24 @@ function addChannels(channels)
 
   $.each(channels, function(j, channel)
   {
-    var html = 
-      "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', \'" + channel.title + "\');\">" +
-      "<div class=\"contentViewers\">" +
-        "<div class=\"contentViewersCount\">" + channel.channel_count + "</div>" +
-        "<div class=\"contentViewersLabel\">people</div>" +
-      "</div>" +
-      "<div class=\"contentInformation\">" +
-        "<span class=\"contentTitle\">" + channel.title + "</span>" +
-        "<span class=\"contentCategory\">" + channel.channel.category_title + "</span>" + 
-      "</div>" +
-      "<div class=\"contentListItemClear\"></div>"
-      "</div>";
+    //var name = "";
+    var name = channel.title;
+    if(name != null && name.match("undefined") == null){// != "undefined" ){
+      var html = 
+        "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', \'" + channel.title + "\');\">" +
+        "<div class=\"contentViewers\">" +
+          "<div class=\"contentViewersCount\">" + channel.channel_count + "</div>" +
+          "<div class=\"contentViewersLabel\">people</div>" +
+        "</div>" +
+        "<div class=\"contentInformation\">" +
+          "<span class=\"contentTitle\">" + channel.title + "</span>" +
+          "<span class=\"contentCategory\">" + channel.channel.category_title + "</span>" + 
+        "</div>" +
+        "<div class=\"contentListItemClear\"></div>"
+        "</div>";
+      contentList.append(html);
+    }
 
-    contentList.append(html);
   });
 
   contentList.show();
