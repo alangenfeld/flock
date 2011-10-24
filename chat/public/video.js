@@ -61,9 +61,8 @@ function addChannels(channels)
 
   $.each(channels, function(j, channel)
   {
-    //var name = "";
     var name = channel.title;
-    if(name != null && name.match("undefined") == null){// != "undefined" ){
+    if(name != null && name.match("undefined") == null){
       var html = 
         "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', \'" + channel.title + "\');\">" +
         "<div class=\"contentViewers\">" +
