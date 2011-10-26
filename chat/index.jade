@@ -1,29 +1,37 @@
 doctype 5
 html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fbfml")
   head
-    link(href="style.css", rel="stylesheet", media="screen")
+    link(href="/main.css", rel="stylesheet", media="screen")
     script(src="http://code.jquery.com/jquery-1.6.1.min.js")
     script(src="/socket.io/socket.io.js")
-    script(src="client.js")
+    script(src="/client.js")
+    script(src="jquery.cssemoticons.js")
+    link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")
   body
     #fb-root
+    #landing
+      #landing-text Welcome to Flock
+      fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
+      button#testLogin TEST LOG IN
     #container
+      #header
+        #logo
+          img#flockLogo(src="/flock.png", alt="flock")
       #main
-        select#selectVideo
-        #video
-        .center STEVE JOBS TV GOES HERE LOLOLOLOL
-      #side
-        #login
-          .center
-            fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
-            button#testLogin TEST LOG IN
-        #chat
+        #content
+          select#selectVideo
+          #contentList
+          #video
+          div(style="clear: both;")
+        #side         
           #roomName
           #text
           #bottomBox
-              form#send
-                span  msg:
-                  input#msg
+            form#send
+              input#msg
+      #footer
+         | Copyright &copy; 2011 Remzi's Entrepreneurs.<br />
+         small just kidding Flock is probably already trademarked
   footer
     script(src="fb.js")
     script(src="video.js")	

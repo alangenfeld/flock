@@ -1,0 +1,200 @@
+
+html, body { height: 100%; overflow: hidden; }
+html, body, div, span { margin: 0; padding: 0; }
+
+body {
+    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+    font-size: 0.8em;
+    background-color: #e0e0e0;
+}
+
+/******** LANDING PAGE ********/
+
+#landing {
+    width: 500px;
+    text-align: center;
+    margin: 120px auto;
+}
+
+#landing-text {
+    font-size: 4em;
+    font-weight: bold;
+    margin-bottom: 100px;
+}
+
+/******** MAIN PAGE ********/
+
+#container {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    display: none;
+    margin: 10px;
+    position: relative;
+}
+
+#header {
+   /* height: 45px;
+    font-size: 3em;
+    font-weight:bold;
+    color: #333; */
+}
+
+#flockLogo {
+    height: 25px;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0px; left: 0px; right: 0px;
+    height: 45px;
+    text-align: center;
+    z-index: 2;
+}
+
+/**** VIDEO AREA STYLES ****/
+
+#main {
+    position: absolute;
+    left: 0px; right:   0px;
+    top: 30px; bottom: 45px;
+}
+
+#content {
+    border: 1px solid #888;
+    background-color: #fff;
+    padding: 10px;
+    float: left;
+    width: 68%;
+    height: 95%;
+    overflow: auto;
+    position: relative;
+}
+
+.contentListItem {
+  clear: both;
+  overflow: visible;
+  margin: 0 3px;
+  cursor: pointer;
+  border-bottom: 1px solid #E6E6E6;
+}
+
+.contentListItem:nth-child(even) {
+  background-color: #F6F6F6;
+}
+
+.contentListItem:hover {
+  background: #F0F0F0;
+}
+
+.contentViewers {
+  float: left;
+  width: 95px;
+  text-align: right;
+  font-weight: normal;
+  padding: 20px 0;
+}
+
+.contentViewersCount {
+  font-size: 40px;
+  color: #161616;
+  letter-spacing: -1px;
+  line-height: 38px;
+}
+
+.contentViewersLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #161616;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.contentInformation {
+  float: left;
+  padding: 20px 0;
+  width: 485px;
+  margin-left: 20px;
+  margin-right: 5px;
+  overflow: hidden;
+}
+
+.contentTitle {
+  display: block;
+  font-weight: bold;
+  font-size: 18px;
+  color: #161616;
+}
+
+.contentCategory {
+  display: block;
+  font-size: 13px;
+  color: #454545;
+}
+
+.contentListItemClear {
+  clear: both;
+}
+
+#selectVideo {
+    display: block;
+    width: 60%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    z-index: 2;
+    position: relative;
+}
+
+#video {
+  top: 50px;
+  position: absolute;
+  padding-bottom: 30px;
+  z-index: 1;
+}
+
+.floatDiv {
+    float:left;
+}
+
+.clickable:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/**** SIDE STYLES ****/
+
+#side {
+    width: 25%; height: 95%;
+    float: left;
+    background-color: #fff;
+    border: 1px solid #888;
+    margin-left: 10px;
+    position: relative;
+}
+
+#roomName {
+    width: 100%; height: 25px;
+    padding-top: 9px;
+    text-align: center;
+    color: #ffffff;
+    font-weight: bold; font-size: 1.1em;
+    background-color: #888;
+}
+
+#text {
+    position: absolute;
+    width: 97%; top: 35px; bottom: 31px;
+    overflow: auto;
+    padding: 3px; 
+    word-wrap: break-word;
+}
+
+#bottomBox {
+    position: absolute;
+    bottom: 5px; left: 5px; right: 7px;
+}
+
+input#msg {
+    width: 100%;
+    border: 1px solid #888;
+    height: 20px;
+}

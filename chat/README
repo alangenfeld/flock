@@ -1,31 +1,6 @@
+Node backend for Flock
 
-A node backend for the project.
-
-============================
-
-We're using:
-    o Node.js - evented I/O for JS. Provides event loop as a
-                "language construct" with callback-based programming
-                http://nodejs.org/
-
-    o Redis - A key/value or "data structure" server. Fast, in-memory data
-              sharing and background-writing persistence.
-              http://redis.io
-
-    o Socket.IO - server and client side socket networking, cross-browser and
-                  very simple. Uses websockets if available, or flash if available,
-                  or ajax if available.
-                  http://socket.io
-
-    o Structr - Provide a simple class system for javascript. Looks clean and
-                can provide more advanced functionality if needed, like overloading,
-                properties, etc.
-                https://github.com/spiceapps/Structr
-
-    o JSDoc - using jsdoc style for commenting and documentation. Following
-              google javascript style guide
-              see http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
-              and http://code.google.com/p/jsdoc-toolkit/
-              and https://github.com/micmath/jsdoc
-
-    o Express/Jade - express is a node web framework, jade is a templating engine.
+app.js - main javascript server
+db.js - redis stuff
+public/client.js - primary client-side code
+index.jade - website template
