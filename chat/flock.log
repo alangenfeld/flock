@@ -1,2 +1,12 @@
 {"level":"info","message":"Server started"}
 {"level":"info","message":"Server started"}
+{"level":"info","message":"Server started"}
+{"level":"info","message":"Server started"}
+{"level":"info","message":" Received command: login"}
+{"level":"info","message":"Client logged in with ID 1280100126"}
+{"level":"info","message":" Received command: pick_content"}
+{"level":"info","message":" Received command: login"}
+{"level":"info","message":"Client logged in with ID 1280100126"}
+{"level":"info","message":"Server started"}
+{"level":"info","message":" Received command: login"}
+{"level":"info","message":"Client logged in with ID 1280100126"}

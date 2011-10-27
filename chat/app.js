@@ -134,7 +134,9 @@ var Client = Class({
         this.acts += 1;
     },
     
-    'add_friends': function(fbids) { }
+    'add_friends': function(fbids) {
+      log.debug(fbids);
+    },
 
     /**
      * Calculate the object's total activity
@@ -274,7 +276,7 @@ var Server = ClientList.extend({
 
     'cmd_add_friends': function(client, data) {
       client.add_friends(data['friends']);
-    }
+    },
     
     'cmd_action': function(client, data) {
         var action = String(data["action"]);
