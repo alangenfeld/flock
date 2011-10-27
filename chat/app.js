@@ -115,6 +115,8 @@ var Client = Class({
         this.acts = 0;
         this.send    = function(cmd, data) { this.socket.emit(cmd, data); };
         this.on      = function(ev, fn) { this.socket.on(ev, fn); };
+        this.friend_fbids = [];
+        this.friends = {};
     },
     
     'info': function(text) {
@@ -128,6 +130,8 @@ var Client = Class({
         this.acts += 1;
     },
     
+    'add_friends': function(fbids) { }
+
     /**
      * Calculate the object's total activity
      * @return acts per minute
@@ -263,6 +267,10 @@ var Server = ClientList.extend({
         db.logChat(client.content.id, client.room.id, client.id, data.msg);
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     },
+
+    'cmd_add_friends': function(client, data) {
+      client.add_friends(data['friends']);
+    }
     
     'cmd_action': function(client, data) {
         var action = String(data["action"]);
