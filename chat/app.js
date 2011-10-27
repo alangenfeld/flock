@@ -189,7 +189,8 @@ var COMMANDS = [
     "pick_content",
     "remove_content",
     "msg",
-    "action"
+    "action",
+    "add_friends"
 ];
 
 /**
