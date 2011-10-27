@@ -1,6 +1,7 @@
 var globals = {};
 globals.contentLimit = 20;
 globals.contentOffset = 0;
+isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
 $(document).ready(function()
 {
@@ -22,20 +23,28 @@ $(document).ready(function()
 window.onresize = function() {
     var children = $("#video").children();
     if (children && children.children()) {
-        children.children().height($("#side").height()*0.8);
-        children.children().width($("#content").width());
+        children.children().height($("#side").height()*0.6);
+        children.children().width($("#content").width()*0.98);
     }
+    
+    children = $("#secondaryVideo").children();
+    if (children && children.children()) {
+        children.children().height($("#side").height()*0.2);
+        children.children().width($("#content").width()*0.31);
+    }
+
 };
 
 $("#selectVideo").change(function()
 {
-    $("#video").html(""); // Clear the old video stream
+
     $("#contentList").html(""); // Clear the old content list
     globals.contentOffset = 0; // Reset the offset
     getMoreChannels();
+
 });
 
-function getMoreChannels()
+function getMoreChannels(freeBird)
 {
     var e = document.getElementById("selectVideo");
     var val = e.options[e.selectedIndex].value;
@@ -51,7 +60,7 @@ function getMoreChannels()
 
 $("#content").scroll(function() {
     if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
-        getMoreChannels();
+        getMoreChannels(isFreeBird);
     }
 });
 
@@ -73,7 +82,7 @@ function addChannels(channels)
       "</div>" +
       "<div class=\"contentListItemClear\"></div>"
       "</div>";
-
+      
     contentList.append(html);
   });
 
@@ -83,21 +92,76 @@ function addChannels(channels)
 function displayVideo(login, title)
 {
     $("#contentList").hide();
-    var html_code = "<div class='floatDiv' id='" + login + "'><object type=application/x-shockwave-flash height=295 width=353 data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /><param name=flashvars value=channel=" + login + " bgcolor=#000000><param name=allowFullScreen value=true /><param name=allowscriptaccess value=always /><param name=movie value=http://www.justin.tv/widgets/jtv_player.swf /></object><br/><center><p><b>Title:</b> " + title.substring(0,35) + "<br/><a onmouseout=this.style.textDecoration='none' onmouseover=this.style.textDecoration='underline';this.style.cursor='pointer' onclick=removeStream('" + login + "')>Click to Remove Stream</a></center></p></div>";
-    chooseContent(login, 'justin.tv');
-    document.getElementById("video").innerHTML = html_code;
-    
-    var children = $("#video").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height()*0.8);
-        children.children().width($("#content").width());
+    var videoClass;
+    var videoId = login;
+    if(!isFreeBird)
+    {
+        videoClass = "floatDiv";
+        videoId = videoId + "_secondary";
     }
+       
+    
+    var html_code = 
+            "<div class='" + videoClass + "' id='" + videoId + "'>"
+            + "<object type=application/x-shockwave-flash data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
+            + "<param name=allowFullScreen value=true />"
+            + "<param name=allowscriptaccess value=always />"
+            + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
+            + "<param name=flashvars value=channel=" + login + " bgcolor=#000000>"
+            + "<param name=allowFullScreen value=true />"
+            + "<param name=allowscriptaccess value=always />"
+            + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
+            + "</object>";
+    var leave_html =
+            "<br/>"
+            + "<center><p>"
+               + "<b>Title:</b> " + title.substring(0,35) + "<br/>"
+               + "<a onmouseout=this.style.textDecoration='none' onmouseover=this.style.textDecoration='underline';this.style.cursor='pointer' onclick=removeStream('" + videoId + "')>Click to Remove Stream</a>"
+            + "</p></center>"
+            + "</div>";
+    
+    var dropdown = document.getElementById("selectVideo");
+    
+    if(isFreeBird)
+    {
+        chooseContent(login, 'justin.tv');
+        dropdown.options[0] = new Option("Click to add a secondary stream", "-1");
+        document.getElementById("video").innerHTML = html_code + "<br/>";
+        
+        var leave_button = "<img id='leave' src='leaving.jpg' onClick='window.location.reload()' title='Click to leave flock.'/>";
+        $("#categorySelect").append(leave_button);
+        
+        isFreeBird = false;    
+        
+        var children = $("#video").children();
+        
+        if (children && children.children()) {
+            children.children().height($("#side").height()*0.6);
+            children.children().width($("#content").width()*0.98);
+        }
+        
+    }else{
+        $("#secondaryVideo").append(html_code + leave_html);
+        
+        children = $("#secondaryVideo").children();
+
+        if (children && children.children()) {
+            children.children().height($("#side").height()*0.2);
+            children.children().width($("#content").width()*0.31);
+        }
+
+     }
+    
+ 
+    
+    dropdown.selectedIndex = 0;
+    
 }
 
 function removeStream(streamID)
 {
-   removeContent();
-   var d = document.getElementById("video");
+//   removeContent();
+   var d = document.getElementById("secondaryVideo");
    var olddiv = document.getElementById(streamID);
-   d.removeChild(olddiv);
+    d.removeChild(olddiv);
 }
