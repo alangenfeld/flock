@@ -14,6 +14,9 @@ var Chat = {
         $("#landing").hide();
         $("#side").hide();
         $("#container").show();
+        getFriends(function(info) {
+            socket.emit("add_friends", {"friends": info.friends}); 
+        });
     },
     
     getMsg : function(data) {
