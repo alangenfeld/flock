@@ -87,11 +87,11 @@ var Content = ClientList.extend({
     }
 });
 
-var Room = ClientList.extend({
+var Flock = ClientList.extend({
     'override __construct': function(rid) {
         this._super();
-        this.id = rid;
-        this.name = "Room #" + rid;
+        this.id = fid;
+        this.name = "Flock #" + fid;
     },
     
     'addClient': function(client) {
@@ -100,6 +100,8 @@ var Room = ClientList.extend({
         this.clients.push(client);
     }
 });
+
+var online_users = {}
 
 /**
  * Represents a client connected to the server
@@ -133,9 +135,23 @@ var Client = Class({
     'act': function() {
         this.acts += 1;
     },
+
+    'online_friends' : function() {
+      var list = {};
+      for (var i = 0; i < this.friends.length; i++) {
+        list[this.friends[i].id] = this.friends[id].fid;
+      }
+      return list;
+    },
     
     'add_friends': function(fbids) {
-      log.debug(fbids);
+      this.friend_fbids = fbids;
+      log.debug(this.friend_fbids);
+      for (var i = 0; i < fbids.length; i++) {
+        var fbid = this.fbids[i];
+        if (fbid in online_users) {
+          this.friends[fbid] = online_users[fbid];
+        }
     },
 
     /**
@@ -152,6 +168,7 @@ var Client = Class({
      */
     'logIn': function(uid) {
         this.id = uid;
+        online_users[uid] = this;
     },
     
     'setContent': function(c) {
