@@ -16,7 +16,11 @@ var Chat = {
         $("#side").hide();
         $("#container").show();
         getFriends(function(info) {
-            socket.emit("add_friends", {"friends": info.friends}); 
+            var fbids = new Array();
+            for (var i in info.friends) {
+                fbids.push(info.friends[i].id);
+            }
+            socket.emit("add_friends", {"friends": fbids}); 
         });
     },
     
