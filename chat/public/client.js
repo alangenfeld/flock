@@ -20,12 +20,19 @@ var Chat = {
     },
     
     getMsg : function(data) {
+<<<<<<< HEAD
+      var add = function(name, m) {
+        $("#text").append("<b>" + name + "</b>: " + m + "<br />");
+        $("#text").animate({ scrollTop: $("#text").prop("scrollHeight")});
+      };
+=======
         var add = function(name, m) {
             console.log("put " + name + m);
             $("#text").append("<b>" + name + ":</b> " + m + "<br />");
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
         };
+>>>>>>> 38b8587adac90173638f5e5d91be9038b248c6a8
 
         var uid = data["userID"];
         var _m = data["msg"];
