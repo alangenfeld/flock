@@ -15,6 +15,10 @@ var io = sio.listen(app);
 
 io.set("log level", 0);
 
+var log = require('winston');
+log.remove(log.transports.Console);
+log.add(log.transports.File, { filename: 'flock.log' });
+
 var ClientList = Class({
     '__construct': function() {
         this.clients = [];
@@ -212,12 +216,11 @@ var Server = ClientList.extend({
         var cmdStr = "cmd_" + cmd;
         var that = this;
         client.on(cmd, function (data) {
-            console.log("Received command: " + cmd + ", from uid: " + client.id);
-            console.log(data);
+            log.info(" Received command: " + cmd);
             try {
                 that[cmdStr].call(that, client, data);
             } catch (e) {
-                console.log("Executing cmd " + cmd + " failed: " + e);
+                log.info("Executing cmd " + cmd + "failed: " + e);
             }
         });        
     },
@@ -227,6 +230,7 @@ var Server = ClientList.extend({
         if (lid == -1)
             throw new Exception("Client tried to login with ID -1");
         client.logIn(lid);
+        log.info("Client logged in with ID " + lid);
     },
     
     'cmd_pick_content': function(client, data) {
@@ -296,4 +300,4 @@ io.sockets.on("connection", function(socket) {
     chat.addClient(cl);
 });
 
-console.log("Server started");
+log.info("Server started");

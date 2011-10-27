@@ -43,7 +43,6 @@ function getUserInfo(cb){
 }
 
 function getFriends(cb){
-
 	$.getJSON('https://graph.facebook.com/me/friends?access_token='+token+'&callback=?', function(json){
 		user_info = new Object();
 		user_info.friends = json["data"];
