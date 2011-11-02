@@ -1,493 +1,1433 @@
-//   Copyright 2009 Joubin Houshyar
-// 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//    
-//   http://www.apache.org/licenses/LICENSE-2.0
-//    
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-//
+// FROM https://github.com/etherealmachine/redis.go
 
-/*
-	Package redis defines the interfaces for Redis clients. 
-*/
 package redis
 
 import (
-	"flag"
-//	"runtime";
+	"bufio"
+	"bytes"
+	"container/vector"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
 )
 
-
-// ----------------------------------------------------------------------------
-// Interfaces
-// ----------------------------------------------------------------------------
-
-
-// The synchronous call semantics Client interface.
-//
-// Method names map one to one to the Redis command set.
-// All methods may return an redis.Error, which is either
-// a system error (runtime issue or bug) or Redis error (i.e. user error)
-// See Error in this package for details of its interface.
-/* 
-	The synchronous client interface provides blockng call semantics supported by
-	a distinct request/reply sequence at the connector level.
-	
-	Method names map one to one to the Redis command set.
-
-	All methods may return an redis.Error, which is either a Redis error (from
-	the server), or a system error indicating a runtime issue (or bug).
-	See Error in this package for details of its interface.
-
-	Usage example:
-
-	func usingRedisSync () Error {
-		spec := DefaultConnectionSpec();
-		pipeline := NewAsynchClient(spec);
-
-		// futureBytes is a FutureBytes
-		value, reqErr := pipline.Get("my-key");
-		if reqErr != nil { return withError (reqErr); }
-	}
-
-*/
-
-type Client interface {
-
-	// Redis GET command.
-	Get (key string) (result []byte, err Error);
-
-	// Redis TYPE command.
-	Type (key string) (result KeyType, err Error);
-
-	// Redis SET command.
-	Set (key string, arg1 []byte) (Error);
-
-	// Redis SAVE command.
-	Save () (Error);
-
-	// Redis KEYS command using "*" wildcard 
-	AllKeys () (result []string, err Error);
-
-	// Redis KEYS command.
-	Keys (key string) (result []string, err Error);
-
-	// Redis EXISTS command.
-	Exists (key string) (result bool, err Error);
-
-	// Redis RENAME command.
-	Rename (key string, arg1 string) (Error);
-
-	// Redis INFO command.
-	Info () (result map[string]string, err Error);
-
-	// Redis PING command.
-	Ping () (Error);
-
-	// Redis QUIT command.
-	Quit () (Error);
-
-	// Redis SETNX command.
-	Setnx (key string, arg1 []byte) (result bool, err Error);
-
-	// Redis GETSET command.
-	Getset (key string, arg1 []byte) (result []byte, err Error);
-
-	// Redis MGET command.
-	Mget (key string, arg1 []string) (result [][]byte, err Error);
-
-	// Redis INCR command.
-	Incr (key string) (result int64, err Error);
-
-	// Redis INCRBY command.
-	Incrby (key string, arg1 int64) (result int64, err Error);
-
-	// Redis DECR command.
-	Decr (key string) (result int64, err Error);
-
-	// Redis DECRBY command.
-	Decrby (key string, arg1 int64) (result int64, err Error);
-
-	// Redis DEL command.
-	Del (key string) (result bool, err Error);
-
-	// Redis RANDOMKEY command.
-	Randomkey () (result string, err Error);
-
-	// Redis RENAMENX command.
-	Renamenx (key string, arg1 string) (result bool, err Error);
-
-	// Redis DBSIZE command.
-	Dbsize () (result int64, err Error);
-
-	// Redis EXPIRE command.
-	Expire (key string, arg1 int64) (result bool, err Error);
-
-	// Redis TTL command.
-	Ttl (key string) (result int64, err Error);
-
-	// Redis RPUSH command.
-	Rpush (key string, arg1 []byte) (Error);
-
-	// Redis LPUSH command.
-	Lpush (key string, arg1 []byte) (Error);
-
-	// Redis LSET command.
-	Lset (key string, arg1 int64, arg2 []byte) (Error);
-
-	// Redis LREM command.
-	Lrem (key string, arg1 []byte, arg2 int64) (result int64, err Error);
-
-	// Redis LLEN command.
-	Llen (key string) (result int64, err Error);
-
-	// Redis LRANGE command.
-	Lrange (key string, arg1 int64, arg2 int64) (result [][]byte, err Error);
-
-	// Redis LTRIM command.
-	Ltrim (key string, arg1 int64, arg2 int64) (Error);
-
-	// Redis LINDEX command.
-	Lindex (key string, arg1 int64) (result []byte, err Error);
-
-	// Redis LPOP command.
-	Lpop (key string) (result []byte, err Error);
-
-	// Redis RPOP command.
-	Rpop (key string) (result []byte, err Error);
-
-	// Redis RPOPLPUSH command.
-	Rpoplpush (key string, arg1 string) (result []byte, err Error);
-
-	// Redis SADD command.
-	Sadd (key string, arg1 []byte) (result bool, err Error);
-
-	// Redis SREM command.
-	Srem (key string, arg1 []byte) (result bool, err Error);
-
-	// Redis SISMEMBER command.
-	Sismember (key string, arg1 []byte) (result bool, err Error);
-
-	// Redis SMOVE command.
-	Smove (key string, arg1 string, arg2 []byte) (result bool, err Error);
-
-	// Redis SCARD command.
-	Scard (key string) (result int64, err Error);
-
-	// Redis SINTER command.
-	Sinter (key string, arg1 []string) (result [][]byte, err Error);
-
-	// Redis SINTERSTORE command.
-	Sinterstore (key string, arg1 []string) (Error);
-
-	// Redis SUNION command.
-	Sunion (key string, arg1 []string) (result [][]byte, err Error);
-
-	// Redis SUNIONSTORE command.
-	Sunionstore (key string, arg1 []string) (Error);
-
-	// Redis SDIFF command.
-	Sdiff (key string, arg1 []string) (result [][]byte, err Error);
-
-	// Redis SDIFFSTORE command.
-	Sdiffstore (key string, arg1 []string) (Error);
-
-	// Redis SMEMBERS command.
-	Smembers (key string) (result [][]byte, err Error);
-
-	// Redis SRANDMEMBER command.
-	Srandmember (key string) (result []byte, err Error);
-
-	// Redis ZADD command.
-	Zadd (key string, arg1 float64, arg2 []byte) (result bool, err Error);
-
-	// Redis ZREM command.
-	Zrem (key string, arg1 []byte) (result bool, err Error);
-
-	// Redis ZCARD command.
-	Zcard (key string) (result int64, err Error);
-
-	// Redis ZSCORE command.
-	Zscore (key string, arg1 []byte) (result float64, err Error);
-
-	// Redis ZRANGE command.
-	Zrange (key string, arg1 int64, arg2 int64) (result [][]byte, err Error);
-
-	// Redis ZREVRANGE command.
-	Zrevrange (key string, arg1 int64, arg2 int64) (result [][]byte, err Error);
-
-	// Redis ZRANGEBYSCORE command.
-	Zrangebyscore (key string, arg1 float64, arg2 float64) (result [][]byte, err Error);
-
-	// Redis FLUSHDB command.
-	Flushdb () (Error);
-
-	// Redis FLUSHALL command.
-	Flushall () (Error);
-
-	// Redis MOVE command.
-	Move (key string, arg1 int64) (result bool, err Error);
-
-	// Redis BGSAVE command.
-	Bgsave () (Error);
-
-	// Redis LASTSAVE command.
-	Lastsave () (result int64, err Error);
+const (
+	MaxPoolSize = 5
+)
+
+var defaultAddr = "127.0.0.1:7379"
+
+type Client struct {
+	Addr     string
+	Db       int
+	Password string
+	//the connection pool
+	pool chan net.Conn
 }
 
+type RedisError string
 
-/* 
-	The asynchronous client interface provides asynchronous call semantics with
-	future results supporting both blocking and try-and-timeout result accessors.
-	
-	Each method provides a type-safe future result return value, in addition to
-	any (system) errors encountered in queuing the request.  
-	
-	The returned value may be ignored by clients that are not interested in the
-	future response (for example on SET("foo", data)).  ALternatively, the caller
-	may retain the future result referenced and perform blocking and/or timed wait
-	gets on the expected response.
-	
-	[Try]Gets on the future result will return any Redis errors that were sent by
-	the server, or, Go-Redis (system) errors encountered in processing the response.
+func (err RedisError) String() string { return "Redis Error: " + string(err) }
 
-	Usage example:
+var doesNotExist = RedisError("Key does not exist ")
 
-	func usingRedisAsync () Error {
-		spec := DefaultConnectionSpec();
-		pipeline := NewRedisPipeline(spec);
+// reads a bulk reply (i.e $5\r\nhello)
+func readBulk(reader *bufio.Reader, head string) ([]byte, os.Error) {
+	var err os.Error
+	var data []byte
 
-		// futureBytes is a FutureBytes
-		futureBytes, reqErr := pipline.Get("my-key");
-		if reqErr != nil { return withError (reqErr); }
-
-		// ....
-
-		[]byte, execErr := futureBytes.Get();
-		if execErr != nil { return withError (execErr); }
-
-		// or using timeouts
-
-		timeout := 1000000; // 1 msec
-		[]byte, execErr, ok := futureBytes.TryGet (timeout);
-		if !ok { 
-			// we timedout 
+	if head == "" {
+		head, err = reader.ReadString('\n')
+		if err != nil {
+			return nil, err
 		}
-		else {
-			if execErr != nil { return withError (execErr); }
+	}
+	switch head[0] {
+	case ':':
+		data = []byte(strings.TrimSpace(head[1:]))
+
+	case '$':
+		size, err := strconv.Atoi(strings.TrimSpace(head[1:]))
+		if err != nil {
+			return nil, err
+		}
+		if size == -1 {
+			return nil, doesNotExist
+		}
+		lr := io.LimitReader(reader, int64(size))
+		data, err = ioutil.ReadAll(lr)
+		if err == nil {
+			// read end of line
+			_, err = reader.ReadString('\n')
+		}
+	default:
+		return nil, RedisError("Expecting Prefix '$' or ':'")
+	}
+
+	return data, err
+}
+
+func writeRequest(writer io.Writer, cmd string, args ...string) os.Error {
+	b := commandBytes(cmd, args...)
+	_, err := writer.Write(b)
+	return err
+}
+
+func commandBytes(cmd string, args ...string) []byte {
+	cmdbuf := bytes.NewBufferString(fmt.Sprintf("*%d\r\n$%d\r\n%s\r\n", len(args)+1, len(cmd), cmd))
+	for _, s := range args {
+		cmdbuf.WriteString(fmt.Sprintf("$%d\r\n%s\r\n", len(s), s))
+	}
+	return cmdbuf.Bytes()
+}
+
+func readResponse(reader *bufio.Reader) (interface{}, os.Error) {
+
+	var line string
+	var err os.Error
+
+	//read until the first non-whitespace line
+	for {
+		line, err = reader.ReadString('\n')
+		if len(line) == 0 || err != nil {
+			return nil, err
+		}
+		line = strings.TrimSpace(line)
+		if len(line) > 0 {
+			break
 		}
 	}
 
-*/
+	if line[0] == '+' {
+		return strings.TrimSpace(line[1:]), nil
+	}
 
-type AsyncClient interface {
+	if strings.HasPrefix(line, "-ERR ") {
+		errmesg := strings.TrimSpace(line[5:])
+		return nil, RedisError(errmesg)
+	}
 
-	// Redis GET command.
-	Get (key string) (result FutureBytes, err Error);
+	if line[0] == ':' {
+		n, err := strconv.Atoi64(strings.TrimSpace(line[1:]))
+		if err != nil {
+			return nil, RedisError("Int reply is not a number")
+		}
+		return n, nil
+	}
 
-	// Redis TYPE command.
-	Type (key string) (result FutureKeyType, err Error);
-
-	// Redis SET command.
-	Set (key string, arg1 []byte) (status FutureBool, err Error);
-
-	// Redis SAVE command.
-	Save () (status FutureBool, err Error);
-
-	// Redis KEYS command using "*" wildcard 
-	AllKeys () (result FutureKeys, err Error);
-
-	// Redis KEYS command.
-	Keys (key string) (result FutureKeys, err Error);
-
-	// Redis EXISTS command.
-	Exists (key string) (result FutureBool, err Error);
-
-	// Redis RENAME command.
-	Rename (key string, arg1 string) (status FutureBool, err Error);
-
-	// Redis INFO command.
-	Info () (result FutureInfo, err Error);
-
-	// Redis PING command.
-	Ping () (status FutureBool, err Error);
-
-	// Redis QUIT command.
-	Quit () (status FutureBool, err Error);
-
-	// Redis SETNX command.
-	Setnx (key string, arg1 []byte) (result FutureBool, err Error);
-
-	// Redis GETSET command.
-	Getset (key string, arg1 []byte) (result FutureBytes, err Error);
-
-	// Redis MGET command.
-	Mget (key string, arg1 []string) (result FutureBytesArray, err Error);
-
-	// Redis INCR command.
-	Incr (key string) (result FutureInt64, err Error);
-
-	// Redis INCRBY command.
-	Incrby (key string, arg1 int64) (result FutureInt64, err Error);
-
-	// Redis DECR command.
-	Decr (key string) (result FutureInt64, err Error);
-
-	// Redis DECRBY command.
-	Decrby (key string, arg1 int64) (result FutureInt64, err Error);
-
-	// Redis DEL command.
-	Del (key string) (result FutureBool, err Error);
-
-	// Redis RANDOMKEY command.
-	Randomkey () (result FutureString, err Error);
-
-	// Redis RENAMENX command.
-	Renamenx (key string, arg1 string) (result FutureBool, err Error);
-
-	// Redis DBSIZE command.
-	Dbsize () (result FutureInt64, err Error);
-
-	// Redis EXPIRE command.
-	Expire (key string, arg1 int64) (result FutureBool, err Error);
-
-	// Redis TTL command.
-	Ttl (key string) (result FutureInt64, err Error);
-
-	// Redis RPUSH command.
-	Rpush (key string, arg1 []byte) (status FutureBool, err Error);
-
-	// Redis LPUSH command.
-	Lpush (key string, arg1 []byte) (status FutureBool, err Error);
-
-	// Redis LSET command.
-	Lset (key string, arg1 int64, arg2 []byte) (status FutureBool, err Error);
-
-	// Redis LREM command.
-	Lrem (key string, arg1 []byte, arg2 int64) (result FutureInt64, err Error);
-
-	// Redis LLEN command.
-	Llen (key string) (result FutureInt64, err Error);
-
-	// Redis LRANGE command.
-	Lrange (key string, arg1 int64, arg2 int64) (result FutureBytesArray, err Error);
-
-	// Redis LTRIM command.
-	Ltrim (key string, arg1 int64, arg2 int64) (status FutureBool, err Error);
-
-	// Redis LINDEX command.
-	Lindex (key string, arg1 int64) (result FutureBytes, err Error);
-
-	// Redis LPOP command.
-	Lpop (key string) (result FutureBytes, err Error);
-
-	// Redis RPOP command.
-	Rpop (key string) (result FutureBytes, err Error);
-
-	// Redis RPOPLPUSH command.
-	Rpoplpush (key string, arg1 string) (result FutureBytes, err Error);
-
-	// Redis SADD command.
-	Sadd (key string, arg1 []byte) (result FutureBool, err Error);
-
-	// Redis SREM command.
-	Srem (key string, arg1 []byte) (result FutureBool, err Error);
-
-	// Redis SISMEMBER command.
-	Sismember (key string, arg1 []byte) (result FutureBool, err Error);
-
-	// Redis SMOVE command.
-	Smove (key string, arg1 string, arg2 []byte) (result FutureBool, err Error);
-
-	// Redis SCARD command.
-	Scard (key string) (result FutureInt64, err Error);
-
-	// Redis SINTER command.
-	Sinter (key string, arg1 []string) (result FutureBytesArray, err Error);
-
-	// Redis SINTERSTORE command.
-	Sinterstore (key string, arg1 []string) (status FutureBool, err Error);
-
-	// Redis SUNION command.
-	Sunion (key string, arg1 []string) (result FutureBytesArray, err Error);
-
-	// Redis SUNIONSTORE command.
-	Sunionstore (key string, arg1 []string) (status FutureBool, err Error);
-
-	// Redis SDIFF command.
-	Sdiff (key string, arg1 []string) (result FutureBytesArray, err Error);
-
-	// Redis SDIFFSTORE command.
-	Sdiffstore (key string, arg1 []string) (status FutureBool, err Error);
-
-	// Redis SMEMBERS command.
-	Smembers (key string) (result FutureBytesArray, err Error);
-
-	// Redis SRANDMEMBER command.
-	Srandmember (key string) (result FutureBytes, err Error);
-
-	// Redis ZADD command.
-	Zadd (key string, arg1 float64, arg2 []byte) (result FutureBool, err Error);
-
-	// Redis ZREM command.
-	Zrem (key string, arg1 []byte) (result FutureBool, err Error);
-
-	// Redis ZCARD command.
-	Zcard (key string) (result FutureInt64, err Error);
-
-	// Redis ZSCORE command.
-	Zscore (key string, arg1 []byte) (result FutureFloat64, err Error);
-
-	// Redis ZRANGE command.
-	Zrange (key string, arg1 int64, arg2 int64) (result FutureBytesArray, err Error);
-
-	// Redis ZREVRANGE command.
-	Zrevrange (key string, arg1 int64, arg2 int64) (result FutureBytesArray, err Error);
-
-	// Redis ZRANGEBYSCORE command.
-	Zrangebyscore (key string, arg1 float64, arg2 float64) (result FutureBytesArray, err Error);
-
-	// Redis FLUSHDB command.
-	Flushdb () (status FutureBool, err Error);
-
-	// Redis FLUSHALL command.
-	Flushall () (status FutureBool, err Error);
-
-	// Redis MOVE command.
-	Move (key string, arg1 int64) (result FutureBool, err Error);
-
-	// Redis BGSAVE command.
-	Bgsave () (status FutureBool, err Error);
-
-	// Redis LASTSAVE command.
-	Lastsave () (result FutureInt64, err Error);
+	if line[0] == '*' {
+		size, err := strconv.Atoi(strings.TrimSpace(line[1:]))
+		if err != nil {
+			return nil, RedisError("MultiBulk reply expected a number")
+		}
+		if size <= 0 {
+			return make([][]byte, 0), nil
+		}
+		res := make([][]byte, size)
+		for i := 0; i < size; i++ {
+			res[i], err = readBulk(reader, "")
+			if err == doesNotExist {
+				continue
+			}
+			if err != nil {
+				return nil, err
+			}
+			// dont read end of line as might not have been bulk
+		}
+		return res, nil
+	}
+	return readBulk(reader, line)
 }
 
-// ----------------------------------------------------------------------------
-// package initiatization and internal ops and flags
-// ----------------------------------------------------------------------------
+// TODO: client is not needed here
+func (client *Client) rawSend(c net.Conn, cmd []byte) (interface{}, os.Error) {
+	_, err := c.Write(cmd)
+	if err != nil {
+		return nil, err
+	}
 
-// ----------------
-// flags
-//
-// go-redis will make use of command line flags where available.  flag names
-// for this package are all prefixed by "redis:" to prevent possible name collisions.
-//
-func init () { 
-//	runtime.GOMAXPROCS(2);
-//	flag.Parse(); 
+	reader := bufio.NewReader(c)
+
+	data, err := readResponse(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
-// redis:d
-//
-// global debug flag for redis package components.
-// 
-var _debug *bool = flag.Bool ("redis:d", false, "debug flag for go-redis"); // TEMP: should default to false
-func debug() bool { return *_debug; }
+func (client *Client) openConnection() (c net.Conn, err os.Error) {
 
+	var addr = defaultAddr
+
+	if client.Addr != "" {
+		addr = client.Addr
+	}
+	c, err = net.Dial("tcp", addr)
+	if err != nil {
+		return
+	}
+
+	if client.Db != 0 {
+		cmd := fmt.Sprintf("SELECT %d\r\n", client.Db)
+		_, err = client.rawSend(c, []byte(cmd))
+		if err != nil {
+			return
+		}
+	}
+	//TODO: handle authentication here
+
+	return
+}
+
+
+func (client *Client) sendCommand(cmd string, args ...string) (data interface{}, err os.Error) {
+
+	var b []byte
+	// grab a connection from the pool
+	c, err := client.popCon()
+
+	if err != nil {
+		goto End
+	}
+
+	b = commandBytes(cmd, args...)
+	data, err = client.rawSend(c, b)
+	if err == os.EOF || err == os.EPIPE {
+		c, err = client.openConnection()
+		if err != nil {
+			goto End
+		}
+
+		data, err = client.rawSend(c, b)
+	}
+
+End:
+
+	//add the client back to the queue
+	client.pushCon(c)
+
+	return data, err
+}
+
+func (client *Client) sendCommands(cmdArgs <-chan []string, data chan<- interface{}) (err os.Error) {
+
+	var reader *bufio.Reader
+	var errs chan os.Error
+	// grab a connection from the pool
+	c, err := client.popCon()
+
+	if err != nil {
+		goto End
+	}
+
+	reader = bufio.NewReader(c)
+
+	// Ping first to verify connection is open
+	err = writeRequest(c, "PING")
+
+	// On first attempt permit a reconnection attempt
+	if err == os.EOF {
+		// Looks like we have to open a new connection
+		c, err = client.openConnection()
+		if err != nil {
+			goto End
+		}
+		reader = bufio.NewReader(c)
+	} else {
+		// Read Ping response
+		pong, err := readResponse(reader)
+		if pong != "PONG" {
+			return RedisError("Unexpected response to PING.")
+		}
+		if err != nil {
+			goto End
+		}
+	}
+
+	errs = make(chan os.Error)
+
+	go func() {
+		for cmdArg := range cmdArgs {
+			err = writeRequest(c, cmdArg[0], cmdArg[1:]...)
+			if err != nil {
+				errs <- err
+				break
+			}
+		}
+		close(errs)
+	}()
+
+	go func() {
+		for {
+			response, err := readResponse(reader)
+			if err != nil {
+				errs <- err
+				break
+			}
+			data <- response
+		}
+		close(errs)
+	}()
+
+	// Block until errs channel closes
+	for e := range errs {
+		err = e
+	}
+
+End:
+
+	// Close client and synchronization issues are a nightmare to solve.
+	c.Close()
+
+	// Push nil back onto queue
+	client.pushCon(nil)
+
+	return err
+}
+
+func (client *Client) popCon() (net.Conn, os.Error) {
+	if client.pool == nil {
+		client.pool = make(chan net.Conn, MaxPoolSize)
+		for i := 0; i < MaxPoolSize; i++ {
+			//add dummy values to the pool
+			client.pool <- nil
+		}
+	}
+	// grab a connection from the pool
+	c := <-client.pool
+
+	if c == nil {
+		return client.openConnection()
+	}
+	return c, nil
+}
+
+func (client *Client) pushCon(c net.Conn) {
+	client.pool <- c
+}
+
+// General Commands
+
+func (client *Client) Auth(password string) os.Error {
+	_, err := client.sendCommand("AUTH", password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Exists(key string) (bool, os.Error) {
+	res, err := client.sendCommand("EXISTS", key)
+	if err != nil {
+		return false, err
+	}
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Del(key string) (bool, os.Error) {
+	res, err := client.sendCommand("DEL", key)
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Type(key string) (string, os.Error) {
+	res, err := client.sendCommand("TYPE", key)
+
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (client *Client) Keys(pattern string) ([]string, os.Error) {
+	res, err := client.sendCommand("KEYS", pattern)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var ok bool
+	var keydata [][]byte
+
+	if keydata, ok = res.([][]byte); ok {
+		// key data is already a double byte array
+	} else {
+		keydata = bytes.Fields(res.([]byte))
+	}
+	ret := make([]string, len(keydata))
+	for i, k := range keydata {
+		ret[i] = string(k)
+	}
+	return ret, nil
+}
+
+func (client *Client) Randomkey() (string, os.Error) {
+	res, err := client.sendCommand("RANDOMKEY")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+
+func (client *Client) Rename(src string, dst string) os.Error {
+	_, err := client.sendCommand("RENAME", src, dst)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *Client) Renamenx(src string, dst string) (bool, os.Error) {
+	res, err := client.sendCommand("RENAMENX", src, dst)
+	if err != nil {
+		return false, err
+	}
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Dbsize() (int, os.Error) {
+	res, err := client.sendCommand("DBSIZE")
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Expire(key string, time int64) (bool, os.Error) {
+	res, err := client.sendCommand("EXPIRE", key, strconv.Itoa64(time))
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Ttl(key string) (int64, os.Error) {
+	res, err := client.sendCommand("TTL", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Move(key string, dbnum int) (bool, os.Error) {
+	res, err := client.sendCommand("MOVE", key, strconv.Itoa(dbnum))
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Flush(all bool) os.Error {
+	var cmd string
+	if all {
+		cmd = "FLUSHALL"
+	} else {
+		cmd = "FLUSHDB"
+	}
+	_, err := client.sendCommand(cmd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// String-related commands
+
+func (client *Client) Set(key string, val []byte) os.Error {
+	_, err := client.sendCommand("SET", key, string(val))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Get(key string) ([]byte, os.Error) {
+	res, _ := client.sendCommand("GET", key)
+	if res == nil {
+		return nil, RedisError("Key `" + key + "` does not exist")
+	}
+
+	data := res.([]byte)
+	return data, nil
+}
+
+func (client *Client) Getset(key string, val []byte) ([]byte, os.Error) {
+	res, err := client.sendCommand("GETSET", key, string(val))
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := res.([]byte)
+	return data, nil
+}
+
+func (client *Client) Mget(keys ...string) ([][]byte, os.Error) {
+	res, err := client.sendCommand("MGET", keys...)
+	if err != nil {
+		return nil, err
+	}
+
+	data := res.([][]byte)
+	return data, nil
+}
+
+func (client *Client) Setnx(key string, val []byte) (bool, os.Error) {
+	res, err := client.sendCommand("SETNX", key, string(val))
+
+	if err != nil {
+		return false, err
+	}
+	if data, ok := res.(int64); ok {
+		return data == 1, nil
+	}
+	return false, RedisError("Unexpected reply to SETNX")
+}
+
+func (client *Client) Setex(key string, time int64, val []byte) os.Error {
+	_, err := client.sendCommand("SETEX", key, strconv.Itoa64(time), string(val))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Mset(mapping map[string][]byte) os.Error {
+	args := make([]string, len(mapping)*2)
+	i := 0
+	for k, v := range mapping {
+		args[i] = k
+		args[i+1] = string(v)
+		i += 2
+	}
+	_, err := client.sendCommand("MSET", args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *Client) Msetnx(mapping map[string][]byte) (bool, os.Error) {
+	args := make([]string, len(mapping)*2)
+	i := 0
+	for k, v := range mapping {
+		args[i] = k
+		args[i+1] = string(v)
+		i += 2
+	}
+	res, err := client.sendCommand("MSETNX", args...)
+	if err != nil {
+		return false, err
+	}
+	if data, ok := res.(int64); ok {
+		return data == 0, nil
+	}
+	return false, RedisError("Unexpected reply to MSETNX")
+}
+
+func (client *Client) Incr(key string) (int64, os.Error) {
+	res, err := client.sendCommand("INCR", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Incrby(key string, val int64) (int64, os.Error) {
+	res, err := client.sendCommand("INCRBY", key, strconv.Itoa64(val))
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Decr(key string) (int64, os.Error) {
+	res, err := client.sendCommand("DECR", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Decrby(key string, val int64) (int64, os.Error) {
+	res, err := client.sendCommand("DECRBY", key, strconv.Itoa64(val))
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Append(key string, val []byte) os.Error {
+	_, err := client.sendCommand("APPEND", key, string(val))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Substr(key string, start int, end int) ([]byte, os.Error) {
+	res, _ := client.sendCommand("SUBSTR", key, strconv.Itoa(start), strconv.Itoa(end))
+
+	if res == nil {
+		return nil, RedisError("Key `" + key + "` does not exist")
+	}
+
+	data := res.([]byte)
+	return data, nil
+}
+
+// List commands
+
+func (client *Client) Rpush(key string, val []byte) os.Error {
+	_, err := client.sendCommand("RPUSH", key, string(val))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Lpush(key string, val []byte) os.Error {
+	_, err := client.sendCommand("LPUSH", key, string(val))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Llen(key string) (int, os.Error) {
+	res, err := client.sendCommand("LLEN", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Lrange(key string, start int, end int) ([][]byte, os.Error) {
+	res, err := client.sendCommand("LRANGE", key, strconv.Itoa(start), strconv.Itoa(end))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Ltrim(key string, start int, end int) os.Error {
+	_, err := client.sendCommand("LTRIM", key, strconv.Itoa(start), strconv.Itoa(end))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Lindex(key string, index int) ([]byte, os.Error) {
+	res, err := client.sendCommand("LINDEX", key, strconv.Itoa(index))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]byte), nil
+}
+
+func (client *Client) Lset(key string, index int, value []byte) os.Error {
+	_, err := client.sendCommand("LSET", key, strconv.Itoa(index), string(value))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) Lrem(key string, index int) (int, os.Error) {
+	res, err := client.sendCommand("LREM", key, strconv.Itoa(index))
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Lpop(key string) ([]byte, os.Error) {
+	res, err := client.sendCommand("LPOP", key)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]byte), nil
+}
+
+func (client *Client) Rpop(key string) ([]byte, os.Error) {
+	res, err := client.sendCommand("RPOP", key)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]byte), nil
+}
+
+func (client *Client) Blpop(keys []string, timeoutSecs uint) (*string, []byte, os.Error) {
+	return client.bpop("BLPOP", keys, timeoutSecs)
+}
+func (client *Client) Brpop(keys []string, timeoutSecs uint) (*string, []byte, os.Error) {
+	return client.bpop("BRPOP", keys, timeoutSecs)
+}
+
+func (client *Client) bpop(cmd string, keys []string, timeoutSecs uint) (*string, []byte, os.Error) {
+	args := append(keys, strconv.Uitoa(timeoutSecs))
+	res, err := client.sendCommand(cmd, args...)
+	if err != nil {
+		return nil, nil, err
+	}
+	kv := res.([][]byte)
+	// Check for timeout
+	if len(kv) != 2 {
+		return nil, nil, nil
+	}
+	k := string(kv[0])
+	v := kv[1]
+	return &k, v, nil
+}
+
+func (client *Client) Rpoplpush(src string, dst string) ([]byte, os.Error) {
+	res, err := client.sendCommand("RPOPLPUSH", src, dst)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]byte), nil
+}
+
+// Set commands
+
+func (client *Client) Sadd(key string, value []byte) (bool, os.Error) {
+	res, err := client.sendCommand("SADD", key, string(value))
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Srem(key string, value []byte) (bool, os.Error) {
+	res, err := client.sendCommand("SREM", key, string(value))
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Spop(key string) ([]byte, os.Error) {
+	res, err := client.sendCommand("SPOP", key)
+	if err != nil {
+		return nil, err
+	}
+
+	if res == nil {
+		return nil, RedisError("Spop failed")
+	}
+
+	data := res.([]byte)
+	return data, nil
+}
+
+func (client *Client) Smove(src string, dst string, val []byte) (bool, os.Error) {
+	res, err := client.sendCommand("SMOVE", src, dst, string(val))
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Scard(key string) (int, os.Error) {
+	res, err := client.sendCommand("SCARD", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Sismember(key string, value []byte) (bool, os.Error) {
+	res, err := client.sendCommand("SISMEMBER", key, string(value))
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Sinter(keys ...string) ([][]byte, os.Error) {
+	res, err := client.sendCommand("SINTER", keys...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Sinterstore(dst string, keys ...string) (int, os.Error) {
+	args := make([]string, len(keys)+1)
+	args[0] = dst
+	copy(args[1:], keys)
+	res, err := client.sendCommand("SINTERSTORE", args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Sunion(keys ...string) ([][]byte, os.Error) {
+	res, err := client.sendCommand("SUNION", keys...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Sunionstore(dst string, keys ...string) (int, os.Error) {
+	args := make([]string, len(keys)+1)
+	args[0] = dst
+	copy(args[1:], keys)
+	res, err := client.sendCommand("SUNIONSTORE", args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Sdiff(key1 string, keys []string) ([][]byte, os.Error) {
+	args := make([]string, len(keys)+1)
+	args[0] = key1
+	copy(args[1:], keys)
+	res, err := client.sendCommand("SDIFF", args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Sdiffstore(dst string, key1 string, keys []string) (int, os.Error) {
+	args := make([]string, len(keys)+2)
+	args[0] = dst
+	args[1] = key1
+	copy(args[2:], keys)
+	res, err := client.sendCommand("SDIFFSTORE", args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Smembers(key string) ([][]byte, os.Error) {
+	res, err := client.sendCommand("SMEMBERS", key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Srandmember(key string) ([]byte, os.Error) {
+	res, err := client.sendCommand("SRANDMEMBER", key)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]byte), nil
+}
+
+// sorted set commands
+
+func (client *Client) Zadd(key string, value []byte, score float64) (bool, os.Error) {
+	res, err := client.sendCommand("ZADD", key, strconv.Ftoa64(score, 'f', -1), string(value))
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Zrem(key string, value []byte) (bool, os.Error) {
+	res, err := client.sendCommand("ZREM", key, string(value))
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Zincrby(key string, value []byte, score float64) (float64, os.Error) {
+	res, err := client.sendCommand("ZINCRBY", key, strconv.Ftoa64(score, 'f', -1), string(value))
+	if err != nil {
+		return 0, err
+	}
+
+	data := string(res.([]byte))
+	f, _ := strconv.Atof64(data)
+	return f, nil
+}
+
+func (client *Client) Zrank(key string, value []byte) (int, os.Error) {
+	res, err := client.sendCommand("ZRANK", key, string(value))
+	if err != nil {
+		return 0, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Zrevrank(key string, value []byte) (int, os.Error) {
+	res, err := client.sendCommand("ZREVRANK", key, string(value))
+	if err != nil {
+		return 0, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Zrange(key string, start int, end int) ([][]byte, os.Error) {
+	res, err := client.sendCommand("ZRANGE", key, strconv.Itoa(start), strconv.Itoa(end))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Zrevrange(key string, start int, end int) ([][]byte, os.Error) {
+	res, err := client.sendCommand("ZREVRANGE", key, strconv.Itoa(start), strconv.Itoa(end))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Zrangebyscore(key string, start float64, end float64) ([][]byte, os.Error) {
+	res, err := client.sendCommand("ZRANGEBYSCORE", key, strconv.Ftoa64(start, 'f', -1), strconv.Ftoa64(end, 'f', -1))
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
+}
+
+func (client *Client) Zcard(key string) (int, os.Error) {
+	res, err := client.sendCommand("ZCARD", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Zscore(key string, member []byte) (float64, os.Error) {
+	res, err := client.sendCommand("ZSCORE", key, string(member))
+	if err != nil {
+		return 0, err
+	}
+
+	data := string(res.([]byte))
+	f, _ := strconv.Atof64(data)
+	return f, nil
+}
+
+func (client *Client) Zremrangebyrank(key string, start int, end int) (int, os.Error) {
+	res, err := client.sendCommand("ZREMRANGEBYRANK", key, strconv.Itoa(start), strconv.Itoa(end))
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Zremrangebyscore(key string, start float64, end float64) (int, os.Error) {
+	res, err := client.sendCommand("ZREMRANGEBYSCORE", key, strconv.Ftoa64(start, 'f', -1), strconv.Ftoa64(end, 'f', -1))
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+// hash commands
+
+func (client *Client) Hset(key string, field string, val []byte) (bool, os.Error) {
+	res, err := client.sendCommand("HSET", key, field, string(val))
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Hget(key string, field string) ([]byte, os.Error) {
+	res, _ := client.sendCommand("HGET", key, field)
+
+	if res == nil {
+		return nil, RedisError("Hget failed")
+	}
+
+	data := res.([]byte)
+	return data, nil
+}
+
+//pretty much copy the json code from here.
+
+func valueToString(v reflect.Value) (string, os.Error) {
+	if !v.IsValid() {
+		return "null", nil
+	}
+
+	switch v.Kind() {
+	case reflect.Ptr:
+		return valueToString(reflect.Indirect(v))
+	case reflect.Interface:
+		return valueToString(v.Elem())
+	case reflect.Bool:
+		x := v.Bool()
+		if x {
+			return "true", nil
+		} else {
+			return "false", nil
+		}
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.Itoa64(v.Int()), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return strconv.Uitoa64(v.Uint()), nil
+	case reflect.UnsafePointer:
+		return strconv.Uitoa64(uint64(v.Pointer())), nil
+
+	case reflect.Float32, reflect.Float64:
+		return strconv.Ftoa64(v.Float(), 'g', -1), nil
+
+	case reflect.String:
+		return v.String(), nil
+
+	//This is kind of a rough hack to replace the old []byte
+	//detection with reflect.Uint8Type, it doesn't catch
+	//zero-length byte slices
+	case reflect.Slice:
+		typ := v.Type()
+		if typ.Elem().Kind() == reflect.Uint || typ.Elem().Kind() == reflect.Uint8 || typ.Elem().Kind() == reflect.Uint16 || typ.Elem().Kind() == reflect.Uint32 || typ.Elem().Kind() == reflect.Uint64 || typ.Elem().Kind() == reflect.Uintptr {
+			if v.Len() > 0 {
+				if v.Index(1).OverflowUint(257) {
+					return string(v.Interface().([]byte)), nil
+				}
+			}
+		}
+	}
+	return "", os.NewError("Unsupported type")
+}
+
+func containerToString(val reflect.Value, args *vector.StringVector) os.Error {
+	switch v := val; v.Kind() {
+	case reflect.Ptr:
+		return containerToString(reflect.Indirect(v), args)
+	case reflect.Interface:
+		return containerToString(v.Elem(), args)
+	case reflect.Map:
+		if v.Type().Key().Kind() != reflect.String {
+			return os.NewError("Unsupported type - map key must be a string")
+		}
+		for _, k := range v.MapKeys() {
+			args.Push(k.String())
+			s, err := valueToString(v.MapIndex(k))
+			if err != nil {
+				return err
+			}
+			args.Push(s)
+		}
+	case reflect.Struct:
+		st := v.Type()
+		for i := 0; i < st.NumField(); i++ {
+			ft := st.FieldByIndex([]int{i})
+			args.Push(ft.Name)
+			s, err := valueToString(v.FieldByIndex([]int{i}))
+			if err != nil {
+				return err
+			}
+			args.Push(s)
+		}
+	}
+	return nil
+}
+
+func (client *Client) Hmset(key string, mapping interface{}) os.Error {
+	args := new(vector.StringVector)
+	args.Push(key)
+	err := containerToString(reflect.ValueOf(mapping), args)
+	if err != nil {
+		return err
+	}
+	_, err = client.sendCommand("HMSET", *args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *Client) Hincrby(key string, field string, val int64) (int64, os.Error) {
+	res, err := client.sendCommand("HINCRBY", key, field, strconv.Itoa64(val))
+	if err != nil {
+		return -1, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Hexists(key string, field string) (bool, os.Error) {
+	res, err := client.sendCommand("HEXISTS", key, field)
+	if err != nil {
+		return false, err
+	}
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Hdel(key string, field string) (bool, os.Error) {
+	res, err := client.sendCommand("HDEL", key, field)
+
+	if err != nil {
+		return false, err
+	}
+
+	return res.(int64) == 1, nil
+}
+
+func (client *Client) Hlen(key string) (int, os.Error) {
+	res, err := client.sendCommand("HLEN", key)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(res.(int64)), nil
+}
+
+func (client *Client) Hkeys(key string) ([]string, os.Error) {
+	res, err := client.sendCommand("HKEYS", key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := res.([][]byte)
+	ret := make([]string, len(data))
+	for i, k := range data {
+		ret[i] = string(k)
+	}
+	return ret, nil
+}
+
+func (client *Client) Hvals(key string) ([][]byte, os.Error) {
+	res, err := client.sendCommand("HVALS", key)
+
+	if err != nil {
+		return nil, err
+	}
+	return res.([][]byte), nil
+}
+
+func writeTo(data []byte, val reflect.Value) os.Error {
+	s := string(data)
+	switch v := val; v.Kind() {
+	// if we're writing to an interace value, just set the byte data
+	// TODO: should we support writing to a pointer?
+	case reflect.Interface:
+		v.Set(reflect.ValueOf(data))
+	case reflect.Bool:
+		b, err := strconv.Atob(s)
+		if err != nil {
+			return err
+		}
+		v.SetBool(b)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		i, err := strconv.Atoi64(s)
+		if err != nil {
+			return err
+		}
+		v.SetInt(i)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		ui, err := strconv.Atoui64(s)
+		if err != nil {
+			return err
+		}
+		v.SetUint(ui)
+	case reflect.Float32, reflect.Float64:
+		f, err := strconv.Atof64(s)
+		if err != nil {
+			return err
+		}
+		v.SetFloat(f)
+
+	case reflect.String:
+		v.SetString(s)
+	case reflect.Slice:
+		typ := v.Type()
+		if typ.Elem().Kind() == reflect.Uint || typ.Elem().Kind() == reflect.Uint8 || typ.Elem().Kind() == reflect.Uint16 || typ.Elem().Kind() == reflect.Uint32 || typ.Elem().Kind() == reflect.Uint64 || typ.Elem().Kind() == reflect.Uintptr {
+			v.Set(reflect.ValueOf(data))
+		}
+	}
+	return nil
+}
+
+func writeToContainer(data [][]byte, val reflect.Value) os.Error {
+	switch v := val; v.Kind() {
+	case reflect.Ptr:
+		return writeToContainer(data, reflect.Indirect(v))
+	case reflect.Interface:
+		return writeToContainer(data, v.Elem())
+	case reflect.Map:
+		if v.Type().Key().Kind() != reflect.String {
+			return os.NewError("Invalid map type")
+		}
+		elemtype := v.Type().Elem()
+		for i := 0; i < len(data)/2; i++ {
+			mk := reflect.ValueOf(string(data[i*2]))
+			mv := reflect.New(elemtype).Elem()
+			writeTo(data[i*2+1], mv)
+			v.SetMapIndex(mk, mv)
+		}
+	case reflect.Struct:
+		for i := 0; i < len(data)/2; i++ {
+			name := string(data[i*2])
+			field := v.FieldByName(name)
+			if !field.IsValid() {
+				continue
+			}
+			writeTo(data[i*2+1], field)
+		}
+	default:
+		return os.NewError("Invalid container type")
+	}
+	return nil
+}
+
+
+func (client *Client) Hgetall(key string, val interface{}) os.Error {
+	res, err := client.sendCommand("HGETALL", key)
+	if err != nil {
+		return err
+	}
+
+	data := res.([][]byte)
+	if data == nil || len(data) == 0 {
+		return RedisError("Key `" + key + "` does not exist")
+	}
+	err = writeToContainer(data, reflect.ValueOf(val))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//Publish/Subscribe
+
+// Container for messages received from publishers on channels that we're subscribed to.
+type Message struct {
+	ChannelMatched string
+	Channel        string
+	Message        []byte
+}
+
+// Subscribe to redis serve channels, this method will block until one of the sub/unsub channels are closed.
+// There are two pairs of channels subscribe/unsubscribe & psubscribe/punsubscribe.
+// The former does an exact match on the channel, the later uses glob patterns on the redis channels.
+// Closing either of these channels will unblock this method call.
+// Messages that are received are sent down the messages channel.
+func (client *Client) Subscribe(subscribe <-chan string, unsubscribe <-chan string, psubscribe <-chan string, punsubscribe <-chan string, messages chan<- Message) os.Error {
+	cmds := make(chan []string, 0)
+	data := make(chan interface{}, 0)
+
+	go func() {
+		for {
+			var channel string
+			var cmd string
+
+			select {
+			case channel = <-subscribe:
+				cmd = "SUBSCRIBE"
+			case channel = <-unsubscribe:
+				cmd = "UNSUBSCRIBE"
+			case channel = <-psubscribe:
+				cmd = "PSUBSCRIBE"
+			case channel = <-punsubscribe:
+				cmd = "UNPSUBSCRIBE"
+
+			}
+			if channel == "" {
+				break
+			} else {
+				cmds <- []string{cmd, channel}
+			}
+		}
+		close(cmds)
+		close(data)
+	}()
+
+	go func() {
+		for response := range data {
+			db := response.([][]byte)
+			messageType := string(db[0])
+			switch messageType {
+			case "message":
+				channel, message := string(db[1]), db[2]
+				messages <- Message{channel, channel, message}
+			case "subscribe":
+				// Ignore
+			case "unsubscribe":
+				// Ignore
+			case "pmessage":
+				channelMatched, channel, message := string(db[1]), string(db[2]), db[3]
+				messages <- Message{channelMatched, channel, message}
+			case "psubscribe":
+				// Ignore
+			case "punsubscribe":
+				// Ignore
+
+			default:
+				// log.Printf("Unknown message '%s'", messageType)
+			}
+		}
+	}()
+
+	err := client.sendCommands(cmds, data)
+
+	return err
+}
+
+// Publish a message to a redis server.
+func (client *Client) Publish(channel string, val []byte) os.Error {
+	_, err := client.sendCommand("PUBLISH", channel, string(val))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//Server commands
+
+func (client *Client) Save() os.Error {
+	_, err := client.sendCommand("SAVE")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *Client) Bgsave() os.Error {
+	_, err := client.sendCommand("BGSAVE")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *Client) Lastsave() (int64, os.Error) {
+	res, err := client.sendCommand("LASTSAVE")
+	if err != nil {
+		return 0, err
+	}
+
+	return res.(int64), nil
+}
+
+func (client *Client) Bgrewriteaof() os.Error {
+	_, err := client.sendCommand("BGREWRITEAOF")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Transaction struct {
+	c net.Conn
+	*Client
+}
+
+func (client *Client) Transaction() (*Transaction, os.Error) {
+	c, err := client.openConnection()
+	if err != nil {
+		return nil, err
+	}
+	return &Transaction{c, client}, nil
+}
+
+func (t *Transaction) sendCommand(cmd string, args ...string) (data interface{}, err os.Error) {
+	b := commandBytes(cmd, args...)
+	return t.Client.rawSend(t.c, b)
+}
+
+func (t *Transaction) Watch(keys []string) os.Error {
+	_, err := t.sendCommand("WATCH", keys...)
+	return err
+}
+
+func (t *Transaction) Unwatch() os.Error {
+	_, err := t.sendCommand("UNWATCH")
+	return err
+}
+
+func (t *Transaction) Multi() os.Error {
+	_, err := t.sendCommand("MULTI")
+	return err
+}
+
+func (t *Transaction) Discard() os.Error {
+	_, err := t.sendCommand("DISCARD")
+	return err
+}
+
+func (t *Transaction) Exec() ([][]byte, os.Error) {
+	res, err := t.sendCommand("EXEC")
+	if err != nil {
+		return nil, err
+	}
+	return res.([][]byte), nil
+}
