@@ -21,7 +21,7 @@ $(document).ready(function()
 });
 
 window.onresize = function() {
-    var children = $("#video").children();
+/*    var children = $("#video").children();
     if (children && children.children()) {
         children.children().height($("#side").height()*0.6);
         children.children().width($("#content").width()*0.98);
@@ -32,7 +32,7 @@ window.onresize = function() {
         children.children().height($("#side").height()*0.2);
         children.children().width($("#content").width()*0.31);
     }
-
+*/
 };
 
 $("#selectVideo").change(function()
@@ -94,18 +94,19 @@ function addChannels(channels)
 function displayVideo(login, title)
 {
     $("#contentList").hide();
-    var videoClass;
+    var videoClass = "floatDiv";
     var videoId = login;
+    var dragHandleClass = "dragHandle";
     if(!isFreeBird)
     {
-        videoClass = "floatDiv";
+        videoClass = "sFloatDiv";
+        dragHandleClass = "secondaryDragHandle";
         videoId = videoId + "_secondary";
-    }
-       
+    }   
     
     var html_code = 
-            "<div class='" + videoClass + "' id='" + videoId + "'>"
-            + "<object type=application/x-shockwave-flash data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
+            "<div class='" + dragHandleClass + "'></div><div class='" + videoClass + "' id='" + videoId + "'>"
+            + "<object type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
             + "<param name=allowFullScreen value=true />"
             + "<param name=allowscriptaccess value=always />"
             + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
@@ -128,36 +129,29 @@ function displayVideo(login, title)
     {
         chooseContent(login, 'justin.tv');
         dropdown.options[0] = new Option("Click to add a secondary stream", "-1");
-        document.getElementById("video").innerHTML = html_code + "<br/>";
+        var videoDiv = $("#video");
+        videoDiv.html(html_code + "<br/>");
         
         var leave_button = "<img id='leave' src='leaving.jpg' onClick='window.location.reload()' title='Click to leave flock.'/>";
         $("#categorySelect").append(leave_button);
         
         isFreeBird = false;    
         
-        var children = $("#video").children();
-        
-        if (children && children.children()) {
-            children.children().height($("#side").height()*0.6);
-            children.children().width($("#content").width()*0.98);
-        }
-        
-    }else{
-        $("#secondaryVideo").append(html_code + leave_html);
-        
-        children = $("#secondaryVideo").children();
+        var dragHandle = $("div.dragHandle", videoDiv);
+        videoDiv.draggable({ handle: dragHandle });
+        videoDiv.resizable();
 
-        if (children && children.children()) {
-            children.children().height($("#side").height()*0.2);
-            children.children().width($("#content").width()*0.31);
-        }
-
-     }
-    
- 
+    }
+    else  
+    {
+        var secondaryVideoDiv = $("#secondaryVideo");
+        secondaryVideoDiv.append(html_code + leave_html);
+        var dragHandle = $("div.dragHandle", secondaryVideoDiv);
+        secondaryVideoDiv.draggable({ handle: dragHandle });
+        secondaryVideoDiv.resizable();
+    }
     
     dropdown.selectedIndex = 0;
-    
 }
 
 function removeStream(streamID)

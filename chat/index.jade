@@ -3,10 +3,13 @@ doctype 5
 html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fbfml")
   head
     link(href="/main.css", rel="stylesheet", media="screen")
-    script(src="http://code.jquery.com/jquery-1.6.1.min.js")
+    script(src="http://code.jquery.com/jquery.min.js")
+    script(src="http://code.jquery.com/ui/1.8.16/jquery-ui.min.js")
     script(src="/socket.io/socket.io.js")
     script(src="/client.js")
     script(src="jquery.cssemoticons.js")
+    link(href="http://code.jquery.com/ui/1.8.16/themes/base/jquery-ui.css",
+    rel="stylesheet", media="screen")
     link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")
   body
     #fb-root
@@ -20,9 +23,11 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
           img#flockLogo(src="/flock.png", alt="flock")
       #main
         #content
-          select#selectVideo
-          #contentList
+          #categorySelect
+            select#selectVideo
           #video
+          #secondaryVideo
+          #contentList
           div(style="clear: both;")
         #side         
           #roomName
