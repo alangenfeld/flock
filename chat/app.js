@@ -39,7 +39,7 @@ var ClientList = Class({
 			clientData.push(this.clients[i].id);
 		}
 		return clientData;
-	},
+    },
     /**
      * Send a cmd with data to all clients on this object
      */
@@ -75,7 +75,7 @@ var Content = ClientList.extend({
     'addClient': function(client) {
         var room = null;
         if (this.rooms.length == 0)
-            room = this.rooms[0] = new Room(global_room_count++);
+            room = this.rooms[0] = new Flock(global_room_count++);
         else {
             for (var i = 0; i < this.rooms.length; i++)
                 if (this.rooms[i].numClients() < MAX_ROOM_CLIENTS) {
@@ -167,6 +167,7 @@ var Client = Class({
         if (fbid in online_users) {
           this.friends[fbid] = online_users[fbid];
         }
+      }
     },
 
     /**

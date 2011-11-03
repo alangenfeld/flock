@@ -69,6 +69,11 @@ body {
     position: relative;
 }
 
+#contentBody {
+    height: 100%;
+    width: 100%;
+}
+
 #contentList{
     position: relative;
     top: 40px;
@@ -155,15 +160,10 @@ body {
 #video {
     height: 60%;
     width: 60%;
+    padding-top: 5px;
 }
 
 .dragHandle {
-    background-color: red;
-    height: 10px;
-    cursor: move;
-}
-
-.secondaryDragHandle {
     background-color: red;
     height: 10px;
     cursor: move;
@@ -181,6 +181,7 @@ body {
 #secondaryVideo {
     height: 30%;
     width: 30%;
+    padding: 20px 0px 0px 5px;
 }
 
 .floatDiv {
