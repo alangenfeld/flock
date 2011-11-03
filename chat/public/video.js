@@ -96,16 +96,14 @@ function displayVideo(login, title)
     $("#contentList").hide();
     var videoClass = "floatDiv";
     var videoId = login;
-    var dragHandleClass = "dragHandle";
     if(!isFreeBird)
     {
         videoClass = "sFloatDiv";
-        dragHandleClass = "secondaryDragHandle";
         videoId = videoId + "_secondary";
     }   
     
     var html_code = 
-            "<div class='" + dragHandleClass + "'></div><div class='" + videoClass + "' id='" + videoId + "'>"
+            "<div class='dragHandle'></div><div class='" + videoClass + "' id='" + videoId + "'>"
             + "<object type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
             + "<param name=allowFullScreen value=true />"
             + "<param name=allowscriptaccess value=always />"
@@ -138,8 +136,8 @@ function displayVideo(login, title)
         isFreeBird = false;    
         
         var dragHandle = $("div.dragHandle", videoDiv);
-        videoDiv.draggable({ handle: dragHandle });
-        videoDiv.resizable();
+        videoDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody" });
+        videoDiv.resizable({ containment: "#contentBody" });
 
     }
     else  
@@ -147,8 +145,8 @@ function displayVideo(login, title)
         var secondaryVideoDiv = $("#secondaryVideo");
         secondaryVideoDiv.append(html_code + leave_html);
         var dragHandle = $("div.dragHandle", secondaryVideoDiv);
-        secondaryVideoDiv.draggable({ handle: dragHandle });
-        secondaryVideoDiv.resizable();
+        secondaryVideoDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody", stack: ".ui-draggable" });
+        secondaryVideoDiv.resizable({ containment: "#contentBody" });
     }
     
     dropdown.selectedIndex = 0;
