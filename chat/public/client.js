@@ -1,4 +1,3 @@
-
 var socket = 0;
 var fbid_names = {};
 
@@ -121,6 +120,7 @@ function buildMessage(id, name, m) {
     element.onclick = function() {
 	console.log("wut?");
     };
+}
 
 function getUsersInRoom(){
 }
