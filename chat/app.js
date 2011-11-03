@@ -152,6 +152,7 @@ var Client = Class({
         if (fbid in online_users) {
           this.friends[fbid] = online_users[fbid];
         }
+      }
     },
 
     /**
