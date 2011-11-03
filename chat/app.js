@@ -13,7 +13,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 1);
+io.set("log level", 0);
 
 var log = require('winston');
 log.remove(log.transports.Console);
@@ -32,7 +32,14 @@ var ClientList = Class({
     'numClients': function () {
         return this.clients.length;
     },
-    
+
+    'getClients': function(){
+		clientData = [];
+		for(i=0;i<this.clients.length;i++){
+			clientData.push(this.clients[i].id);
+		}
+		return clientData;
+	},
     /**
      * Send a cmd with data to all clients on this object
      */
@@ -54,7 +61,7 @@ var ClientList = Class({
     }
 });
 
-var MAX_ROOM_CLIENTS = 10;
+var MAX_ROOM_CLIENTS = 2;
 var global_room_count = 0;
 
 var Content = ClientList.extend({
@@ -77,7 +84,7 @@ var Content = ClientList.extend({
                 }
             if (room == null) {
                 console.log("-- Creating new room");
-                room = new Room(global_room_count++);
+                room = new Flock(global_room_count++);
                 this.rooms.push(room);
             }
         }
@@ -99,6 +106,8 @@ var Flock = ClientList.extend({
             return;
         this.clients.push(client);
     }
+
+	
 });
 
 var online_users = {}
@@ -152,7 +161,6 @@ var Client = Class({
         if (fbid in online_users) {
           this.friends[fbid] = online_users[fbid];
         }
-      }
     },
 
     /**
@@ -278,7 +286,6 @@ var Server = ClientList.extend({
 
         var room = cont.addClient(client);
         client.setContent(cont);
-	console.log("pick");
         client.setRoom(room);
         client.send("room_info", {room_name:room.name});
     },
