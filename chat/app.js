@@ -95,7 +95,7 @@ var Content = ClientList.extend({
 });
 
 var Flock = ClientList.extend({
-    'override __construct': function(rid) {
+    'override __construct': function(fid) {
         this._super();
         this.id = fid;
         this.name = "Flock #" + fid;
