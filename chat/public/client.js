@@ -1,3 +1,4 @@
+
 var socket = 0;
 var fbid_names = {};
 
@@ -6,10 +7,6 @@ var Chat = {
         socket.on("msg", this.getMsg.bind(this));
         $("#send").submit(this.sendMsg.bind(this));
         this.uid = 0;
-
-        socket.on("online_friends", function(data) { 
-            //
-        });
     },
 
     loggedIn : function(uid) {
@@ -24,7 +21,6 @@ var Chat = {
                 fbids.push(info.friends[i].id);
             }
             socket.emit("add_friends", {"friends": fbids}); 
-            socket.emit("online_friends"); 
         });
     },
     
@@ -109,6 +105,10 @@ $(document).ready(
         Chat.init();
         Room.init();
 
+		socket.on("updateUsersInChat", function(users){
+			alert(users[0]);
+		});
+
         //DEBUG
         $("#testLogin").click(function(){
 	  	    Chat.loggedIn(0);
@@ -121,6 +121,8 @@ function buildMessage(id, name, m) {
     element.onclick = function() {
 	console.log("wut?");
     };
+
+function getUsersInRoom(){
 }
 
 function chooseContent(cid, type) {
