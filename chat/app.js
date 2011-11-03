@@ -95,7 +95,7 @@ var Content = ClientList.extend({
 });
 
 var Flock = ClientList.extend({
-    'override __construct': function(rid) {
+    'override __construct': function(fid) {
         this._super();
         this.id = fid;
         this.name = "Flock #" + fid;
@@ -105,6 +105,12 @@ var Flock = ClientList.extend({
         if (client in this.clients)
             return;
         this.clients.push(client);
+		
+		userList = this.getClients();
+
+		for(i=0;i<this.clients.length;i++){
+			this.clients[i].socket.emit("updateUsersInChat",userList);	
+		}
     }
 
 	
@@ -241,6 +247,11 @@ var Server = ClientList.extend({
         for (var i = 0; i < len; i++)
             this.registerCallback(cl, COMMANDS[i]);
     },
+	
+	'getUsersInFlock': function(){
+		//needs implementation
+	}
+	,
     
     'registerCallback': function(client, cmd) {
         var cmdStr = "cmd_" + cmd;
