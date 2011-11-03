@@ -178,7 +178,7 @@ body {
     right: -10px !important;
 }
 
-#secondaryVideo {
+.secondaryVideo {
     height: 30%;
     width: 30%;
     padding: 20px 0px 0px 5px;
