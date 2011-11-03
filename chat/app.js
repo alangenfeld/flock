@@ -13,7 +13,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 0);
+io.set("log level", 1);
 
 var log = require('winston');
 log.remove(log.transports.Console);
@@ -54,7 +54,7 @@ var ClientList = Class({
     }
 });
 
-var MAX_ROOM_CLIENTS = 2;
+var MAX_ROOM_CLIENTS = 10;
 var global_room_count = 0;
 
 var Content = ClientList.extend({
@@ -278,6 +278,7 @@ var Server = ClientList.extend({
 
         var room = cont.addClient(client);
         client.setContent(cont);
+	console.log("pick");
         client.setRoom(room);
         client.send("room_info", {room_name:room.name});
     },
