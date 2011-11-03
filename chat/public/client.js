@@ -29,9 +29,8 @@ var Chat = {
     },
     
     getMsg : function(data) {
-        var add = function(name, m) {
-            console.log("put " + name + m);
-            $("#text").append("<b>" + name + ":</b> " + m + "<br />");
+        var add = function(id, name, m) {
+            $("#text").append(buildMessage(id, name, m));
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
         };
@@ -46,7 +45,7 @@ var Chat = {
                 add(name, _m);
             });
         } else {
-            add(fbid_names[uid], _m);
+            add(uid, fbid_names[uid], _m);
         }
         return false;
     },
@@ -117,6 +116,12 @@ $(document).ready(
     }
 );
 
+function buildMessage(id, name, m) {
+    var element = "<b>" + name + ":</b> " + m + "<br />";
+    element.onclick = function() {
+	console.log("wut?");
+    };
+}
 
 function chooseContent(cid, type) {
     Room.pickContent(cid, type);
