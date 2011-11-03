@@ -6,6 +6,7 @@ var Chat = {
         socket.on("msg", this.getMsg.bind(this));
         $("#send").submit(this.sendMsg.bind(this));
         this.uid = 0;
+	this.msgNum = 0;
     },
 
     loggedIn : function(uid) {
@@ -25,10 +26,23 @@ var Chat = {
     
     getMsg : function(data) {
         var add = function(id, name, m) {
-            $("#text").append(buildMessage(id, name, m));
+            $("#text").append("<div class=\"message\">" +
+			      "<div class=\"up\" id=\"up" + this.msgNum + "\" meta=\"" + id + "\"></div>" + 
+			      "<div class=\"down\" id=\"down" + this.msgNum + "\" meta=\"" + id + "\"></div>" + 
+			        "<b>" + name + ":</b> " + m + "<br />" + 
+			      "</div>"
+			      );
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
+	    $("#up" + this.msgNum).click(function() {
+		    console.log("UPVOTE");
+		});
+	    $("#down" + this.msgNum).click(function() {
+		    console.log("DOWNVOTE");
+		});
+	    this.msgNum += 1;
         };
+
         var uid = data["userID"];
         var _m = data["msg"];
 
@@ -37,7 +51,7 @@ var Chat = {
         } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
-                add(name, _m);
+                add(uid, name, _m);
             });
         } else {
             add(uid, fbid_names[uid], _m);
@@ -114,13 +128,6 @@ $(document).ready(
 	    });
     }
 );
-
-function buildMessage(id, name, m) {
-    var element = "<b>" + name + ":</b> " + m + "<br />";
-    element.onclick = function() {
-	console.log("wut?");
-    };
-}
 
 function getUsersInRoom(){
 }

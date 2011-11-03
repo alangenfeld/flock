@@ -239,3 +239,23 @@ input#msg {
     border: 1px solid #888;
     height: 20px;
 }
+
+.message{
+}
+
+.up {
+  float: left;
+  height: 14px;
+  width: 14px;
+  padding-right: 2px;
+  background: green;
+}
+
+.down {
+  float: left;
+  padding-right: 2px;
+  background: red;
+  height: 14px;
+  width: 14px;
+}
+
