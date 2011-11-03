@@ -243,19 +243,25 @@ input#msg {
 .message{
 }
 
-.up {
+.vote {
   float: left;
-  height: 14px;
-  width: 14px;
-  padding-right: 2px;
+  height: 12px;
+  width: 12px;
+  margin-right: 2px;
+  border-radius: 6px;
+  border: 1px solid #888;
+  opacity: .3;
+}
+
+.up {
   background: green;
 }
 
 .down {
-  float: left;
-  padding-right: 2px;
   background: red;
-  height: 14px;
-  width: 14px;
+}
+
+.selected.vote {
+  opacity: 1.0;
 }
 

@@ -27,20 +27,29 @@ var Chat = {
     getMsg : function(data) {
         var add = function(id, name, m) {
             $("#text").append("<div class=\"message\">" +
-			      "<div class=\"up\" id=\"up" + this.msgNum + "\" meta=\"" + id + "\"></div>" + 
-			      "<div class=\"down\" id=\"down" + this.msgNum + "\" meta=\"" + id + "\"></div>" + 
+			      "<div class=\"up vote\" id=\"up" +
+			      Chat.msgNum + "\" meta=\"" + id + "\"></div>" + 
+			      "<div class=\"down vote\" id=\"down" +
+			      Chat.msgNum + "\" meta=\"" + id + "\"></div>" + 
 			        "<b>" + name + ":</b> " + m + "<br />" + 
 			      "</div>"
 			      );
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
-	    $("#up" + this.msgNum).click(function() {
-		    console.log("UPVOTE");
+	    $("#up" + Chat.msgNum).click(function(e) {
+		    $(e.currentTarget).toggleClass("selected");
+		    $(e.currentTarget).parent().children(".down")
+			.removeClass("selected");
+
 		});
-	    $("#down" + this.msgNum).click(function() {
-		    console.log("DOWNVOTE");
+
+	    $("#down" + Chat.msgNum).click(function(e) {
+		    $(e.currentTarget).toggleClass("selected");
+		    $(e.currentTarget).parent().children(".up")
+			.removeClass("selected");
+
 		});
-	    this.msgNum += 1;
+	    Chat.msgNum += 1;
         };
 
         var uid = data["userID"];
@@ -119,7 +128,7 @@ $(document).ready(
         Room.init();
 
 		socket.on("updateUsersInChat", function(users){
-			alert(users[0]);
+
 		});
 
         //DEBUG
