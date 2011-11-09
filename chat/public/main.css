@@ -158,16 +158,30 @@ body {
 }
 
 #video {
+    position : absolute;
     height: 60%;
     width: 60%;
     padding-top: 5px;
 }
 
+#overlay {
+    display: block;
+    position: absolute;
+    background-color: #fff;
+    z-index: 1002;
+    opacity: 0;
+}
+
+#overlay:hover {
+  cursor: move;
+}
+/*
 .dragHandle {
     background-color: red;
     height: 10px;
     cursor: move;
 }
+*/
 
 .ui-resizable-s {
     bottom: -15px !important;
@@ -178,22 +192,16 @@ body {
     right: -10px !important;
 }
 
-.secondaryVideo {
+#secondaryVideo {
     height: 30%;
     width: 30%;
-    padding: 20px 0px 0px 5px;
+    padding: 40px 0px 0px 5px;
 }
 
 .floatDiv {
     float: left;
     width: 100%;
     height: 100%;
-}
-
-.sFloatDiv {
-    float: left;
-    width: 100%;
-    height: 100%; 
 }
 
 .clickable:hover {

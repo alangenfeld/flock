@@ -5,6 +5,8 @@ isFreeBird = true; // fix for prevent streams from loading on scroll while in a 
 
 $(document).ready(function()
 {
+    $("#video").hide();
+    $("#secondaryVideo").hide();
    var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
    $.getJSON(category_query, function(categories)
    {
@@ -20,25 +22,10 @@ $(document).ready(function()
    });
 });
 
-window.onresize = function() {
-/*    var children = $("#video").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height()*0.6);
-        children.children().width($("#content").width()*0.98);
-    }
-    
-    children = $("#secondaryVideo").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height()*0.2);
-        children.children().width($("#content").width()*0.31);
-    }
-*/
-};
-
 $("#selectVideo").change(function()
 {
-
-    $("#contentList").html(""); // Clear the old content list
+    if(!isFreeBird)
+	$("#contentList").html("").css({"top": $("#video").height() + 30 + "px" }); // Clear the old content list
     globals.contentOffset = 0; // Reset the offset
     getMoreChannels();
 
@@ -93,18 +80,18 @@ function addChannels(channels)
 
 function displayVideo(login, title)
 {
+    $("#video").show();
     $("#contentList").hide();
     var videoClass = "floatDiv";
     var videoId = login;
     if(!isFreeBird)
     {
-        videoClass = "sFloatDiv";
         videoId = videoId + "_secondary";
     }   
     
     var html_code = 
             "<div class='dragHandle'></div><div class='" + videoClass + "' id='" + videoId + "'>"
-            + "<object type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
+            + "<object wmode=transparent type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
             + "<param name=allowFullScreen value=true />"
             + "<param name=allowscriptaccess value=always />"
             + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
@@ -128,6 +115,7 @@ function displayVideo(login, title)
         chooseContent(login, 'justin.tv');
         dropdown.options[0] = new Option("Click to add a secondary stream", "-1");
         var videoDiv = $("#video");
+        var overlayDiv = $("#overlay");
         videoDiv.html(html_code + "<br/>");
         
         var leave_button = "<img id='leave' src='leaving.jpg' onClick='window.location.reload()' title='Click to leave flock.'/>";
@@ -135,15 +123,37 @@ function displayVideo(login, title)
         
         isFreeBird = false;    
         
-        var dragHandle = $("div.dragHandle", videoDiv);
-        videoDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody" });
-        videoDiv.resizable({ containment: "#contentBody" });
+        var dragHandle = $("div.dragHandle", overlayDiv);
+        overlayDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody",
+		    drag: function() 
+		    {
+			var e = $("#overlay");
+			var p = e.position();
+			$("#video").css({ "left": (p.left) + "px", 
+				    "top": (p.top) + "px"
+				    })
+
+		    }
+	    });
+        videoDiv.resizable({containment: "#contentBody",
+		    resize: function(event, ui)
+		    {
+			var e = $("#video");
+			var p = e.position();
+			$("#overlay").css({ "left": (p.left) + "px", 
+				    "top": (p.top) + "px",
+				    "height": e.height() - 25,
+				    "width": e.width()
+				    });
+		    }
+	    });
 
     }
     else  
     {
+	$("#secondaryVideo").show();
         var secondaryVideoDiv = $("#secondaryVideo");
-        secondaryVideoDiv.append(html_code + leave_html);
+        secondaryVideoDiv.append(html_code + leave_html).css({"top": $("#video").height() + "px" });;
         var dragHandle = $("div.dragHandle", secondaryVideoDiv);
         secondaryVideoDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody", stack: ".ui-draggable" });
         secondaryVideoDiv.resizable({ containment: "#contentBody" });
