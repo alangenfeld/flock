@@ -6,6 +6,7 @@ isFreeBird = true; // fix for prevent streams from loading on scroll while in a 
 $(document).ready(function()
 {
     $("#video").hide();
+    $("#overlay").hide();
     $("#secondaryVideo").hide();
    var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
    $.getJSON(category_query, function(categories)
@@ -114,6 +115,9 @@ function displayVideo(login, title)
     {
         chooseContent(login, 'justin.tv');
         dropdown.options[0] = new Option("Click to add a secondary stream", "-1");
+
+        $("#contentBody").append($("<div></div>").attr("id","overlay"));
+
         var videoDiv = $("#video");
         var overlayDiv = $("#overlay");
         videoDiv.html(html_code + "<br/>");
