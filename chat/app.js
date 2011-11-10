@@ -224,8 +224,8 @@ var COMMANDS = [
     "msg",
     "action",
     "add_friends",
-    "like",
-    "hate"
+    "set_status",
+    "get_status"
 ];
 
 /**
