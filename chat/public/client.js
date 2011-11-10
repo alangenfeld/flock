@@ -6,7 +6,6 @@ var Chat = {
         socket.on("msg", this.getMsg.bind(this));
         $("#send").submit(this.sendMsg.bind(this));
         this.uid = 0;
-	this.msgNum = 0;
     },
 
     loggedIn : function(uid) {
@@ -26,30 +25,57 @@ var Chat = {
     
     getMsg : function(data) {
         var add = function(id, name, m) {
-            $("#text").append("<div class=\"message\">" +
-			      "<div class=\"up vote\" id=\"up" +
-			      Chat.msgNum + "\" meta=\"" + id + "\"></div>" + 
-			      "<div class=\"down vote\" id=\"down" +
-			      Chat.msgNum + "\" meta=\"" + id + "\"></div>" + 
-			        "<b>" + name + ":</b> " + m + "<br />" + 
-			      "</div>"
-			      );
+            $("#text").append("<div class=\"message\" uid=\"" + id + "\">" +
+							  "<div class=\"up vote\"></div>" + 
+							  "<div class=\"down vote\"></div>" + 
+							  "<b>" + name + ":</b> " + m + "<br />" + 
+							  "</div>"
+							 );
+
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
             $("#text").emoticonize({});
-	    $("#up" + Chat.msgNum).click(function(e) {
-		    $(e.currentTarget).toggleClass("selected");
-		    $(e.currentTarget).parent().children(".down")
-			.removeClass("selected");
 
-		});
 
-	    $("#down" + Chat.msgNum).click(function(e) {
-		    $(e.currentTarget).toggleClass("selected");
-		    $(e.currentTarget).parent().children(".up")
-			.removeClass("selected");
+			$(".up.vote").click(function(e) {
+				var uid = $(e.currentTarget).parent().attr("uid");
+				if ($(e.currentTarget).hasClass("selected")) {
+				
+					$("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
 
-		});
-	    Chat.msgNum += 1;
+					socket.emit("set_status", {status: 0, fbid: uid});
+				} else {
+
+					$("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
+
+					if ($(e.currentTarget).parent().children(".down")
+						.hasClass("selected")) {
+						
+						$("[uid~=\"" + uid + "\"]").children(".down").
+							removeClass("selected");
+					}
+					socket.emit("set_status", {status: "1", fbid: uid});
+
+				}
+			});
+
+			$(".down.vote").click(function(e) {
+				var uid = $(e.currentTarget).parent().attr("uid");
+				if ($(e.currentTarget).hasClass("selected")) {
+					$("[uid~=\"" + uid + "\"]").children(".down").removeClass("selected");
+					socket.emit("set_status", {status: "0", fbid: uid});
+				} else {
+					$("[uid~=\"" + uid + "\"]").children(".down").addClass("selected");
+
+					if ($(e.currentTarget).parent().children(".up")
+						.hasClass("selected")) {
+
+						$("[uid~=\"" + uid + "\"]").children(".up").
+							removeClass("selected");
+					}					
+					socket.emit("set_status", {status: "-1", fbid: uid});
+				}
+
+			});
         };
 
         var uid = data["userID"];
