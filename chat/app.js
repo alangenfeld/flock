@@ -61,7 +61,7 @@ var ClientList = Class({
     }
 });
 
-var MAX_ROOM_CLIENTS = 2;
+var MAX_ROOM_CLIENTS = 20;
 var global_room_count = 0;
 
 var Content = ClientList.extend({
@@ -332,7 +332,7 @@ var Server = ClientList.extend({
 
     'cmd_msg': function(client, data) {
         client.act();
-        db.logChat(client.content.id, client.room.id, client.id, data.msg);
+//        db.logChat(client.content.id, client.room.id, client.id, data.msg);
         client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     },
 

@@ -14,6 +14,7 @@ var Chat = {
         $("#landing").hide();
         $("#side").hide();
         $("#container").show();
+/**
         getFriends(function(info) {
             var fbids = new Array();
             for (var i in info.friends) {
@@ -21,6 +22,7 @@ var Chat = {
             }
             socket.emit("add_friends", {"friends": fbids}); 
         });
+ */
     },
     
     getMsg : function(data) {
