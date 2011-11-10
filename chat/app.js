@@ -13,7 +13,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 0);
+io.set("log level", 1);
 
 var log = require('winston');
 log.remove(log.transports.Console);
@@ -223,7 +223,9 @@ var COMMANDS = [
     "remove_content",
     "msg",
     "action",
-    "add_friends"
+    "add_friends",
+    "like",
+    "hate"
 ];
 
 /**
@@ -248,10 +250,10 @@ var Server = ClientList.extend({
             this.registerCallback(cl, COMMANDS[i]);
     },
 	
-	'getUsersInFlock': function(){
-		//needs implementation
-	}
-	,
+    'getUsersInFlock': function(){
+      //needs implementation
+    }
+    ,
     
     'registerCallback': function(client, cmd) {
         var cmdStr = "cmd_" + cmd;
@@ -273,6 +275,27 @@ var Server = ClientList.extend({
         client.logIn(lid);
         log.info("Client logged in with ID " + lid);
     },
+
+    'cmd_set_status': function(client, data){
+          var fbid  = data["fbid"];
+          var setstatus  = data["status"];
+          log.info("setstatus: " + setstatus + "   fbid  " + fbid);
+          db.addAssoc(client.id, fbid, setstatus);
+    }
+    ,
+
+    'cmd_get_status': function(client, data){
+          var fbid  = data["fbid"];
+          log.info("getstatus:  fbid  " + fbid);
+          db.getAssoc(client.id, fbid, function(weight){
+              var w=weight;
+              if(weight == null){
+                w = 0;
+              }
+              client.send("get_status",{"status":w});
+              });
+    }
+    ,
     
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
