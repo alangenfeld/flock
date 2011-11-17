@@ -80,11 +80,20 @@ var Chat = {
 			});
         };
 
-        var uid = data["userID"];
+		var server_msg = function(msg) {
+            $("#text").append("<div class=\"message\">" +
+							  "<b>Server:</b> " + msg + "<br />" + 
+							  "</div>"
+							 );
+
+            $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
+		};
+        
+		var uid = data["userID"];
         var _m = data["msg"];
 
         if (uid == -1) {
-            add("**Server**", _m);
+            server_msg(_m);
         } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
@@ -131,11 +140,21 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
+		socket.on("join", function(data) {
+			// PROBLY BROKEN
+			that.dudes.remove(data);
+		});
+		socket.on("join", function(data) {
+			// PROBLY BROKEN
+			that.dudes.push(data);
+		});
         $("#roomName").text("-- no room --");
+		that.dudes = Array();
     },
 
     updateRoomInfo : function(data) {
         $("#roomName").text(data.room_name);
+		this.room_dudes = data.room_dudes;
     },
 
     pickContent : function(cid, type) {
