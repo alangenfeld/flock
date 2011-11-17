@@ -37,11 +37,25 @@ var Chat = {
     
 	getMsg : function(data) {
         var add = function(id, name, m) {
+			var status = Room.getStatus(id);
+            var votes;
+			switch (status) {
+			case -1:
+				votes = "<div class=\"up vote\"></div>" + 
+					"<div class=\"selected down vote\"></div>";
+				break;
+			case 1:
+				votes = "<div class=\"selected up vote\"></div>" +
+					"<div class=\"down vote\"></div>";
+				break;
+			default:
+				votes = "<div class=\"up vote\"></div>" + 
+					"<div class=\"down vote\"></div>";
+				break;
+			}
 			
-            
 			$("#text").append("<div class=\"message\" uid=\"" + id + "\">" +
-							  "<div class=\"up vote\"></div>" + 
-							  "<div class=\"down vote\"></div>" + 
+							  votes + 
 							  "<b>" + name + ":</b> " + m + "<br />" + 
 							  "</div>"
 							 );
@@ -57,6 +71,7 @@ var Chat = {
 					$("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
 
 					socket.emit("set_status", {status: 0, fbid: uid});
+					Room.setStatus(uid, 0);
 				} else {
 
 					$("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
@@ -68,7 +83,7 @@ var Chat = {
 							removeClass("selected");
 					}
 					socket.emit("set_status", {status: "1", fbid: uid});
-
+					Room.setStatus(uid, 1);
 				}
 			});
 
@@ -77,6 +92,7 @@ var Chat = {
 				if ($(e.currentTarget).hasClass("selected")) {
 					$("[uid~=\"" + uid + "\"]").children(".down").removeClass("selected");
 					socket.emit("set_status", {status: "0", fbid: uid});
+					Room.setStatus(uid, 0);
 				} else {
 					$("[uid~=\"" + uid + "\"]").children(".down").addClass("selected");
 
@@ -87,6 +103,7 @@ var Chat = {
 							removeClass("selected");
 					}					
 					socket.emit("set_status", {status: "-1", fbid: uid});
+					Room.setStatus(uid, -1);
 				}
 
 			});
@@ -154,15 +171,13 @@ var Room = {
 		});
 		socket.on("join", function(data) {
 			that.dudes.push(data);
-			
 			if (!(data.uid in fbid_names)) {
 				getUserName(data.uid, function(name) {
 					fbid_names[data.uid] = name; 
 					Chat.serverMsg(fbid_names[data.uid] + " joined the flock");			
 				});
 			} else {
-				Chat.serverMsg(fbid_names[data.uid] + " joined the flock");							
-			}
+				Chat.serverMsg(fbid_names[data.uid] + " joined the flock");							}
 		});
 
         $("#roomName").text("-- no room --");
@@ -170,7 +185,23 @@ var Room = {
     },
 	
 	getStatus : function(uid) {
-		
+		for (var i in this.dudes) {
+			console.log(this.dudes[i]);
+			if (uid == this.dudes[i].uid) {
+				console.log("returning", this.dudes[i].status);
+				return this.dudes[i].status;
+			}
+		}
+		return 0;
+	}, 
+
+	setStatus : function(uid, stat) {
+		for (var i in this.dudes) {
+			if (uid == this.dudes[i].uid) {
+				return this.dudes[i].status = stat;
+			}
+		}
+		return 0;
 	}, 
 	
     updateRoomInfo : function(data) {
