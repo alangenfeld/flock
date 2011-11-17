@@ -174,9 +174,12 @@ body {
     opacity: 0;
 }
 
+/*
 #overlay:hover {
   cursor: move;
 }
+*/
+
 /*
 .dragHandle {
     background-color: red;

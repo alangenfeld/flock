@@ -34,8 +34,8 @@ var ClientList = Class({
     },
 
     'getClients': function(){
-		clientData = [];
-		for(i=0;i<this.clients.length;i++){
+		var clientData = [];
+		for(var i = 0; i < this.clients.length; i++){
 			clientData.push(this.clients[i].id);
 		}
 		return clientData;
@@ -106,9 +106,9 @@ var Flock = ClientList.extend({
             return;
         this.clients.push(client);
 		
-		userList = this.getClients();
+		var userList = this.getClients();
 
-		for(i=0;i<this.clients.length;i++){
+		for(var i = 0; i < this.clients.length; i++){
 			this.clients[i].socket.emit("updateUsersInChat",userList);	
 		}
     }
@@ -116,7 +116,7 @@ var Flock = ClientList.extend({
 	
 });
 
-var online_users = {}
+var online_users = {};
 
 /**
  * Represents a client connected to the server
