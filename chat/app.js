@@ -111,7 +111,7 @@ var Flock = ClientList.extend({
 
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
-			db.getAssoc(clients[i].id, client, function(weight){
+			db.getAssoc(this.clients[i].id, client, function(weight){
 				this.clients[i].socket.emit("join", {uid:client.id,status:weight});
 			}
 		});
@@ -123,8 +123,8 @@ var Flock = ClientList.extend({
 		//return listing of users in room to client
 		var roomGraph = {}
 		for(var i = 0; i < this.clients.length; i++){
-			db.getAssoc(clients[i].id, client, function(weight){
-				roomGraph.push({uid:clients[i].id,status:weight});
+			db.getAssoc(this.clients[i].id, client, function(weight){
+				roomGraph.push({uid:this.clients[i].id,status:weight});
 			});
 			//this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
 		}
