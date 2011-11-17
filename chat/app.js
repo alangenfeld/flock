@@ -104,7 +104,7 @@ var Flock = ClientList.extend({
     'addClient': function(client) {
         if (client in this.clients)
             return;
-
+		
 		var userList = this.getClients();
 
 		//notify everyone that new user has joined	
@@ -123,11 +123,13 @@ var Flock = ClientList.extend({
 		//return listing of users in room to client
 		var roomGraph = Array();
 		var that = this;
+		var readyToSend = that.clients.length-1;
 		for(var i = 0; i < that.clients.length; i++){
 			var j = i;
-			db.getAssoc(that.clients[j].id, client.id, function(weight){
-				roomGraph.push({uid:that.clients[j].id,status:weight});
-				if(j == (that.clients.length-1))
+			// HACK HACK THE PLANET HACK
+			db.getAssoc(client.id, that.clients[j].id, function(weight){
+				roomGraph.push({uid:that.clients[j].id, status:weight});
+				if(j == readyToSend)
 					client.send("room_info", {room_name:that.name,room_dudes:roomGraph});
 			});
 			
@@ -305,7 +307,6 @@ var Server = ClientList.extend({
 	
 	'cmd_disconnect': function(client, data) {
 		client.removeRoom();
-		client.removeClient();
 	},
 
     'cmd_set_status': function(client, data){

@@ -71,7 +71,7 @@ var Chat = {
 					$("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
 
 					socket.emit("set_status", {status: 0, fbid: uid});
-					Room.setStatus(uid, 0);
+					Room.setStatus(uid, "0");
 				} else {
 
 					$("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
@@ -83,7 +83,7 @@ var Chat = {
 							removeClass("selected");
 					}
 					socket.emit("set_status", {status: "1", fbid: uid});
-					Room.setStatus(uid, 1);
+					Room.setStatus(uid, "1");
 				}
 			});
 
@@ -92,7 +92,7 @@ var Chat = {
 				if ($(e.currentTarget).hasClass("selected")) {
 					$("[uid~=\"" + uid + "\"]").children(".down").removeClass("selected");
 					socket.emit("set_status", {status: "0", fbid: uid});
-					Room.setStatus(uid, 0);
+					Room.setStatus(uid, "0");
 				} else {
 					$("[uid~=\"" + uid + "\"]").children(".down").addClass("selected");
 
@@ -103,7 +103,7 @@ var Chat = {
 							removeClass("selected");
 					}					
 					socket.emit("set_status", {status: "-1", fbid: uid});
-					Room.setStatus(uid, -1);
+					Room.setStatus(uid, "-1");
 				}
 
 			});
@@ -195,16 +195,24 @@ var Room = {
 	setStatus : function(uid, stat) {
 		for (var i in this.dudes) {
 			if (uid == this.dudes[i].uid) {
-				return this.dudes[i].status = stat;
+				this.dudes[i].status = stat;
 			}
 		}
-		return 0;
 	}, 
 	
     updateRoomInfo : function(data) {
 		console.log(data);
         $("#roomName").text(data.room_name);
-		this.dudes = data.room_dudes;
+
+		for (var i in data.room_dudes) {
+			for (var j in this.dudes) {
+				if (data.room_dudes[i] == this.dudes[j].uid) {
+					this.dudes[j].status = data.room_dudes[i].status;
+					break;
+				}
+			}
+			this.dudes.push(data.room_dudes[i]);
+		}
     },
 
     pickContent : function(cid, type) {
