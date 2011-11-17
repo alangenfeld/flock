@@ -111,8 +111,9 @@ var Flock = ClientList.extend({
 
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
-			db.getAssoc(this.clients[i].id, client, function(weight){
-				this.clients[i].socket.emit("join", {uid:client.id,status:weight});
+			var that = this;
+			db.getAssoc(that.clients[i].id, client, function(weight){
+				that.clients[i].socket.emit("join", {uid:client.id,status:weight});
 			});
 		};
     },
