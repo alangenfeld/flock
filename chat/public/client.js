@@ -25,9 +25,20 @@ var Chat = {
  */
     },
     
-    getMsg : function(data) {
+	serverMsg : function(msg) {
+        $("#text").append("<div class=\"message\">" +
+						  "<b>Server:</b> " + msg + "<br />" + 
+						  "</div>"
+						 );
+		
+        $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
+	},
+    
+	getMsg : function(data) {
         var add = function(id, name, m) {
-            $("#text").append("<div class=\"message\" uid=\"" + id + "\">" +
+			
+            
+			$("#text").append("<div class=\"message\" uid=\"" + id + "\">" +
 							  "<div class=\"up vote\"></div>" + 
 							  "<div class=\"down vote\"></div>" + 
 							  "<b>" + name + ":</b> " + m + "<br />" + 
@@ -80,20 +91,12 @@ var Chat = {
 			});
         };
 
-		var server_msg = function(msg) {
-            $("#text").append("<div class=\"message\">" +
-							  "<b>Server:</b> " + msg + "<br />" + 
-							  "</div>"
-							 );
-
-            $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
-		};
         
 		var uid = data["userID"];
         var _m = data["msg"];
 
         if (uid == -1) {
-            server_msg(_m);
+            Chat.serverMsg(_m);
         } else if (!(uid in fbid_names)) {
             getUserName(uid, function(name) {
                 fbid_names[uid] = name; 
@@ -140,18 +143,35 @@ var Room = {
         socket.on("room_info", function(data) { 
             that.updateRoomInfo(data);
         });
-		socket.on("join", function(data) {
-			// PROBLY BROKEN
-			that.dudes.remove(data);
+		socket.on("part", function(data) {
+			for (var i=0; i<this.dudes.length; i++) {
+				if (this.dudes[i].uid == data.uid) {
+					this.dudes.splice(i, 1);
+				}
+			}
+			Chat.serverMsg(fbid_names[uid] + " has left the flock");							
 		});
 		socket.on("join", function(data) {
-			// PROBLY BROKEN
 			that.dudes.push(data);
+			
+			if (!(uid in fbid_names)) {
+				getUserName(uid, function(name) {
+					fbid_names[uid] = name; 
+					Chat.serverMsg(fbid_names[uid] + " joined the flock");			
+				});
+			} else {
+				Chat.serverMsg(fbid_names[uid] + " joined the flock");							
+			}
 		});
+
         $("#roomName").text("-- no room --");
 		that.dudes = Array();
     },
-
+	
+	getStatus : function(uid) {
+		
+	}, 
+	
     updateRoomInfo : function(data) {
         $("#roomName").text(data.room_name);
 		this.room_dudes = data.room_dudes;
