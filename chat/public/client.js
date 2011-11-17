@@ -39,7 +39,6 @@ var Chat = {
         var add = function(id, name, m) {
 			var status = Room.getStatus(id);
             var votes;
-			console.log("msg", status);
 			switch (status) {
 			case "-1":
 				votes = "<div class=\"up vote\"></div>" + 
@@ -163,13 +162,12 @@ var Room = {
             that.updateRoomInfo(data);
         });
 		socket.on("part", function(data) {
-			for (var i=0; i<this.dudes.length; i++) {
-				if (this.dudes[i].uid == data.uid) {
-					this.dudes.splice(i, 1);
+			for (var i=0; i<that.dudes.length; i++) {
+				if (that.dudes[i].uid == data.uid) {
+					that.dudes.splice(i, 1);
 				}
 			}
-			Chat.serverMsg(fbid_names[uid] + " has left the flock");							
-		});
+			Chat.serverMsg(fbid_names[data.uid] + " has left the flock");						});
 		socket.on("join", function(data) {
 			that.dudes.push(data);
 			if (!(data.uid in fbid_names)) {
@@ -187,9 +185,7 @@ var Room = {
 	
 	getStatus : function(uid) {
 		for (var i in this.dudes) {
-			console.log("get status", uid, this.dudes[i]);
 			if (uid == this.dudes[i].uid) {
-				console.log("returning", this.dudes[i].status);
 				return this.dudes[i].status;
 			}
 		}

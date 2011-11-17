@@ -229,6 +229,11 @@ var Client = Class({
             return;
         this.info("Removed from Room #" + this.room.id);
         this.room.removeClient(this);
+		
+		for (var i in this.room.clients) {
+			this.room.clients[i].socket.emit("part", {uid: this.id});
+		}
+		
         this.room = null;
     },
     
@@ -240,6 +245,7 @@ var Client = Class({
 // V0 client -> server commands
 var COMMANDS = [
     "login",
+	"disconnect",
     "pick_content",
     "remove_content",
     "msg",
@@ -296,6 +302,11 @@ var Server = ClientList.extend({
         client.logIn(lid);
         log.info("Client logged in with ID " + lid);
     },
+	
+	'cmd_disconnect': function(client, data) {
+		client.removeRoom();
+		client.removeClient();
+	},
 
     'cmd_set_status': function(client, data){
           var fbid  = data["fbid"];
