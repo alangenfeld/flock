@@ -39,12 +39,13 @@ var Chat = {
         var add = function(id, name, m) {
 			var status = Room.getStatus(id);
             var votes;
+			console.log("msg", status);
 			switch (status) {
-			case -1:
+			case "-1":
 				votes = "<div class=\"up vote\"></div>" + 
 					"<div class=\"selected down vote\"></div>";
 				break;
-			case 1:
+			case "1":
 				votes = "<div class=\"selected up vote\"></div>" +
 					"<div class=\"down vote\"></div>";
 				break;
@@ -186,7 +187,7 @@ var Room = {
 	
 	getStatus : function(uid) {
 		for (var i in this.dudes) {
-			console.log(this.dudes[i]);
+			console.log("get status", uid, this.dudes[i]);
 			if (uid == this.dudes[i].uid) {
 				console.log("returning", this.dudes[i].status);
 				return this.dudes[i].status;
