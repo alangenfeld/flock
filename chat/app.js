@@ -104,14 +104,32 @@ var Flock = ClientList.extend({
     'addClient': function(client) {
         if (client in this.clients)
             return;
-        this.clients.push(client);
+
+        this.clients.push(client.id);
 		
 		var userList = this.getClients();
 
+		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
-			this.clients[i].socket.emit("updateUsersInChat",userList);	
-		}
+			db.getAssoc(clients[i].id, client, function(weight){
+				this.clients[i].socket.emit("join", {uid:client.id,status:weight});
+			}
+		});
+
+		
     }
+
+	'getRoomGraph': function(client){
+		//return listing of users in room to client
+		var roomGraph = {}
+		for(var i = 0; i < this.clients.length; i++){
+			db.getAssoc(clients[i].id, client, function(weight){
+				roomGraph.push({uid:clients[i].id,status:weight});
+			});
+			//this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
+		}
+		return roomGraph;
+	};
 
 	
 });
@@ -320,9 +338,10 @@ var Server = ClientList.extend({
         client.removeContent();
 
         var room = cont.addClient(client);
+		var dudes = room.getRoomGraph(client);
         client.setContent(cont);
         client.setRoom(room);
-        client.send("room_info", {room_name:room.name});
+        client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
     
     'cmd_remove_content':function(client) {
