@@ -1,3 +1,4 @@
+
 var socket = 0;
 var fbid_names = {};
 
@@ -154,13 +155,13 @@ var Room = {
 		socket.on("join", function(data) {
 			that.dudes.push(data);
 			
-			if (!(uid in fbid_names)) {
-				getUserName(uid, function(name) {
-					fbid_names[uid] = name; 
-					Chat.serverMsg(fbid_names[uid] + " joined the flock");			
+			if (!(data.uid in fbid_names)) {
+				getUserName(data.uid, function(name) {
+					fbid_names[data.uid] = name; 
+					Chat.serverMsg(fbid_names[data.uid] + " joined the flock");			
 				});
 			} else {
-				Chat.serverMsg(fbid_names[uid] + " joined the flock");							
+				Chat.serverMsg(fbid_names[data.uid] + " joined the flock");							
 			}
 		});
 
@@ -173,8 +174,9 @@ var Room = {
 	}, 
 	
     updateRoomInfo : function(data) {
+		console.log(data);
         $("#roomName").text(data.room_name);
-		this.room_dudes = data.room_dudes;
+		this.dudes = data.room_dudes;
     },
 
     pickContent : function(cid, type) {

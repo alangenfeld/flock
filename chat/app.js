@@ -105,26 +105,30 @@ var Flock = ClientList.extend({
         if (client in this.clients)
             return;
 
-        this.clients.push(client.id);
+        this.clients.push(client);
 		
 		var userList = this.getClients();
 
 		//notify everyone that new user has joined	
-		for(var i = 0; i < this.clients.length; i++){
-			var that = this;
-			db.getAssoc(that.clients[i].id, client, function(weight){
-				that.clients[i].socket.emit("join", {uid:client.id,status:weight});
+		var that = this;
+		for(var i = 0; i < that.clients.length; i++){
+			var j = i;
+			db.getAssoc(that.clients[j].id, client, function(weight){
+				that.clients[j].socket.emit("join", {uid:client.id,status:weight});
 			});
 		};
     },
 
 	'getRoomGraph': function(client){
 		//return listing of users in room to client
-		var roomGraph = {}
-		for(var i = 0; i < this.clients.length; i++){
-			db.getAssoc(this.clients[i].id, client, function(weight){
-				roomGraph.push({uid:this.clients[i].id,status:weight});
+		var roomGraph = Array();
+		var that = this;
+		for(var i = 0; i < that.clients.length; i++){
+			var j = i;
+			db.getAssoc(that.clients[j].id, client, function(weight){
+				roomGraph.push({uid:that.clients[j].id,status:weight});
 			});
+			
 			//this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
 		}
 		return roomGraph;
