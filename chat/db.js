@@ -1,28 +1,29 @@
 
-sys = require("sys")
-client = require("redis").createClient()
+var sys = require("sys");
+var client = require("redis").createClient();
 
-exports.client = client
+exports.client = client;
 
 exports.save = function(key, obj) {
   client.set(key, obj);
-}
+};
 
 exports.load = function (key, callback) {
   client.get(key, callback);
-}
+};
 
 exports.addAssoc = function (fbid, fbid2, weight) {
   client.set("graph:" + fbid + ":"+fbid2, weight);
-}
+};
 
 exports.getAssoc = function (fbid, fbid2, callback) {
   client.get("graph:" + fbid + ":" + fbid2, function(err, x) { callback(x) });
-}
+};
 
 exports.deleteAssoc = function (fbid, fbid2) {
   client.del("graph:" + fbid + ":" + fbid2);
-}
+};
+
 /*
 exports.createUser = function(fbid) {
   return {id:fbid}
