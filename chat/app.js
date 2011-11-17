@@ -119,7 +119,7 @@ var Flock = ClientList.extend({
 		this.clients.push(client);
     },
 
-	'getRoomGraph': function(client){
+	'sendRoomInfo': function(client){
 		//return listing of users in room to client
 		var roomGraph = Array();
 		var that = this;
@@ -127,11 +127,13 @@ var Flock = ClientList.extend({
 			var j = i;
 			db.getAssoc(that.clients[j].id, client.id, function(weight){
 				roomGraph.push({uid:that.clients[j].id,status:weight});
+				if(j == (that.clients.length-1))
+					client.send("room_info", {room_name:that.name,room_dudes:roomGraph});
 			});
 			
 			//this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
 		}
-		return roomGraph;
+		//return roomGraph;
 	}
 });
 
@@ -339,10 +341,10 @@ var Server = ClientList.extend({
         client.removeContent();
 
         var room = cont.addClient(client);
-		var dudes = room.getRoomGraph(client);
         client.setContent(cont);
         client.setRoom(room);
-        client.send("room_info", {room_name:room.name,room_dudes:dudes});
+		room.sendRoomInfo(client);
+        //client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
     
     'cmd_remove_content':function(client) {
