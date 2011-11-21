@@ -55,7 +55,9 @@ function getUserName(id, cb){
     cb("test");
   } else {
     FB.api("/" + id, function(response) {
-        cb(response.name);
-    });      
+	    var name = response.name;
+	    name = name.slice(0, name.indexOf(" ")+2);
+	    cb(name);
+	});      
   }
 }

@@ -256,25 +256,23 @@ input#msg {
 .message{
 }
 
-.vote {
+.name {
+
+}
+
+.troll {
+  display: none;
   float: left;
   height: 12px;
   width: 12px;
   margin-right: 2px;
+  background: red;
   border-radius: 6px;
   border: 1px solid #888;
   opacity: .3;
 }
 
-.up {
-  background: green;
-}
-
-.down {
-  background: red;
-}
-
-.selected.vote {
+.marked.troll {
   opacity: 1.0;
 }
 
