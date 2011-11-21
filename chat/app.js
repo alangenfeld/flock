@@ -367,7 +367,17 @@ var Server = ClientList.extend({
     'cmd_msg': function(client, data) {
         client.act();
 //        db.logChat(client.content.id, client.room.id, client.id, data.msg);
-        client.room.broadcast("msg", {msg:data.msg, userID:client.id});
+
+	db.getAssoc(client.id, 0, function(msgNum) {
+		msgNum = Number(msgNum);
+		msgNum += 1;
+		if (msgNum >= 999999)
+		    msgNum = 0;
+		db.addAssoc(client.id, 0, msgNum);
+		var newID = (client.id * 1000000) + msgNum;
+		client.room.broadcast("msg",
+				      {msg:data.msg, userID:client.id, msgID:newID});
+	    });
     },
 
     'cmd_add_friends': function(client, data) {
