@@ -355,7 +355,7 @@ var Server = ClientList.extend({
         var room = cont.addClient(client);
         client.setContent(cont);
         client.setRoom(room);
-		room.sendRoomInfo(client);
+		    room.sendRoomInfo(client);
         //client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
     
