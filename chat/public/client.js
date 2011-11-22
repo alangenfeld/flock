@@ -99,9 +99,9 @@ var Chat = {
         if (uid == -1) {
             Chat.serverMsg(_m);
         } else if (!(uid in fbid_names)) {
-            getUserName(uid, function(name) {
-		    fbid_names[uid] = name; 
-		    add(uid, name, _m, msgID);
+            getUserName(uid, function(uid2, name) {
+		    fbid_names[uid2] = name; 
+		    add(uid2, name, _m, msgID);
 		});
         } else {
             add(uid, fbid_names[uid], _m, msgID);
@@ -146,6 +146,12 @@ var Room = {
 	    });
 	
 	socket.on("update_relation", function(data) { 
+	    console.log("got ur for "+data.uid);
+		that.dudes.push(data.uid);
+		that.dudes[that.dudes.length-1].status = data.status;
+        addUserToRoom(data.uid, data.status);
+	});
+/*
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
 			that.dudes[i].status = data.status;
@@ -155,26 +161,31 @@ var Room = {
 		that.dudes.push(data);
 		updateUsersInRoom();
 	    });
-
+*/
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
 			that.dudes.splice(i, 1);
 		    }
 		}
-		updateUsersInRoom();
+		removeUserFromRoom(data.uid);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
 
 	socket.on("join", function(data) {
 		that.dudes.push(data);
+        that.dudes[that.dudes.length - 1].status = data.status;
 		if (!(data.uid in fbid_names)) {
-		    getUserName(data.uid, function(name) {
-			    fbid_names[data.uid] = name; 
-			    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");			
-			});
+            var f = fuction(i, status){
+                getUserName(data.uid, function(uid, name) {
+			        fbid_names[uid] = name; 
+			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
+		            addUserToRoom(uid, status);
+			    });
+            }(i, data.status);
 		} else {
-		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");}
-		updateUsersInRoom();
+		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
+		    addUserToRoom(data.uid, data.status);
+		    }
 	    });
 
 	socket.on("update_count", function(data) {
@@ -204,23 +215,16 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-        $("#roomName").text(data.room_name);
 
-	this.dudes = Array();
-	for (var i in data.room_dudes) {
-	    for (var j in this.dudes) {
-		if (data.room_dudes[i] == this.dudes[j].uid) {
-		    this.dudes[j].status = data.room_dudes[i].status;
-		    break;
-		}
-	    }
-	    this.dudes.push(data.room_dudes[i]);
-	}
-	updateUsersInRoom();
+        $("#roomName").text(data.room_name);
     },
 
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
+        
+        // update cid hash in URL
+        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+
         $("#side").show();
     },
 
@@ -252,28 +256,30 @@ $(document).ready(
 		  }
 		  );
 
-function updateUsersInRoom(){
-  $('#roomInfo').text("");
-  dudes = Room.getDudes();
-  console.log("peeps "+dudes.length);
-  that = this;
-  for(i in dudes){
-    if (!(dudes[i].uid in fbid_names)) {
-      getUserName(dudes[i].uid, function(name) {
-		    fbid_names[that.dudes[i].uid] = name; 
-      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
-		});
-		} else {
-      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+function addUserToRoom(uid, status){
+    if (!(uid in fbid_names)) {
+	    getUserName(uid, function(uid2, name) {
+		    fbid_names[uid2] = name; 
+            $('#roomInfo').append("<div id="+uid2+"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
+        });
+	} else {
+        $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
     }
-  }
 }
+
+function removeUserFromRoom(uid){
+    var parent = document.getElementById("roomInfo");
+    var child = document.getElementById(uid);
+    parent.removeChild(child);
+}
+
 
 function chooseContent(cid, type) {
     Room.pickContent(cid, type);
 }
 
 function removeContent() {
+    this.dudes = Array();
     Room.removeContent();
 }
 

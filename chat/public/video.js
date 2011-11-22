@@ -47,7 +47,8 @@ $("#selectVideo").change(function()
 	if(agree || isFreeBird)
 	{
 		if(agree)
-		{
+		{   
+		        removeContent();
 			var child = document.getElementById("overlay");
 			var parent = document.getElementById("contentBody");
 			parent.removeChild(child);
