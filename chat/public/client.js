@@ -131,45 +131,46 @@ var Chat = {
 
 var Room = {
     init : function() {
-        var that = this;
-        socket.on("room_info", function(data) { 
-		    that.updateRoomInfo(data);
-	    });
-	    
-	    socket.on("part", function(data) {
-		    for (var i=0; i<that.dudes.length; i++) {
-		        if (that.dudes[i].uid == data.uid) {
-			        that.dudes.splice(i, 1);
-		        }
-		    }
-		    removeUserFromRoom(data.uid);
-		    Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
-        });
-        
-	    socket.on("join", function(data) {
-		    that.dudes.push(data);
-            that.dudes[that.dudes.length - 1].status = data.status;
-		    if (!(data.uid in fbid_names)) {
-                getUserName(data.uid, function(uid, name) {
-			        fbid_names[uid] = name; 
-			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
-		            addUserToRoom(uid);
-			    });
-		    } else {
-		        Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		        addUserToRoom(data.uid);
-		    }
-	    });
+        socket.on("room_info", this.updateRoomInfo.bind(this));
+	    socket.on("part", this.user_part.bind(this));
+	    socket.on("join", this.user_join.bind(this));
         
 	    socket.on("update_count", function(data) {
-		var id = data.msgID;
+		    var id = data.msgID;
 		    $("#msg" + id).children(".votes").text(data.cnt);
 	    });
 	
         $("#roomName").text("-- no room --");
-	    that.dudes = Array();
+	    this.dudes = Array();
     },
-	
+    
+    user_join : function(data) {
+		this.dudes.push(data);
+        this.dudes[this.dudes.length - 1].status = data.status;
+		if (!(data.uid in fbid_names)) {
+            getUserName(data.uid, function(uid, name) {
+			    fbid_names[uid] = name; 
+			    Chat.serverMsg(fbid_names[uid] + " joined the flock");			
+		        addUserToRoom(uid);
+			});
+		} else {
+		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
+		    addUserToRoom(data.uid);
+		}	    
+    },
+    
+    user_part : function(data) {
+		for (var i=0; i < this.dudes.length; i++) {
+		    if (this.dudes[i].uid == data.uid) {
+			    this.dudes.splice(i, 1);
+		    }
+		}
+        var parent = document.getElementById("roomInfo");
+        var child = document.getElementById(data.uid);
+        parent.removeChild(child);
+		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
+    },
+    
     getStatus : function(uid) {
 	    for (var i in this.dudes) {
 	        if (uid == this.dudes[i].uid) {
@@ -177,7 +178,7 @@ var Room = {
 	        }
 	    }
 	    return 0;
-    }, 
+    },
     
     setStatus : function(uid, stat) {
 	    for (var i in this.dudes) {
@@ -226,28 +227,22 @@ var Room = {
     },
 
     getDudes: function(){
-      return this.dudes;
+        return this.dudes;
     }
 };
 
-$(document).ready(
-	function() {
-		socket = io.connect();
-		socket.on("connect", function() {});
-		Chat.init();
-		Room.init();
-        
-		socket.on("updateUsersInChat", function(users){
-            
-		});
-        
-		//DEBUG
-		$("#testLogin").click(function(){
-			Chat.loggedIn(0);
-		});
-		$('#side').tabs();
-	}
-);
+$(document).ready(function() {
+	socket = io.connect();
+	socket.on("connect", function() {});
+	Chat.init();
+	Room.init();
+    
+	//DEBUG
+	$("#testLogin").click(function(){
+		Chat.loggedIn(0);
+	});
+	$('#side').tabs();
+});
 
 function addUserToRoom(uid){
     if (!(uid in fbid_names)) {
@@ -259,13 +254,6 @@ function addUserToRoom(uid){
         $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
     }
 }
-
-function removeUserFromRoom(uid){
-    var parent = document.getElementById("roomInfo");
-    var child = document.getElementById(uid);
-    parent.removeChild(child);
-}
-
 
 function chooseContent(cid, type) {
     Room.pickContent(cid, type);
@@ -285,28 +273,4 @@ function removeContent() {
     Room.removeContent();
 }
 
-function temp() {
-    $(".up.vote").click(function(e) {
-	    var uid = $(e.currentTarget).parent().attr("uid");
-	    if ($(e.currentTarget).hasClass("selected")) {
-			
-		    $("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
-            
-		    socket.emit("set_status", {status: 0, fbid: uid});
-		Room.setStatus(uid, "0");
-	    } else {
-            
-		    $("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
-            
-		if ($(e.currentTarget).parent().children(".down")
-		    .hasClass("selected")) {
-			
-		    $("[uid~=\"" + uid + "\"]").children(".down").
-			    removeClass("selected");
-		}
-		    socket.emit("set_status", {status: "1", fbid: uid});
-		    Room.setStatus(uid, "1");
-	    }
-	});
-    
-}
+
