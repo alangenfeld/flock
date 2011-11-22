@@ -186,8 +186,18 @@ var Room = {
 	}
     },
 
+    hasFlock : function(cid, type, fid) {
+        socket.emit("has_flock", {"contentID" : cid, "contentType" : type, "flockID" : fid});
+
+    },
+
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
+        $("#side").show();
+    },
+
+    pickContentWithFid : function(cid, type, fid) {
+        socket.emit("pick_content", {"contentID" : cid, "contentType" : type, "flockID" : fid});
         $("#side").show();
     },
 
@@ -219,6 +229,14 @@ function getUsersInRoom(){
 
 function chooseContent(cid, type) {
     Room.pickContent(cid, type);
+}
+
+function chooseContentWithFid(cid, type, fid) {
+    Room.pickContentWithFid(cid, type, fid);
+}
+
+function hasFlock(cid, type, fid) {
+    Room.hasFlock(cid, type, fid);
 }
 
 function removeContent() {

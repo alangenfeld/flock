@@ -213,6 +213,7 @@ var Client = Class({
     'setContent': function(c) {
         this.content = c;
     },
+
     
     'removeContent': function() {
         if (!this.hasContent())
@@ -247,8 +248,9 @@ var Client = Class({
 // V0 client -> server commands
 var COMMANDS = [
     "login",
-	"disconnect",
+    "disconnect",
     "pick_content",
+    "has_flock",
     "remove_content",
     "msg",
     "action",
@@ -304,6 +306,7 @@ var Server = ClientList.extend({
         client.logIn(lid);
         log.info("Client logged in with ID " + lid);
     },
+    
 	
 	'cmd_disconnect': function(client, data) {
 		client.removeRoom();
@@ -329,10 +332,19 @@ var Server = ClientList.extend({
               });
     }
     ,
+
+    'cmd_has_flock': function(client, data) {
+          var cid  = String(data["contentID"]);
+          var type = String(data["contentType"]);
+          var fid = String(data["flockID"]);
+          //(hasRoom()&&hasContent())
+					client.send("has_flock", {hasFlock:true});
+    },
     
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
+        var fid = String(data["flockID"]);
         var cont = null;
 
         // try for existing instance of this Content
@@ -347,18 +359,27 @@ var Server = ClientList.extend({
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
+          //this means the content didn't exist so url was wrong  
+            fid = null;
         }
         
         client.removeRoom();
         client.removeContent();
 
-        var room = cont.addClient(client);
+        //room should be set to fid if it exists
+        var room;
+        if(fid != null){
+          room = fid;
+        }else{
+          room = cont.addClient(client);
+        }
+
         client.setContent(cont);
         client.setRoom(room);
-		room.sendRoomInfo(client);
+      room.sendRoomInfo(client);
         //client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
-    
+
     'cmd_remove_content':function(client) {
         client.removeRoom();
         client.removeContent();

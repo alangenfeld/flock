@@ -8,6 +8,39 @@ $(document).ready(function()
     $("#video").hide();
     $("#secondaryVideo").hide();
    var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
+
+  var url = document.URL;
+
+
+  if(url.lastIndexOf("/") < url.length-2){
+    var obj = $.deparam.fragment(url);
+    var c_id = String(obj["cid"]);
+    var f_id = String(obj["fid"]);
+  
+    alert(c_id);
+    alert(f_id);
+    
+    hasFlock(c_id, 'justin.tv', f_id);
+    socket.on("has_flock", finishLoadingPage(data,fid,cid)); 
+
+  }else{
+    finishLoadingPage(data, fid, cid);
+  }
+
+
+});
+
+
+function finishLoadingPage(data,fid,cid){
+  var hasFlock = String(data["hasFlock"]);
+  var loadNormally;
+  if(hasFlock.length == 3){
+    loadNormally = true;
+  }else{
+    loadNormally = false;
+  }
+
+  if(loadNormally){
    $.getJSON(category_query, function(categories)
    {
       var elSel = $("#selectVideo");
@@ -20,7 +53,16 @@ $(document).ready(function()
         elSel.append($("<option></option>").attr("value",i).text(category.name));
       });
    });
-});
+  }else{
+
+      chooseContentWithFid(cid, 'justin.tv', fid);
+      displayVideo(cid);
+     
+   }
+  
+
+}
+
 
 window.onresize = function() {
     var children = $("#video").children();
