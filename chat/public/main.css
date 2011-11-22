@@ -140,6 +140,10 @@ body {
   color: #454545;
 }
 
+#createRoomButton {
+  margin-top: 35px;
+}
+
 .contentListItemClear {
   clear: both;
 }
