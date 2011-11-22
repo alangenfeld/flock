@@ -72,7 +72,9 @@ body {
     width: 100%;
 }
 
-#contentList{
+/**** STREAM LIST STYLES ****/
+
+#contentList {
     position: relative;
     top: 40px;
 }
@@ -154,7 +156,9 @@ body {
     position: relative;
 }
 
-#leave{
+/**** VIDEO AREA STYLES ****/
+
+#leave {
    float: right;
    height: 40px; width: 50px;
 }
@@ -248,12 +252,12 @@ input#msg {
     height: 20px;
 }
 
-.message{
+.message {
   width: 95%;
 }
 
 .name {
-
+    font-weight: bold;
 }
 
 .troll {

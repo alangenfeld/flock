@@ -164,7 +164,8 @@ var Flock = ClientList.extend({
         if (client.id in msg.voters)
             return;
         msg.voters[client.id] = true;
-        return msg.count += change;
+        msg.count += change;
+        return msg.count;
     },
     
     'addClient': function(client) {
@@ -407,7 +408,7 @@ var Server = ClientList.extend({
         client.act();
         
 		client.room.broadcast("msg", {
-            msg:data.msg, userID:client.id, msgID:client.room.addMessage(client)
+            msg:data.msg.toString(), userID:client.id, msgID:client.room.addMessage(client)
         });
     },
 
