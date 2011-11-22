@@ -265,6 +265,7 @@ input#msg {
 }
 
 .message{
+  width: 95%;
 }
 
 .name {
