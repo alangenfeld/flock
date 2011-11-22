@@ -27,15 +27,16 @@ $(document).ready(function() {
     var cid = -1;
     var fid = -1;
     
-    if(url.lastIndexOf("/") < url.length-2){
+    if(url.lastIndexOf("/") < url.length-2) {
         var obj = $.deparam.fragment(url);
-        cid = String(obj["cid"]);
-        fid = String(obj["fid"]);
-        
-        socket.on("has_flock", function(data) {
-            finishLoadingPage(data,fid,cid);
-        });
-        hasFlock(cid, 'justin.tv', fid);      
+
+        if (obj["cid"] && obj["fid"]) {
+            cid = String(obj["cid"]);
+            fid = String(obj["fid"]);
+
+            // TODO
+
+        }
     }
   
    
@@ -52,6 +53,7 @@ $(document).ready(function() {
 			    var child = document.getElementById("overlay");
 			    var parent = document.getElementById("contentBody");
 			    parent.removeChild(child);
+                Chat.removeContent();
 		    }
 		    
 		    isFreeBird = true;
@@ -66,28 +68,25 @@ $(document).ready(function() {
         if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
             getMoreChannels();
         }
-    });    
+    });
+    
+    $(window).resize(resizeVideo);
 });
 
+function resizeVideo() {
+    var children = $("#video").children();
+    var cc = children.children();
+    if (children && cc) {
+        cc.height($("#side").height() * .96);
+        cc.width($("#content").width() * .98);
+    }
+}
 
 function finishLoadingPage(data,fid,cid) {
     displayVideo(cid, true, fid);
     $("#side").show();
-    var children = $("#video").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height() * .96);
-        children.children().width($("#content").width() * .98);
-    }
+    resizeVideo();
 }
-
-
-window.onresize = function() {
-    var children = $("#video").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height() * .96);
-        children.children().width($("#content").width() * .98);
-    }
-};
 
 function getMoreChannels()
 {
@@ -165,13 +164,7 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     var overlayDiv = $("#overlay");
     videoDiv.html(html_code + "<br/>");
 	
-	var children = $("#video").children();
-    if (children && children.children()) {
-        children.children().height($("#side").height() * .96);
-        children.children().width($("#content").width() * .98);
-	}
-    
-    isFreeBird = false;    
-    
+    resizeVideo();
+    isFreeBird = false;
     dropdown.selectedIndex = 0;
 }

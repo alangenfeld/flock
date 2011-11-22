@@ -1,3 +1,4 @@
+
 var socket = 0;
 var fbid_names = {};
 
@@ -42,7 +43,7 @@ var Chat = {
 			                  "uid=\"" + id + "\">" +
 			                  troll + 
 			                  "<span class=\"name\">" + 
-			      " <b>" + name + ":</b> " + m + 
+			                  " <b>" + name + ":</b> " + m + 
 			                  "</span>" +
 			                  "<div class=\"upvote\">+</div>" + 
 			                  "<div class=\"votes\">0</div>" + 
@@ -78,7 +79,7 @@ var Chat = {
 			        $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
 			        
 			        socket.emit("set_status", {status: "-1", fbid: uid});
-			Room.setStatus(uid, "-1");
+			        Room.setStatus(uid, "-1");
 		        }
 		    });
         };
@@ -143,47 +144,66 @@ var Room = {
         $("#roomName").text("-- no room --");
 	    this.clients = {};
     },
+
+    getStatus: function(uid) {
+        if (!(uid in this.clients))
+            return "0";
+        return this.clients[uid].status;
+    },
+    
+    setStatus: function(uid, st) {
+        if (!(uid in this.clients))
+            return;
+        this.clients[uid].status = st;
+    },
+    
+    addUser : function(client) {
+        var uid = client.uid;
+        if (uid in this.clients)
+            return;
+        this.clients[uid] = client;
+        if (!(uid in fbid_names)) {
+	        getUserName(uid, function(uid2, name) {
+		        fbid_names[uid2] = name; 
+                $('#roomInfo').append("<div id=\"usr"+uid2+"\"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
+            });
+	    } else {
+            $('#roomInfo').append("<div id=\"usr"+uid+"\"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
+        }
+    },
+    
+    removeUser : function(client) {
+        if (!(client.uid in this.clients))
+            return;
+        delete this.clients[client.uid];
+        $("#usr" + client.uid).remove();
+    },
     
     roomInfo : function(data) {
-        console.log("updateroominfo", data);
         $("#roomName").text(data.name);
         
-        // update fid hash in URl
+        // update fid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
-        var that = this;
         for (var i in data.clients) {
-	        console.log("got ur for "+data.clients[i].uid);
-		    that.clients.push(data.clients[i].uid);
-		    that.clients[that.clients.length-1].status = data.clients[i].status;
-            addUserToRoom(data.clients[i].uid, data.clients[i].status);
+            this.addUser(data.clients[i]);
         }
     },
     
     userJoin : function(data) {
-		this.clients.push(data);
-        this.clients[this.clients.length - 1].status = data.status;
+        this.addUser(data);
 		if (!(data.uid in fbid_names)) {
             getUserName(data.uid, function(uid, name) {
 			    fbid_names[uid] = name; 
 			    Chat.serverMsg(fbid_names[uid] + " joined the flock");			
-		        addUserToRoom(uid);
 			});
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		    addUserToRoom(data.uid);
-		}	    
+		}
     },
     
     userPart : function(data) {
-		for (var i=0; i < this.clients.length; i++) {
-		    if (this.clients[i].uid == data.uid) {
-			    this.clients.splice(i, 1);
-		    }
-		}
-        var parent = document.getElementById("roomInfo");
-        var child = document.getElementById(data.uid);
-        parent.removeChild(child);
+        this.removeUser(data);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
     },
 
@@ -203,17 +223,14 @@ var Room = {
     
     removeContent : function() {
         socket.emit("remove_content");
-    },
-
-    getClients: function() {
-        return this.clients;
     }
 };
 
 $(document).ready(function() {
 	socket = io.connect();
 	socket.on("connect", function() {});
-	Chat.init();
+	
+    Chat.init();
 	Room.init();
     
 	//DEBUG
@@ -223,15 +240,7 @@ $(document).ready(function() {
 	$('#side').tabs();
 });
 
-function addUserToRoom(uid){
-    if (!(uid in fbid_names)) {
-	    getUserName(uid, function(uid2, name) {
-		    fbid_names[uid2] = name; 
-            $('#roomInfo').append("<div id="+uid2+"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
-        });
-	} else {
-        $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
-    }
+function addUserToRoom(uid) {
 }
 
 function chooseContent(cid, type) {
