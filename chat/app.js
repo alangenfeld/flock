@@ -58,9 +58,9 @@ var MAX_ROOM_CLIENTS = 20;
 var global_room_count = 0;
 
 var Content = ClientList.extend({
-    'override __construct': function(cid, type) {
+    'override __construct': function(uid, type) {
         this._super();
-        this.id = cid;
+        this.id = uid;
         this.type = type;
         this.rooms = [];
     },
@@ -133,8 +133,19 @@ var Flock = ClientList.extend({
         this._super();
         this.id = fid;
         this.name = "Flock #" + fid;
-        this.cids = [];
-        this.nextId = 0;
+        this.uids = [];
+        this.messages = [];
+    },
+    
+    
+    'addMessage': function(client) {
+        this.messages.push({cl: client, count: 0});
+        return this.messages.length-1;
+    },
+    
+    'rateMessage': function(mid, change) {
+        this.messages[mid].count += change;
+        return this.messages[mid].count;
     },
     
     'addClient': function(client) {
@@ -147,19 +158,18 @@ var Flock = ClientList.extend({
 		};
 		
 		this.clients.push(client);
-        client.cidsIdx = this.cids.length;
-        this.cids.push({uid: client.id, status: 0});
+        client.uidsIdx = this.uids.length;
+        this.uids.push({uid: client.id, status: 0});
     },
     
     'override removeClient': function(client) {
-
         this._super(client);
         
 		for (var i in this.clients) {
 			this.clients[i].send("part", {uid: client.id});
 		}
         
-        this.cids.splice(client.cidsIdx, 1);
+        this.uids.splice(client.uidsIdx, 1);
         
         console.log("clients: ");
         console.log(this.clients);
@@ -170,7 +180,7 @@ var Flock = ClientList.extend({
         
         client.send("room_info", {
             name: this.name,
-            clients: this.cids
+            clients: this.uids
         });
     }
 });
@@ -195,6 +205,7 @@ var Client = Class({
         this.acts    = 0;
         this.send    = socket.emit.bind(socket);
         this.on      = socket.on.bind(socket);
+        this.marks   = 0;
     },
     
     'info': function(text) {
@@ -253,7 +264,8 @@ var Client = Class({
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
-    'hasContent': function() { return this.content !== null; } 
+    'hasContent': function() { return this.content !== null; },
+   
 });
 
 // V0 client -> server commands
@@ -324,29 +336,35 @@ var Server = ClientList.extend({
 	},
 
     'cmd_set_status': function(client, data){
-        var cid  = data["cid"];
+        var uid  = data["uid"];
         var setstatus  = data["status"];
-        log.info("setstatus: " + setstatus + "   cid  " + cid);
+        log.info("setstatus: " + setstatus + "   uid  " + uid);
         // TODO
     },
 
     'cmd_get_status': function(client, data){
-        var cid  = data["cid"];
-        log.info("getstatus:  cid  " + cid);
+        var uid = data["uid"];
+        log.info("getstatus:  uid  " + uid);
         client.send("get_status",{"status":0});
         // TODO
     },
 
     'cmd_set_edge': function(client, data){
-	    var id  = data["id"];
-	    log.info("setedge: " + id);
-        // TODO
+	    var id  =  Number(data["id"].substr(3));;
+        var newCount = client.room.rateMessage(id, 1);
+        client.room.broadcast("update_count", {
+            msgID: id,
+            cnt: newCount
+        });
     },
     
     'cmd_rm_edge': function(client, data){
-	    var id  = data["id"];
-	    log.info("rmedge: " + id);
-        // TODO
+	    var id  = Number(data["id"].substr(3));
+        var newCount = client.room.rateMessage(id, -1);
+        client.room.broadcast("update_count", {
+            msgID: id,
+            cnt: newCount
+        });        
     },
 
     'cmd_get_inc': function(client, data){
@@ -393,7 +411,7 @@ var Server = ClientList.extend({
         client.act();
         
 		client.room.broadcast("msg", {
-            msg:data.msg, userID:client.id, msgID:client.room.nextId++
+            msg:data.msg, userID:client.id, msgID:client.room.addMessage(client)
         });
     },
 

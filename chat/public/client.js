@@ -47,7 +47,7 @@ var Chat = {
 		break;
 	    }
 	    
-	    $("#text").append("<div class=\"message\" id=\"" + msgID + "\" " + 
+	    $("#text").append("<div class=\"message\" id=\"msg" + msgID + "\" " + 
 			      "uid=\"" + id + "\">" +
 			      troll + 
 			      "<span class=\"name\">" + 
@@ -171,7 +171,7 @@ var Room = {
 
 	socket.on("update_count", function(data) {
 		var id = data.msgID;
-		$("#" + id).children(".votes").text(data.cnt);
+		$("#msg" + id).children(".votes").text(data.cnt);
 	    });
 	
         $("#roomName").text("-- no room --");
