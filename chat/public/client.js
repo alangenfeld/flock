@@ -144,6 +144,16 @@ var Room = {
         socket.on("room_info", function(data) { 
 		that.updateRoomInfo(data);
 	    });
+	
+	socket.on("update_relation", function(data) { 
+		for (var i=0; i<that.dudes.length; i++) {
+		    if (that.dudes[i].uid == data.uid) {
+			console.log("update status", data);
+			that.dudes[i].status = data.status;
+		    }
+		}
+	    });
+
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
@@ -193,7 +203,8 @@ var Room = {
 	
     updateRoomInfo : function(data) {
         $("#roomName").text(data.room_name);
-  this.dudes = Array();
+
+	this.dudes = Array();
 	for (var i in data.room_dudes) {
 	    for (var j in this.dudes) {
 		if (data.room_dudes[i] == this.dudes[j].uid) {
@@ -203,8 +214,7 @@ var Room = {
 	    }
 	    this.dudes.push(data.room_dudes[i]);
 	}
-
-		updateUsersInRoom();
+	updateUsersInRoom();
     },
 
     hasFlock : function(cid, type, fid) {
