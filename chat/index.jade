@@ -5,7 +5,7 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
     link(href="/main.css", rel="stylesheet", media="screen")
     script(src="http://code.jquery.com/jquery.min.js")
     script(src="http://code.jquery.com/ui/1.8.16/jquery-ui.min.js")
-    script(src="http://plugins.jquery.com/files/jquery.query-2.1.7.js.txt")
+    script(src="jquery.ba-bbq.min.js")
     script(src="/socket.io/socket.io.js")
     script(src="/client.js")
     script(src="jquery.cssemoticons.js")
@@ -31,12 +31,19 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
             //#secondaryVideo
             #contentList
             div(style="clear: both;")
-        #side         
-          #roomName
-          #text
-          #bottomBox
-            form#send
-              input#msg
+        #side 
+          ul
+            li
+              a(href="#messageTab") Messages
+            li
+              a(href="#roomInfo") Users
+          #messageTab         
+            #roomName
+            #text
+            #bottomBox
+              form#send
+                input#msg
+          #roomInfo
       #footer
          | Copyright &copy; 2011 Remzi's Entrepreneurs.<br />
          small just kidding Flock is probably already trademarked

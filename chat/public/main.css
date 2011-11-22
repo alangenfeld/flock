@@ -140,6 +140,10 @@ body {
   color: #454545;
 }
 
+#createRoomButton {
+  margin-top: 35px;
+}
+
 .contentListItemClear {
   clear: both;
 }
@@ -227,7 +231,7 @@ body {
 
 #roomName {
     width: 100%; height: 25px;
-    padding-top: 9px;
+    padding-top: 9 px;
     text-align: center;
     color: #ffffff;
     font-weight: bold; font-size: 1.1em;
@@ -236,7 +240,7 @@ body {
 
 #text {
     position: absolute;
-    width: 97%; top: 35px; bottom: 31px;
+    width: 97%; top: 75px; bottom: 31px;
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
@@ -245,6 +249,13 @@ body {
 #bottomBox {
     position: absolute;
     bottom: 5px; left: 5px; right: 7px;
+}
+
+#roomInfo {
+    width: 25%; height: 5%;
+    float: left;
+    position: relative;
+    margin-left: 13px;
 }
 
 input#msg {
@@ -276,3 +287,21 @@ input#msg {
   opacity: 1.0;
 }
 
+.votes {
+  float: right;
+  margin-right: 4px;
+}
+
+.upvote {
+  display: inline;
+  float: right;
+  background: #888;
+  height: 15px;
+  width: 15px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.upvote.selected {
+  background: green;
+}

@@ -51,8 +51,10 @@ var Chat = {
 			      "uid=\"" + id + "\">" +
 			      troll + 
 			      "<span class=\"name\">" + 
-			      " <b>" + name + ":</b> " + m + "<br />" + 
-			      "</span>" + 
+			      " <b>" + name + ":</b> " + m + 
+			      "</span>" +
+			      "<div class=\"upvote\">+</div>" + 
+			      "<div class=\"votes\">0</div>" + 
 			      "</div>"
 			      );
 	    
@@ -61,6 +63,17 @@ var Chat = {
 	    
 	    $(".name").click(function(e) {
 		    $(e.currentTarget).parent().children(".troll").toggle();
+		});
+
+	    $(".upvote").click(function(e){
+		    var mid = $(e.currentTarget).parent().attr("id");
+		    if ($(e.currentTarget).hasClass("selected")) {
+			socket.emit("rm_edge", {id: mid});
+		    } else {
+			socket.emit("set_edge", {id: mid});
+		    }
+
+		    $(e.currentTarget).toggleClass("selected");
 		});
 
 	    $(".troll").click(function(e) {
@@ -137,6 +150,7 @@ var Room = {
 			that.dudes.splice(i, 1);
 		    }
 		}
+		updateUsersInRoom();
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
 
 	socket.on("join", function(data) {
@@ -148,6 +162,12 @@ var Room = {
 			});
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");}
+		updateUsersInRoom();
+	    });
+
+	socket.on("update_count", function(data) {
+		var id = data.msgID;
+		$("#" + id).children(".votes").text(data.cnt);
 	    });
 	
         $("#roomName").text("-- no room --");
@@ -172,9 +192,8 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-	console.log(data);
         $("#roomName").text(data.room_name);
-
+  this.dudes = Array();
 	for (var i in data.room_dudes) {
 	    for (var j in this.dudes) {
 		if (data.room_dudes[i] == this.dudes[j].uid) {
@@ -184,6 +203,8 @@ var Room = {
 	    }
 	    this.dudes.push(data.room_dudes[i]);
 	}
+
+		updateUsersInRoom();
     },
 
     hasFlock : function(cid, type, fid) {
@@ -203,6 +224,10 @@ var Room = {
 
     removeContent : function() {
         socket.emit("remove_content");
+    },
+
+    getDudes: function(){
+      return this.dudes;
     }
 };
 
@@ -221,10 +246,25 @@ $(document).ready(
 		      $("#testLogin").click(function(){
 			      Chat.loggedIn(0);
 			  });
+			  $('#side').tabs();
 		  }
 		  );
 
-function getUsersInRoom(){
+function updateUsersInRoom(){
+  $('#roomInfo').text("");
+  dudes = Room.getDudes();
+  console.log("peeps "+dudes.length);
+  that = this;
+  for(i in dudes){
+    if (!(dudes[i].uid in fbid_names)) {
+      getUserName(dudes[i].uid, function(name) {
+		    fbid_names[that.dudes[i].uid] = name; 
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+		});
+		} else {
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+    }
+  }
 }
 
 function chooseContent(cid, type) {
