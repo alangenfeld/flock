@@ -271,13 +271,15 @@ var Client = Class({
 // V0 client -> server commands
 var COMMANDS = [
     "login",
-	"disconnect",
+    "disconnect",
     "pick_content",
     "remove_content",
     "msg",
     "action",
     "add_friends",
     "set_status",
+    "rm_edge",
+    "set_edge",
     "get_status"
 ];
 
