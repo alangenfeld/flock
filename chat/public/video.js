@@ -35,15 +35,11 @@ $(document).ready(function()
     cid = String(obj["cid"]);
     fid = String(obj["fid"]);
   
-    alert(cid);
-    alert(fid);
-    
     socket.on("has_flock", function(data){
       finishLoadingPage(data,fid,cid);})
     hasFlock(cid, 'justin.tv', fid);
 
   }
-
 
 });
 
@@ -85,8 +81,7 @@ $("#selectVideo").change(function()
 	if(agree || isFreeBird)
 	{
 		if(agree)
-		{   
-		        removeContent();
+		{
 			var child = document.getElementById("overlay");
 			var parent = document.getElementById("contentBody");
 			parent.removeChild(child);
