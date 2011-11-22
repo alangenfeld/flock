@@ -17,7 +17,6 @@ var io = sio.listen(app);
 io.set("log level", 1);
 
 var log = require('winston');
-log.remove(log.transports.Console);
 log.add(log.transports.File, { filename: 'flock.log' });
 
 var ClientList = Class({
@@ -144,10 +143,11 @@ var Flock = ClientList.extend({
 		
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
-			this.clients[i].socket.emit("join", {cid:client.id, status:0});
+			this.clients[i].send("join", {uid: client.id, status:0});
 		};
 		
 		this.clients.push(client);
+        client.cidsIdx = this.cids.length;
         this.cids.push({uid: client.id, status: 0});
     },
     
@@ -156,12 +156,13 @@ var Flock = ClientList.extend({
         this._super(client);
         
 		for (var i in this.clients) {
-			this.clients[i].socket.emit("part", {uid: this.id});
+			this.clients[i].send("part", {uid: client.id});
 		}
+        
+        this.cids.splice(client.cidsIdx, 1);
         
         console.log("clients: ");
         console.log(this.clients);
-        
     },
 
     'sendRoomInfo': function(client){
