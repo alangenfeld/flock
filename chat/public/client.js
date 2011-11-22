@@ -131,9 +131,9 @@ var Chat = {
 
 var Room = {
     init : function() {
-        socket.on("room_info", this.updateRoomInfo.bind(this));
-	    socket.on("part", this.user_part.bind(this));
-	    socket.on("join", this.user_join.bind(this));
+        socket.on("room_info", this.roomInfo.bind(this));
+	    socket.on("part", this.userPart.bind(this));
+	    socket.on("join", this.userJoin.bind(this));
         
 	    socket.on("update_count", function(data) {
 		    var id = data.msgID;
@@ -141,12 +141,28 @@ var Room = {
 	    });
 	
         $("#roomName").text("-- no room --");
-	    this.dudes = Array();
+	    this.clients = {};
     },
     
-    user_join : function(data) {
-		this.dudes.push(data);
-        this.dudes[this.dudes.length - 1].status = data.status;
+    roomInfo : function(data) {
+        console.log("updateroominfo", data);
+        $("#roomName").text(data.name);
+        
+        // update fid hash in URl
+        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+        
+        var that = this;
+        for (var i in data.clients) {
+	        console.log("got ur for "+data.clients[i].uid);
+		    that.clients.push(data.clients[i].uid);
+		    that.clients[that.clients.length-1].status = data.clients[i].status;
+            addUserToRoom(data.clients[i].uid, data.clients[i].status);
+        }
+    },
+    
+    userJoin : function(data) {
+		this.clients.push(data);
+        this.clients[this.clients.length - 1].status = data.status;
 		if (!(data.uid in fbid_names)) {
             getUserName(data.uid, function(uid, name) {
 			    fbid_names[uid] = name; 
@@ -159,10 +175,10 @@ var Room = {
 		}	    
     },
     
-    user_part : function(data) {
-		for (var i=0; i < this.dudes.length; i++) {
-		    if (this.dudes[i].uid == data.uid) {
-			    this.dudes.splice(i, 1);
+    userPart : function(data) {
+		for (var i=0; i < this.clients.length; i++) {
+		    if (this.clients[i].uid == data.uid) {
+			    this.clients.splice(i, 1);
 		    }
 		}
         var parent = document.getElementById("roomInfo");
@@ -170,44 +186,7 @@ var Room = {
         parent.removeChild(child);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
     },
-    
-    getStatus : function(uid) {
-	    for (var i in this.dudes) {
-	        if (uid == this.dudes[i].uid) {
-		        return this.dudes[i].status;
-	        }
-	    }
-	    return 0;
-    },
-    
-    setStatus : function(uid, stat) {
-	    for (var i in this.dudes) {
-	        if (uid == this.dudes[i].uid) {
-		        this.dudes[i].status = stat;
-	        }
-	    }
-    }, 
-	
-    updateRoomInfo : function(data) {
-        console.log("updateroominfo", data);
-        $("#roomName").text(data.name);
-        
-        // update fid hash in URl
-        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
-        
-        var that = this;
-        for (var i in data.clients) {
-	        console.log("got ur for "+data.clients[i].uid);
-		    that.dudes.push(data.clients[i].uid);
-		    that.dudes[that.dudes.length-1].status = data.clients[i].status;
-            addUserToRoom(data.clients[i].uid, data.clients[i].status);
-        }
-    },
-    
-    hasFlock : function(cid, type, fid) {
-        socket.emit("has_flock", {"contentID" : cid, "contentType" : type, "flockID" : fid});
-    },
-    
+
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
@@ -226,8 +205,8 @@ var Room = {
         socket.emit("remove_content");
     },
 
-    getDudes: function(){
-        return this.dudes;
+    getClients: function() {
+        return this.clients;
     }
 };
 
@@ -263,14 +242,5 @@ function chooseContentWithFid(cid, type, fid) {
     Room.pickContentWithFid(cid, type, fid);
 }
 
-function hasFlock(cid, type, fid) {
-    Room.hasFlock(cid, type, fid);
-}
-
-function removeContent() {
-    $('#roomInfo').text("");
-    this.dudes = Array();
-    Room.removeContent();
-}
 
 

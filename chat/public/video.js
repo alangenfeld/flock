@@ -1,14 +1,14 @@
+
 var globals = {};
 globals.contentLimit = 20;
 globals.contentOffset = 0;
-isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
+var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
 $(document).ready(function() {
+
     $("#video").hide();
     $("#secondaryVideo").hide();
-    // var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
-    
-  
+
     var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
     
     $.getJSON(category_query, function(categories) {
@@ -32,11 +32,41 @@ $(document).ready(function() {
         cid = String(obj["cid"]);
         fid = String(obj["fid"]);
         
-        socket.on("has_flock", function(data){
-            finishLoadingPage(data,fid,cid);})
-        hasFlock(cid, 'justin.tv', fid);
-        
-    } 
+        socket.on("has_flock", function(data) {
+            finishLoadingPage(data,fid,cid);
+        });
+        hasFlock(cid, 'justin.tv', fid);      
+    }
+  
+   
+    $("#selectVideo").change(function() {
+	    var agree = false;
+	    
+	    if(!isFreeBird)
+		    agree = confirm("This will remove you from the current flock");
+	    
+	    if(agree || isFreeBird)
+	    {
+		    if(agree)
+		    {
+			    var child = document.getElementById("overlay");
+			    var parent = document.getElementById("contentBody");
+			    parent.removeChild(child);
+		    }
+		    
+		    isFreeBird = true;
+		    $("#video").hide();		
+		    $("#contentList").html(""); // Clear the old content list
+		    globals.contentOffset = 0; // Reset the offset
+		    getMoreChannels();
+	    }
+    });
+
+    $("#content").scroll(function() {
+        if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
+            getMoreChannels();
+        }
+    });    
 });
 
 
@@ -57,41 +87,14 @@ window.onresize = function() {
         children.children().height($("#side").height() * .96);
         children.children().width($("#content").width() * .98);
     }
-}
-
-$("#selectVideo").change(function() {
-	/*
-     if(!isFreeBird)
-	 $("#contentList").html("").css({"top": $("#video").height() + 30 + "px" }); // Clear the old content list
-	 */
-	
-	var agree;
-	
-	if(!isFreeBird)
-		agree = confirm("This will remove you from the current flock");
-	
-	if(agree || isFreeBird)
-	{
-		if(agree)
-		{
-			var child = document.getElementById("overlay");
-			var parent = document.getElementById("contentBody");
-			parent.removeChild(child);
-		}
-		
-		isFreeBird = true;
-		$("#video").hide();		
-		$("#contentList").html(""); // Clear the old content list
-		globals.contentOffset = 0; // Reset the offset
-		getMoreChannels();
-	}
-});
+};
 
 function getMoreChannels()
 {
     var e = document.getElementById("selectVideo");
     var val = e.options[e.selectedIndex].value;
-    if (val == -1) return;
+    if (val == -1)
+        return;
     var channel_query = 'http://api.justin.tv/api/stream/list.json?jsonp=?';
     var args = { 'category': val , 'language':"en", 'limit': globals.contentLimit, 'offset': globals.contentOffset};
     $.getJSON(channel_query, args, function(channels) { 
@@ -100,19 +103,13 @@ function getMoreChannels()
     });
 }
 
-$("#content").scroll(function() {
-    if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
-        getMoreChannels();
-    }
-});
-
 function addChannels(channels)
 {
     var contentList = $("#contentList");
     
     $.each(channels, function(j, channel) {
         var name = channel.title;
-        if(name != null ){
+        if(name != null) {
             var html = 
                     "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', "+false + ","+ 0 + ");\">" +
                     "<div class=\"contentViewers\">" +
@@ -126,8 +123,8 @@ function addChannels(channels)
                     "<div class=\"createRoom\">" +
                     "<button id=\"createRoomButton\" type=\"button\">Create New Flock</button>" +
                     "</div>" +
-                    "<div class=\"contentListItemClear\"></div>"
-                "</div>";
+                    "<div class=\"contentListItemClear\"></div>" +
+                    "</div>";
             contentList.append(html);
         }
     });
@@ -178,13 +175,3 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     
     dropdown.selectedIndex = 0;
 }
-
-/*
-function removeStream(streamID)
-{
-//   removeContent();
-   var d = document.getElementById("secondaryVideo");
-   var olddiv = document.getElementById(streamID);
-    d.removeChild(olddiv);
-}
-*/

@@ -1,17 +1,22 @@
-
 doctype 5
-html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fbfml")
+html(xmlns:fb="http://facebook.com/2008/fbfml")
   head
+    meta(charset="utf-8")
+    title Flock
+
     link(href="/main.css", rel="stylesheet", media="screen")
+    link(href="http://code.jquery.com/ui/1.8.16/themes/base/jquery-ui.css", rel="stylesheet", media="screen")
+    link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")    
+
     script(src="http://code.jquery.com/jquery.min.js")
     script(src="http://code.jquery.com/ui/1.8.16/jquery-ui.min.js")
     script(src="jquery.ba-bbq.min.js")
+    script(src="jquery.cssemoticons.js")
+    
     script(src="/socket.io/socket.io.js")
     script(src="/client.js")
-    script(src="jquery.cssemoticons.js")
-    link(href="http://code.jquery.com/ui/1.8.16/themes/base/jquery-ui.css",
-    rel="stylesheet", media="screen")
-    link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")
+    script(src="/video.js")	
+
   body
     #fb-root
     #landing
@@ -20,8 +25,7 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
       button#testLogin TEST LOG IN
     #container
       #header
-        #logo
-          img#flockLogo(src="/flock.png", alt="flock")
+        a(href="/") Flock.
       #main
         #content
           #contentHeader
@@ -45,8 +49,6 @@ html(xmlns="http://www.w3.org/1999/xhtml", xmlns:fb="http://facebook.com/2008/fb
                 input#msg
           #roomInfo
       #footer
-         | Copyright &copy; 2011 Remzi's Entrepreneurs.<br />
-         small just kidding Flock is probably already trademarked
-  footer
-    script(src="fb.js")
-    script(src="video.js")	
+         Copyright &copy; 2011 Remzi's Entrepreneurs.<br />
+  script(src="fb.js")
+    
