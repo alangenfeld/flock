@@ -150,6 +150,7 @@ var Room = {
 			that.dudes.splice(i, 1);
 		    }
 		}
+		updateUsersInRoom();
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
 
 	socket.on("join", function(data) {
@@ -161,6 +162,7 @@ var Room = {
 			});
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");}
+		updateUsersInRoom();
 	    });
 
 	socket.on("update_count", function(data) {
@@ -191,7 +193,7 @@ var Room = {
 	
     updateRoomInfo : function(data) {
         $("#roomName").text(data.room_name);
-
+  this.dudes = Array();
 	for (var i in data.room_dudes) {
 	    for (var j in this.dudes) {
 		if (data.room_dudes[i] == this.dudes[j].uid) {
@@ -201,6 +203,8 @@ var Room = {
 	    }
 	    this.dudes.push(data.room_dudes[i]);
 	}
+
+		updateUsersInRoom();
     },
 
     pickContent : function(cid, type) {
@@ -210,6 +214,10 @@ var Room = {
 
     removeContent : function() {
         socket.emit("remove_content");
+    },
+
+    getDudes: function(){
+      return this.dudes;
     }
 };
 
@@ -228,10 +236,25 @@ $(document).ready(
 		      $("#testLogin").click(function(){
 			      Chat.loggedIn(0);
 			  });
+			  $('#side').tabs();
 		  }
 		  );
 
-function getUsersInRoom(){
+function updateUsersInRoom(){
+  $('#roomInfo').text("");
+  dudes = Room.getDudes();
+  console.log("peeps "+dudes.length);
+  that = this;
+  for(i in dudes){
+    if (!(dudes[i].uid in fbid_names)) {
+      getUserName(dudes[i].uid, function(name) {
+		    fbid_names[that.dudes[i].uid] = name; 
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+		});
+		} else {
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+    }
+  }
 }
 
 function chooseContent(cid, type) {
