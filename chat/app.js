@@ -13,7 +13,6 @@ var Class   = require("structr"),
     db      = require("./db.js");
 
 var io = sio.listen(app);
-
 io.set("log level", 0);
 
 var log = require('winston');
@@ -65,23 +64,21 @@ var Content = ClientList.extend({
         this.rooms = [];
     },
 
-    'addClientExistingRoom':function(client, fid){
+    'addClientExistingRoom': function(client, fid) {
 
-      var selectedFlock = null;
-      console.log("adding client to existing room hopefully");
-      for (var i = 0; i < this.rooms.length; i++){
-        
-        console.log("i = "+ i + " fid = " + fid);
-        if(this.rooms[i].id.toString() == fid){
-          selectedFlock = this.rooms[i];
-          selectedFlock.addClient(client);
-          console.log("added client to room " + i);
-          break;
+        var selectedFlock = null;
+        console.log("adding client to existing room hopefully");
+        for (var i = 0; i < this.rooms.length; i++) {    
+            console.log("i = "+ i + " fid = " + fid);
+            if(this.rooms[i].id.toString() == fid) {
+                selectedFlock = this.rooms[i];
+                selectedFlock.addClient(client);
+                console.log("added client to room " + i);
+                break;
+            }
         }
-      }
 	    this.clients.push(client);
 	    return selectedFlock;
-
     },
 
 	'addClient': function(client) {
@@ -151,27 +148,28 @@ var Flock = ClientList.extend({
     'override __construct': function(fid) {
         this._super();
         this.id = fid;
-        this.name = "Flock #" + fid;
+        this.name = "Flock #" + (fid + 1);
         this.uids = [];
         this.messages = [];
     },
     
-    
     'addMessage': function(client) {
-        this.messages.push({cl: client, count: 0});
+        this.messages.push({cl: client, count: 0, voters: {}});
         return this.messages.length-1;
     },
     
-    'rateMessage': function(mid, change) {
-        this.messages[mid].count += change;
-        return this.messages[mid].count;
+    'rateMessage': function(client, mid, change) {
+        var msg = this.messages[mid];
+        // so people can't vote more than once...
+        if (client.id in msg.voters)
+            return;
+        msg.voters[client.id] = true;
+        return msg.count += change;
     },
     
     'addClient': function(client) {
-          console.log("addclient");
         if (client in this.clients){
-          console.log("returning");
-          return;
+            return;
         }
 		
 		//notify everyone that new user has joined	
@@ -192,9 +190,6 @@ var Flock = ClientList.extend({
 		}
         
         this.uids.splice(client.uidsIdx, 1);
-        
-        console.log("clients: ");
-        console.log(this.clients);
     },
 
     'sendRoomInfo': function(client){
@@ -220,7 +215,6 @@ var Client = Class({
      */
     'override __construct': function(socket, server) {
         this.socket  = socket;
-        this.server  = server;
         this.id      = -1;
         this.content = null;
         this.room    = null;
@@ -228,7 +222,6 @@ var Client = Class({
         this.acts    = 0;
         this.send    = socket.emit.bind(socket);
         this.on      = socket.on.bind(socket);
-        this.marks   = 0;
     },
     
     'info': function(text) {
@@ -262,7 +255,6 @@ var Client = Class({
     'setContent': function(c) {
         this.content = c;
     },
-
     
     'removeContent': function() {
         if (!this.hasContent())
@@ -279,16 +271,13 @@ var Client = Class({
     'removeRoom': function() {
         if (!this.hasRoom())
             return;
-        
-        this.info("Removed from Room #" + this.room.id);
         this.room.removeClient(this);		
-		
         this.room = null;
     },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
-    'hasContent': function() { return this.content !== null; },
+    'hasContent': function() { return this.content !== null; }
    
 });
 
@@ -301,10 +290,7 @@ var COMMANDS = [
     "remove_content",
     "msg",
     "action",
-    "set_status",
-    "rm_edge",
-    "set_edge",
-    "get_status"
+    "msg_vote"
 ];
 
 /**
@@ -324,35 +310,26 @@ var Server = ClientList.extend({
      */
     'addClient': function(cl) {
         this.clients.push(cl);
-        var that = this, len = COMMANDS.length;
+        var len = COMMANDS.length;
         for (var i = 0; i < len; i++)
             this.registerCallback(cl, COMMANDS[i]);
     },
 	
-    'getUsersInFlock': function(){
-      //needs implementation
-    }
-    ,
-    
     'registerCallback': function(client, cmd) {
         var cmdStr = "cmd_" + cmd;
         var that = this;
         client.on(cmd, function (data) {
             log.info(" Received command: " + cmd);
-            try {
-                that[cmdStr].call(that, client, data);
-            } catch (e) {
-                log.info("Executing cmd " + cmd + "failed: " + e);
-            }
+            that[cmdStr].call(that, client, data);
         });        
     },
 
     'cmd_login': function(client, data) {
-        var lid = Number(data["userID"]);
-        if (lid == -1)
+        var uid = Number(data["userID"]);
+        if (uid == -1)
             throw new Exception("Client tried to login with ID -1");
-        client.logIn(lid);
-        log.info("Client logged in with ID " + lid);
+        client.logIn(uid);
+        log.info("Client logged in with ID " + uid);
     },
     
 	
@@ -361,57 +338,30 @@ var Server = ClientList.extend({
         client.removeContent();
 	},
 
-    'cmd_set_status': function(client, data){
-        var uid  = data["uid"];
-        var setstatus  = data["status"];
-        log.info("setstatus: " + setstatus + "   uid  " + uid);
-        // TODO
-    },
-
-    'cmd_get_status': function(client, data){
-        var uid = data["uid"];
-        log.info("getstatus:  uid  " + uid);
-        client.send("get_status",{"status":0});
-        // TODO
-    },
-
     'cmd_has_flock': function(client, data) {
-          var cid  = String(data["contentID"]);
-          var type = String(data["contentType"]);
-          var fid = String(data["flockID"]);
-          //(hasRoom()&&hasContent())
-					client.send("has_flock", {hasFlock:true});
+        var cid  = String(data["contentID"]);
+        var type = String(data["contentType"]);
+        var fid = String(data["flockID"]);
+        //(hasRoom()&&hasContent())
+		client.send("has_flock", {hasFlock:true});
     },
 
-    'cmd_set_edge': function(client, data){
-	    var id  =  Number(data["id"].substr(3));;
-        var newCount = client.room.rateMessage(id, 1);
+    'cmd_msg_vote': function(client, data) {
+	    var id     = Number(data["id"].substr(3));
+        var change = Number(data["change"]); 
+        if (change != 1 && change != -1)
+            return;
+        var newCount = client.room.rateMessage(client, id, change);
         client.room.broadcast("update_count", {
             msgID: id,
             cnt: newCount
         });
     },
     
-    'cmd_rm_edge': function(client, data){
-	    var id  = Number(data["id"].substr(3));
-        var newCount = client.room.rateMessage(id, -1);
-        client.room.broadcast("update_count", {
-            msgID: id,
-            cnt: newCount
-        });        
-    },
-
-    'cmd_get_inc': function(client, data){
-	    var id  = data["id"];
-	    log.info("getinc: " + id);
-        client.send("update_count",{"msgID":id,"cnt":0});
-        // TODO
-    },
-    
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
-        var fid = String(data["flockID"]);
+        var fid  = String(data["flockID"]);
         var cont = null;
 
         console.log("1fid is equal to " + fid + "  cid = "+cid);
@@ -428,22 +378,19 @@ var Server = ClientList.extend({
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
-          //this means the content didn't exist so url was wrong  
+            //this means the content didn't exist so url was wrong  
             fid = null;
-          console.log("2fid is equal to " + fid + "  cid = "+cid );
         }
         
-        console.log("2fid is equal to " + fid + "  cid = "+cid );
-
         client.removeRoom();
         client.removeContent();
 
         //room should be set to fid if it exists
         var room;
         if(fid == null){
-          room = cont.addClient(client);
-        }else{
-          room = cont.addClientExistingRoom(client, fid);
+            room = cont.addClient(client);
+        } else {
+            room = cont.addClientExistingRoom(client, fid);
         }
 
         client.setContent(cont);

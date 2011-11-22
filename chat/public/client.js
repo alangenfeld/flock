@@ -7,108 +7,99 @@ var Chat = {
         $("#send").submit(this.sendMsg.bind(this));
         this.uid = 0;
     },
-
+    
     loggedIn : function(uid) {
         socket.emit("login", {"userID":uid});
         this.uid = uid;
         $("#landing").hide();
         $("#side").hide();
         $("#container").show();
-	/**
-	   getFriends(function(info) {
-	   var fbids = new Array();
-	   for (var i in info.friends) {
-	   fbids.push(info.friends[i].id);
-	   }
-	   socket.emit("add_friends", {"friends": fbids}); 
-	   });
-	*/
     },
     
     serverMsg : function(msg) {
         $("#text").append("<div class=\"message\">" +
-			  "<b>Server:</b> " + msg + "<br />" + 
-			  "</div>"
-			  );
-	
+			              "<b>Server:</b> " + msg + "<br />" + 
+			              "</div>"
+			             );
+	    
         $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
     },
     
     getMsg : function(data) {
         var add = function(id, name, m, msgID) {
-	    var status = Room.getStatus(id);
+	        var status = Room.getStatus(id);
             var troll;
-	    switch (status) {
-	    case "-1":
-		troll = "<div class=\"marked troll\"></div>";
-		break;
-	    default:
-		troll = "<div class=\"troll\"></div>";
-		break;
-	    }
-	    
-	    $("#text").append("<div class=\"message\" id=\"msg" + msgID + "\" " + 
-			      "uid=\"" + id + "\">" +
-			      troll + 
-			      "<span class=\"name\">" + 
+	        switch (status) {
+	        case "-1":
+		        troll = "<div class=\"marked troll\"></div>";
+		        break;
+	        default:
+		        troll = "<div class=\"troll\"></div>";
+		        break;
+	        }
+	        
+	        $("#text").append("<div class=\"message\" id=\"msg" + msgID + "\" " + 
+			                  "uid=\"" + id + "\">" +
+			                  troll + 
+			                  "<span class=\"name\">" + 
 			      " <b>" + name + ":</b> " + m + 
-			      "</span>" +
-			      "<div class=\"upvote\">+</div>" + 
-			      "<div class=\"votes\">0</div>" + 
-			      "</div>"
-			      );
-	    
+			                  "</span>" +
+			                  "<div class=\"upvote\">+</div>" + 
+			                  "<div class=\"votes\">0</div>" + 
+			                  "</div>"
+			                 );
+	        
             $("#text").prop({ scrollTop: $("#text").prop("scrollHeight")});
-	    $("#text").emoticonize({});
-	    
-	    $(".name").click(function(e) {
-		    $(e.currentTarget).parent().children(".troll").toggle();
-		});
+	        $("#text").emoticonize({});
+	        
+	        $(".name").click(function(e) {
+		        $(e.currentTarget).parent().children(".troll").toggle();
+		    });
 
-	    $(".upvote").click(function(e){
-		    var mid = $(e.currentTarget).parent().attr("id");
-		    if ($(e.currentTarget).hasClass("selected")) {
-			socket.emit("rm_edge", {id: mid});
-		    } else {
-			socket.emit("set_edge", {id: mid});
-		    }
-
-		    $(e.currentTarget).toggleClass("selected");
-		});
-
-	    $(".troll").click(function(e) {
-		    var uid = $(e.currentTarget).parent().attr("uid");
-		    if ($(e.currentTarget).hasClass("marked")) {
-			$("[uid~=\"" + uid + "\"]").children(".troll").removeClass("marked");
-
-			socket.emit("set_status", {status: "0", fbid: uid});
-			Room.setStatus(uid, "0");
-		    } else {
-			$("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
-			
-			socket.emit("set_status", {status: "-1", fbid: uid});
+	        $(".upvote").click(function(e){
+		        var mid = $(e.currentTarget).parent().attr("id");
+		        if ($(e.currentTarget).hasClass("selected")) {
+			        //socket.emit("rm_edge", {id: mid});
+		        } else {
+			        socket.emit("msg_vote", {id: mid, change: 1});
+		        }
+                
+		        $(e.currentTarget).toggleClass("selected");
+		    });
+            
+	        $(".troll").click(function(e) {
+		        var uid = $(e.currentTarget).parent().attr("uid");
+		        if ($(e.currentTarget).hasClass("marked")) {
+			        $("[uid~=\"" + uid + "\"]").children(".troll").removeClass("marked");
+                    
+			        socket.emit("set_status", {status: "0", fbid: uid});
+			        Room.setStatus(uid, "0");
+		        } else {
+			        $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
+			        
+			        socket.emit("set_status", {status: "-1", fbid: uid});
 			Room.setStatus(uid, "-1");
-		    }
-		});
+		        }
+		    });
         };
-	
-	var uid = data["userID"];
+	    
+	    var uid = data["userID"];
         var _m = data["msg"];
         var msgID = data["msgID"];
-
+        
         if (uid == -1) {
             Chat.serverMsg(_m);
         } else if (!(uid in fbid_names)) {
             getUserName(uid, function(uid2, name) {
-		    fbid_names[uid2] = name; 
-		    add(uid2, name, _m, msgID);
-		});
+		        fbid_names[uid2] = name; 
+		        add(uid2, name, _m, msgID);
+		    });
         } else {
             add(uid, fbid_names[uid], _m, msgID);
         }
         return false;
     },
-
+    
     sendMsg : function() {
         var message = $("#msg").val();
         
@@ -127,7 +118,7 @@ var Chat = {
             if (actionEndIndex != -1) {
                 extra = actionString.substring(actionEndIndex + 1);
             }
-
+            
             socket.emit("action", {"action": action, "extra": extra}); 
         } else { 
             socket.emit("msg", {"msg": message});           
@@ -142,57 +133,58 @@ var Room = {
     init : function() {
         var that = this;
         socket.on("room_info", function(data) { 
-		that.updateRoomInfo(data);
+		    that.updateRoomInfo(data);
 	    });
-	
-	socket.on("part", function(data) {
-		for (var i=0; i<that.dudes.length; i++) {
-		    if (that.dudes[i].uid == data.uid) {
-			that.dudes.splice(i, 1);
+	    
+	    socket.on("part", function(data) {
+		    for (var i=0; i<that.dudes.length; i++) {
+		        if (that.dudes[i].uid == data.uid) {
+			        that.dudes.splice(i, 1);
+		        }
 		    }
-		}
-		removeUserFromRoom(data.uid);
-		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
-
-	socket.on("join", function(data) {
-		that.dudes.push(data);
-        that.dudes[that.dudes.length - 1].status = data.status;
-		if (!(data.uid in fbid_names)) {
-            getUserName(data.uid, function(uid, name) {
+		    removeUserFromRoom(data.uid);
+		    Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
+        });
+        
+	    socket.on("join", function(data) {
+		    that.dudes.push(data);
+            that.dudes[that.dudes.length - 1].status = data.status;
+		    if (!(data.uid in fbid_names)) {
+                getUserName(data.uid, function(uid, name) {
 			        fbid_names[uid] = name; 
 			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
 		            addUserToRoom(uid);
 			    });
-		} else {
-		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		    addUserToRoom(data.uid);
+		    } else {
+		        Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
+		        addUserToRoom(data.uid);
 		    }
 	    });
-
-	socket.on("update_count", function(data) {
+        
+	    socket.on("update_count", function(data) {
 		var id = data.msgID;
-		$("#msg" + id).children(".votes").text(data.cnt);
+		    $("#msg" + id).children(".votes").text(data.cnt);
 	    });
 	
         $("#roomName").text("-- no room --");
-	that.dudes = Array();
+	    that.dudes = Array();
     },
 	
     getStatus : function(uid) {
-	for (var i in this.dudes) {
-	    if (uid == this.dudes[i].uid) {
-		return this.dudes[i].status;
+	    for (var i in this.dudes) {
+	        if (uid == this.dudes[i].uid) {
+		        return this.dudes[i].status;
+	        }
 	    }
-	}
-	return 0;
+	    return 0;
     }, 
-
+    
     setStatus : function(uid, stat) {
-	for (var i in this.dudes) {
-	    if (uid == this.dudes[i].uid) {
-		this.dudes[i].status = stat;
+	    for (var i in this.dudes) {
+	        if (uid == this.dudes[i].uid) {
+		        this.dudes[i].status = stat;
+	        }
 	    }
-	}
     }, 
 	
     updateRoomInfo : function(data) {
@@ -201,7 +193,7 @@ var Room = {
         
         // update fid hash in URl
         window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
-
+        
         var that = this;
         for (var i in data.clients) {
 	        console.log("got ur for "+data.clients[i].uid);
@@ -210,27 +202,26 @@ var Room = {
             addUserToRoom(data.clients[i].uid, data.clients[i].status);
         }
     },
-
+    
     hasFlock : function(cid, type, fid) {
         socket.emit("has_flock", {"contentID" : cid, "contentType" : type, "flockID" : fid});
-
     },
-
+    
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
         // update cid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
-
+        
         $("#side").show();
     },
-
+    
     pickContentWithFid : function(cid, type, fid) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type, "flockID" : fid});
         alert("pick content with fid");
         $("#side").show();
     },
-
+    
     removeContent : function() {
         socket.emit("remove_content");
     },
@@ -241,23 +232,23 @@ var Room = {
 };
 
 $(document).ready(
-		  function() {
-		      socket = io.connect();
-		      socket.on("connect", function() {});
-		      Chat.init();
-		      Room.init();
-
-		      socket.on("updateUsersInChat", function(users){
-
-			  });
-
-		      //DEBUG
-		      $("#testLogin").click(function(){
-			      Chat.loggedIn(0);
-			  });
-			  $('#side').tabs();
-		  }
-		  );
+	function() {
+		socket = io.connect();
+		socket.on("connect", function() {});
+		Chat.init();
+		Room.init();
+        
+		socket.on("updateUsersInChat", function(users){
+            
+		});
+        
+		//DEBUG
+		$("#testLogin").click(function(){
+			Chat.loggedIn(0);
+		});
+		$('#side').tabs();
+	}
+);
 
 function addUserToRoom(uid){
     if (!(uid in fbid_names)) {
@@ -300,23 +291,23 @@ function temp() {
 	    var uid = $(e.currentTarget).parent().attr("uid");
 	    if ($(e.currentTarget).hasClass("selected")) {
 			
-		$("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
-
-		socket.emit("set_status", {status: 0, fbid: uid});
+		    $("[uid~=\"" + uid + "\"]").children(".up").removeClass("selected");
+            
+		    socket.emit("set_status", {status: 0, fbid: uid});
 		Room.setStatus(uid, "0");
 	    } else {
-
-		$("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
-
+            
+		    $("[uid~=\"" + uid + "\"]").children(".up").addClass("selected");
+            
 		if ($(e.currentTarget).parent().children(".down")
 		    .hasClass("selected")) {
-				
+			
 		    $("[uid~=\"" + uid + "\"]").children(".down").
-			removeClass("selected");
+			    removeClass("selected");
 		}
-		socket.emit("set_status", {status: "1", fbid: uid});
-		Room.setStatus(uid, "1");
+		    socket.emit("set_status", {status: "1", fbid: uid});
+		    Room.setStatus(uid, "1");
 	    }
 	});
-
+    
 }
