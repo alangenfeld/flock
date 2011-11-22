@@ -137,10 +137,12 @@ var Room = {
 			that.dudes.splice(i, 1);
 		    }
 		}
+		$('#roomInfo').text("there are "+that.dudes.length+" in here");
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
 
 	socket.on("join", function(data) {
 		that.dudes.push(data);
+		$('#roomInfo').text("there are "+that.dudes.length+" in here");
 		if (!(data.uid in fbid_names)) {
 		    getUserName(data.uid, function(name) {
 			    fbid_names[data.uid] = name; 
@@ -174,7 +176,7 @@ var Room = {
     updateRoomInfo : function(data) {
 	console.log(data);
         $("#roomName").text(data.room_name);
-
+  this.dudes = Array();
 	for (var i in data.room_dudes) {
 	    for (var j in this.dudes) {
 		if (data.room_dudes[i] == this.dudes[j].uid) {
@@ -184,6 +186,8 @@ var Room = {
 	    }
 	    this.dudes.push(data.room_dudes[i]);
 	}
+
+		$('#roomInfo').text("there are "+this.dudes.length+" in here");
     },
 
     pickContent : function(cid, type) {
@@ -211,6 +215,7 @@ $(document).ready(
 		      $("#testLogin").click(function(){
 			      Chat.loggedIn(0);
 			  });
+			  $('#side').tabs();
 		  }
 		  );
 
