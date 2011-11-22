@@ -7,7 +7,11 @@ $(document).ready(function()
 {
     $("#video").hide();
     $("#secondaryVideo").hide();
+  // var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
+  
+  
    var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
+
    $.getJSON(category_query, function(categories)
    {
       var elSel = $("#selectVideo");
@@ -20,7 +24,41 @@ $(document).ready(function()
         elSel.append($("<option></option>").attr("value",i).text(category.name));
       });
    });
+  
+  var url = document.URL;
+
+  var cid = -1;
+  var fid = -1;
+
+  if(url.lastIndexOf("/") < url.length-2){
+    var obj = $.deparam.fragment(url);
+    cid = String(obj["cid"]);
+    fid = String(obj["fid"]);
+  
+    alert(cid);
+    alert(fid);
+    
+    socket.on("has_flock", function(data){
+      finishLoadingPage(data,fid,cid);})
+    hasFlock(cid, 'justin.tv', fid);
+
+  }
+
+
 });
+
+
+function finishLoadingPage(data,fid,cid){
+  
+    displayVideo(cid, true, fid);
+    $("#side").show();
+    var children = $("#video").children();
+    if (children && children.children()) {
+      children.children().height($("#side").height() * .96);
+      children.children().width($("#content").width() * .98);
+    }
+}
+
 
 window.onresize = function() {
     var children = $("#video").children();
@@ -92,7 +130,7 @@ function addChannels(channels)
     var name = channel.title;
     if(name != null ){
       var html = 
-        "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', \'" + channel.title + "\');\">" +
+        "<div class=\"contentListItem\" onclick=\"displayVideo(\'" + channel.channel.login + "\', "+false + ","+ 0 + ");\">" +
         "<div class=\"contentViewers\">" +
           "<div class=\"contentViewersCount\">" + channel.channel_count + "</div>" +
           "<div class=\"contentViewersLabel\">people</div>" +
@@ -113,7 +151,7 @@ function addChannels(channels)
   contentList.show();
 }
 
-function displayVideo(cid)
+function displayVideo(cid, contentAlreadyCalled, fid)
 {
     $("#video").show();
     $("#contentList").hide();
@@ -134,7 +172,11 @@ function displayVideo(cid)
     
     var dropdown = document.getElementById("selectVideo");
    
-    chooseContent(cid, 'justin.tv');
+    if(!contentAlreadyCalled){
+      chooseContent(cid, 'justin.tv');
+    }else{
+      chooseContentWithFid(cid, 'justin.tv', fid);
+    };
 
     $("#contentBody").append($("<div></div>").attr("id","overlay"));
 	

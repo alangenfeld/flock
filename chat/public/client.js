@@ -196,8 +196,12 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-        console.log("updateroomingo", data);
+        console.log("updateroominfo", data);
         $("#roomName").text(data.name);
+        
+        // update fid hash in URl
+        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+
         var that = this;
         for (var i in data.clients) {
 	        console.log("got ur for "+data.clients[i].uid);
@@ -207,12 +211,23 @@ var Room = {
         }
     },
 
+    hasFlock : function(cid, type, fid) {
+        socket.emit("has_flock", {"contentID" : cid, "contentType" : type, "flockID" : fid});
+
+    },
+
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
         // update cid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
 
+        $("#side").show();
+    },
+
+    pickContentWithFid : function(cid, type, fid) {
+        socket.emit("pick_content", {"contentID" : cid, "contentType" : type, "flockID" : fid});
+        alert("pick content with fid");
         $("#side").show();
     },
 
@@ -266,7 +281,16 @@ function chooseContent(cid, type) {
     Room.pickContent(cid, type);
 }
 
+function chooseContentWithFid(cid, type, fid) {
+    Room.pickContentWithFid(cid, type, fid);
+}
+
+function hasFlock(cid, type, fid) {
+    Room.hasFlock(cid, type, fid);
+}
+
 function removeContent() {
+    $('#roomInfo').text("");
     this.dudes = Array();
     Room.removeContent();
 }

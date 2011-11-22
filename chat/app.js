@@ -14,7 +14,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 1);
+io.set("log level", 10);
 
 var log = require('winston');
 log.add(log.transports.File, { filename: 'flock.log' });
@@ -63,6 +63,25 @@ var Content = ClientList.extend({
         this.id = uid;
         this.type = type;
         this.rooms = [];
+    },
+
+    'addClientExistingRoom':function(client, fid){
+
+      var selectedFlock = null;
+      console.log("adding client to existing room hopefully");
+      for (var i = 0; i < this.rooms.length; i++){
+        
+        console.log("i = "+ i + " fid = " + fid);
+        if(this.rooms[i].id.toString() == fid){
+          selectedFlock = this.rooms[i];
+          selectedFlock.addClient(client);
+          console.log("added client to room " + i);
+          break;
+        }
+      }
+	    this.clients.push(client);
+	    return selectedFlock;
+
     },
 
 	'addClient': function(client) {
@@ -149,8 +168,11 @@ var Flock = ClientList.extend({
     },
     
     'addClient': function(client) {
-        if (client in this.clients)
-            return;
+          console.log("addclient");
+        if (client in this.clients){
+          console.log("returning");
+          return;
+        }
 		
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
@@ -179,6 +201,7 @@ var Flock = ClientList.extend({
 	    //return listing of users in room to client
         
         client.send("room_info", {
+            id: this.id,
             name: this.name,
             clients: this.uids
         });
@@ -239,6 +262,7 @@ var Client = Class({
     'setContent': function(c) {
         this.content = c;
     },
+
     
     'removeContent': function() {
         if (!this.hasContent())
@@ -273,6 +297,7 @@ var COMMANDS = [
     "login",
     "disconnect",
     "pick_content",
+    "has_flock",
     "remove_content",
     "msg",
     "action",
@@ -329,6 +354,7 @@ var Server = ClientList.extend({
         client.logIn(lid);
         log.info("Client logged in with ID " + lid);
     },
+    
 	
 	'cmd_disconnect': function(client, data) {
 		client.removeRoom();
@@ -347,6 +373,14 @@ var Server = ClientList.extend({
         log.info("getstatus:  uid  " + uid);
         client.send("get_status",{"status":0});
         // TODO
+    },
+
+    'cmd_has_flock': function(client, data) {
+          var cid  = String(data["contentID"]);
+          var type = String(data["contentType"]);
+          var fid = String(data["flockID"]);
+          //(hasRoom()&&hasContent())
+					client.send("has_flock", {hasFlock:true});
     },
 
     'cmd_set_edge': function(client, data){
@@ -377,7 +411,10 @@ var Server = ClientList.extend({
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
+        var fid = String(data["flockID"]);
         var cont = null;
+
+        console.log("1fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
@@ -391,17 +428,29 @@ var Server = ClientList.extend({
         if (cont === null) {
             cont = new Content(cid, type);
             this.contents.push(cont);
+          //this means the content didn't exist so url was wrong  
+            fid = null;
+          console.log("2fid is equal to " + fid + "  cid = "+cid );
         }
         
+        console.log("2fid is equal to " + fid + "  cid = "+cid );
+
         client.removeRoom();
         client.removeContent();
 
-        var room = cont.addClient(client);
+        //room should be set to fid if it exists
+        var room;
+        if(fid == null){
+          room = cont.addClient(client);
+        }else{
+          room = cont.addClientExistingRoom(client, fid);
+        }
+
         client.setContent(cont);
         client.setRoom(room);
-	    room.sendRoomInfo(client);
+        room.sendRoomInfo(client);
     },
-    
+
     'cmd_remove_content':function(client) {
         client.removeRoom();
         client.removeContent();
