@@ -13,7 +13,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 1);
+io.set("log level", 10);
 
 var log = require('winston');
 log.remove(log.transports.Console);
@@ -72,6 +72,21 @@ var Content = ClientList.extend({
         this.rooms = [];
     },
 
+    'addClientExistingRoom':function(client, fid){
+
+        console.log("adding client to existing room hopefully");
+      for (var i = 0; i < this.rooms.length; i++){
+        
+        console.log("i = "+ i + " fid = " + fid);
+        if(this.rooms[i].id.toString() == fid){
+          this.rooms[i].addClient(client);
+          console.log("added client to room " + i);
+          break;
+        }
+      }
+
+    },
+
 	'addClient': function(client) {
 	    var selectedFlock = null;
 	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
@@ -104,11 +119,11 @@ var Content = ClientList.extend({
 
 		}
 
-		if (selectedFlock == null) {
-		    console.log("-- Creating new room");
-		    selectedFlock = new Flock(global_room_count++);
-		    this.rooms.push(selectedFlock);
-		}
+        if (selectedFlock == null) {
+            console.log("-- Creating new room");
+            selectedFlock = new Flock(global_room_count++);
+            this.rooms.push(selectedFlock);
+        }
 	    }
 
 	    this.clients.push(client);
@@ -419,6 +434,8 @@ var Server = ClientList.extend({
         var fid = String(data["flockID"]);
         var cont = null;
 
+        console.log("1fid is equal to " + fid + "  cid = "+cid);
+
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
             if (this.contents[i].id == cid && this.contents[i].type == type) {
@@ -433,15 +450,18 @@ var Server = ClientList.extend({
             this.contents.push(cont);
           //this means the content didn't exist so url was wrong  
             fid = null;
+          console.log("2fid is equal to " + fid + "  cid = "+cid );
         }
         
+        console.log("2fid is equal to " + fid + "  cid = "+cid );
+
         client.removeRoom();
         client.removeContent();
 
         //room should be set to fid if it exists
         var room;
         if(fid != null){
-          room = fid;
+          room = cont.addClientExistingRoom(client, fid);
         }else{
           room = cont.addClient(client);
         }
