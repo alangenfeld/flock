@@ -196,8 +196,9 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-        $("#roomName").text(data.room_name);
-
+        console.log("updateroomingo", data);
+        $("#roomName").text(data.name);
+        var that = this;
         for (var i in data.clients) {
 	        console.log("got ur for "+data.clients[i].uid);
 		    that.dudes.push(data.clients[i].uid);
