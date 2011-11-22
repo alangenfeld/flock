@@ -149,7 +149,7 @@ var Room = {
 	    console.log("got ur for "+data.uid);
 		that.dudes.push(data.uid);
 		that.dudes[that.dudes.length-1].status = data.status;
-        addUserToRoom(data.uid, data.status);
+        addUserToRoom(data.uid);
 	});
 /*
 		for (var i=0; i<that.dudes.length; i++) {
@@ -175,16 +175,14 @@ var Room = {
 		that.dudes.push(data);
         that.dudes[that.dudes.length - 1].status = data.status;
 		if (!(data.uid in fbid_names)) {
-            var f = fuction(i, status){
-                getUserName(data.uid, function(uid, name) {
+            getUserName(data.uid, function(uid, name) {
 			        fbid_names[uid] = name; 
 			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
-		            addUserToRoom(uid, status);
+		            addUserToRoom(uid);
 			    });
-            }(i, data.status);
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		    addUserToRoom(data.uid, data.status);
+		    addUserToRoom(data.uid);
 		    }
 	    });
 
@@ -256,7 +254,7 @@ $(document).ready(
 		  }
 		  );
 
-function addUserToRoom(uid, status){
+function addUserToRoom(uid){
     if (!(uid in fbid_names)) {
 	    getUserName(uid, function(uid2, name) {
 		    fbid_names[uid2] = name; 
