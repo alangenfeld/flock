@@ -144,7 +144,7 @@ var Room = {
         socket.on("room_info", function(data) { 
 		that.updateRoomInfo(data);
 	    });
-
+	
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
@@ -158,16 +158,14 @@ var Room = {
 		that.dudes.push(data);
         that.dudes[that.dudes.length - 1].status = data.status;
 		if (!(data.uid in fbid_names)) {
-            var f = fuction(i, status){
-                getUserName(data.uid, function(uid, name) {
+            getUserName(data.uid, function(uid, name) {
 			        fbid_names[uid] = name; 
 			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
-		            addUserToRoom(uid, status);
+		            addUserToRoom(uid);
 			    });
-            }(i, data.status);
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		    addUserToRoom(data.uid, data.status);
+		    addUserToRoom(data.uid);
 		    }
 	    });
 
@@ -245,7 +243,7 @@ $(document).ready(
 		  }
 		  );
 
-function addUserToRoom(uid, status){
+function addUserToRoom(uid){
     if (!(uid in fbid_names)) {
 	    getUserName(uid, function(uid2, name) {
 		    fbid_names[uid2] = name; 
