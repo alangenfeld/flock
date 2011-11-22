@@ -215,11 +215,16 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
+
         $("#roomName").text(data.room_name);
     },
 
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
+        
+        // update cid hash in URL
+        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+
         $("#side").show();
     },
 
@@ -256,7 +261,7 @@ function addUserToRoom(uid, status){
 	    getUserName(uid, function(uid2, name) {
 		    fbid_names[uid2] = name; 
             $('#roomInfo').append("<div id="+uid2+"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
-		});
+        });
 	} else {
         $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
     }
