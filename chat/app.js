@@ -169,6 +169,7 @@ var Flock = ClientList.extend({
 	    //return listing of users in room to client
         
         client.send("room_info", {
+            id: this.id,
             name: this.name,
             clients: this.cids
         });

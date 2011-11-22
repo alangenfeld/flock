@@ -196,8 +196,12 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-        console.log("updateroomingo", data);
+        console.log("updateroominfo", data);
         $("#roomName").text(data.name);
+        
+        // update fid hash in URl
+        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+
         var that = this;
         for (var i in data.clients) {
 	        console.log("got ur for "+data.clients[i].uid);
