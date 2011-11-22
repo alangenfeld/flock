@@ -197,24 +197,32 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-	console.log(data);
-        $("#roomName").text(data.room_name);
-  this.dudes = Array();
-	for (var i in data.room_dudes) {
-	    for (var j in this.dudes) {
-		if (data.room_dudes[i] == this.dudes[j].uid) {
-		    this.dudes[j].status = data.room_dudes[i].status;
-		    break;
-		}
-	    }
-	    this.dudes.push(data.room_dudes[i]);
-	}
+	    console.log(data);
+      $("#roomName").text(data.room_name);
+      
+      // update fid hash in URL
+      window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.room_id }));
 
-		$('#roomInfo').text("there are "+this.dudes.length+" in here");
+      this.dudes = Array();
+	    for (var i in data.room_dudes) {
+	      for (var j in this.dudes) {
+		      if (data.room_dudes[i] == this.dudes[j].uid) {
+		        this.dudes[j].status = data.room_dudes[i].status;
+		        break;
+		      }
+	      }
+	      this.dudes.push(data.room_dudes[i]);
+	    }
+
+		  $('#roomInfo').text("there are "+this.dudes.length+" in here");
     },
 
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
+        
+        // update cid hash in URL
+        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+
         $("#side").show();
     },
 
@@ -241,6 +249,10 @@ $(document).ready(
 			  $('#side').tabs();
 		  }
 		  );
+
+function getCid() {
+  return $(".floatDiv").id;
+}
 
 function getUsersInRoom(){
 }
