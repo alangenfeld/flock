@@ -1,6 +1,6 @@
-
 var sys = require("sys");
-var client = require("redis").createClient();
+var redis =  require("redis");
+var client = redis.createClient();
 
 exports.client = client;
 
@@ -12,32 +12,36 @@ exports.load = function (key, callback) {
   client.get(key, callback);
 };
 
-exports.addAssoc = function (fbid, fbid2, weight) {
+exports.addAssoc = function (fbid, fbid2, weight, cb) {
   client.set("graph:" + fbid + ":" + fbid2, weight);
-  client.get("graph:" + fbid + ":incoming",
-	     function(err, x) {
-		 var num = Number(x);
-		 num += 1;
-		 client.set("graph:" + fbid + ":incoming", num);
-	     });
+
+  if (cb)
+      client.incr("graph:" + fbid2 + ":incoming", 
+		  function(err, x) { cb(x); });
+  else
+      client.incr("graph:" + fbid2 + ":incoming");
+};
+
+exports.init = function (id) {
+    client.set("graph:" + id + ":incoming", "0");
 };
 
 exports.getAssoc = function (fbid, fbid2, callback) {
   client.get("graph:" + fbid + ":" + fbid2, function(err, x) { callback(x) });
 };
 
-exports.getNumIncomingAssocs = function (fbid, fbid2, callback) {
-    client.get("graph:" + fbid + ":incoming", function(err, x) { callback(x) });
+exports.getNumIncomingAssocs = function (id, callback) {
+    client.get("graph:" + id + ":incoming", function(err, x) { callback(x) });
 };
 
-exports.deleteAssoc = function (fbid, fbid2) {
+exports.deleteAssoc = function (fbid, fbid2, cb) {
   client.del("graph:" + fbid + ":" + fbid2);
-  client.get("graph:" + fbid + ":incoming",
-	     function(err, x) {
-		 var num = Number(x);
-		 num -= 1;
-		 client.set("graph:" + fbid + ":incoming", num);
-	     });
+
+  if (cb)
+      client.decr("graph:" + fbid2 + ":incoming", 
+		  function(err, x) { cb(x); });
+  else
+      client.decr("graph:" + fbid2 + ":incoming");
 };
 
 /*
