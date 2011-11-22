@@ -16,7 +16,7 @@ exports.createMessage = function(cid, mid) {
     client.set("r:" + cid + ":" + mid, 0);
 };
 
-exports.rateMessage = function(, mid, weight, cb) {
+exports.rateMessage = function(cid, mid, weight, cb) {
     client.incrby("r:" + cid + ":" + mid, weight, cb);
 };
 
