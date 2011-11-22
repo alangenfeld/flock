@@ -148,8 +148,8 @@ var Room = {
 	socket.on("update_relation", function(data) { 
 	    console.log("got ur for "+data.uid);
 		that.dudes.push(data.uid);
-		that.dudes[this.dudes.length-1].status = data.status;
-        addUserToRoom(data.uid);
+		that.dudes[that.dudes.length-1].status = data.status;
+        addUserToRoom(data.uid, data.status);
 	});
 /*
 		for (var i=0; i<that.dudes.length; i++) {
@@ -175,14 +175,16 @@ var Room = {
 		that.dudes.push(data);
         that.dudes[that.dudes.length - 1].status = data.status;
 		if (!(data.uid in fbid_names)) {
-		    getUserName(data.uid, function(uid, name) {
-			    fbid_names[uid] = name; 
-			    Chat.serverMsg(fbid_names[uid] + " joined the flock");			
-		      addUserToRoom(uid);
-			});
+            var f = fuction(i, status){
+                getUserName(data.uid, function(uid, name) {
+			        fbid_names[uid] = name; 
+			        Chat.serverMsg(fbid_names[uid] + " joined the flock");			
+		            addUserToRoom(uid, status);
+			    });
+            }(i, data.status);
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");
-		    addUserToRoom(data.uid);
+		    addUserToRoom(data.uid, data.status);
 		    }
 	    });
 
@@ -249,14 +251,14 @@ $(document).ready(
 		  }
 		  );
 
-function addUserToRoom(uid){
+function addUserToRoom(uid, status){
     if (!(uid in fbid_names)) {
 	    getUserName(uid, function(uid2, name) {
 		    fbid_names[uid2] = name; 
-            $('#roomInfo').append("<div id="+uid2+"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div> <br>");
+            $('#roomInfo').append("<div id="+uid2+"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
 		});
 	} else {
-        $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div> <br>");
+        $('#roomInfo').append("<div id="+uid+"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
     }
 }
 
@@ -272,6 +274,7 @@ function chooseContent(cid, type) {
 }
 
 function removeContent() {
+    this.dudes = Array();
     Room.removeContent();
 }
 
