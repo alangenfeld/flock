@@ -148,10 +148,12 @@ var Room = {
 	socket.on("update_relation", function(data) { 
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
-			console.log("update status", data);
 			that.dudes[i].status = data.status;
+			return;
 		    }
 		}
+		that.dudes.push(data);
+		updateUsersInRoom();
 	    });
 
 	socket.on("part", function(data) {
