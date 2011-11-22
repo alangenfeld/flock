@@ -130,7 +130,7 @@ var Flock = ClientList.extend({
 			db.getAssoc(client.id, that.clients[j].id, function(weight){
 				roomGraph.push({uid:that.clients[j].id, status:weight});
 				if(j == readyToSend)
-					client.send("room_info", {room_name:that.name,room_dudes:roomGraph});
+					client.send("room_info", {room_id:that.id,room_name:that.name,room_dudes:roomGraph});
 			});
 			
 			//this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
