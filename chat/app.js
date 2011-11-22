@@ -67,16 +67,20 @@ var Content = ClientList.extend({
 
     'addClientExistingRoom':function(client, fid){
 
-        console.log("adding client to existing room hopefully");
+      var selectedFlock = null;
+      console.log("adding client to existing room hopefully");
       for (var i = 0; i < this.rooms.length; i++){
         
         console.log("i = "+ i + " fid = " + fid);
         if(this.rooms[i].id.toString() == fid){
-          this.rooms[i].addClient(client);
+          selectedFlock = this.rooms[i];
+          selectedFlock.addClient(client);
           console.log("added client to room " + i);
           break;
         }
       }
+	    this.clients.push(client);
+	    return selectedFlock;
 
     },
 
@@ -153,8 +157,11 @@ var Flock = ClientList.extend({
     },
     
     'addClient': function(client) {
-        if (client in this.clients)
-            return;
+          console.log("addclient");
+        if (client in this.clients){
+          console.log("returning");
+          return;
+        }
 		
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
@@ -415,10 +422,10 @@ var Server = ClientList.extend({
 
         //room should be set to fid if it exists
         var room;
-        if(fid != null){
-          room = cont.addClientExistingRoom(client, fid);
-        }else{
+        if(fid == null){
           room = cont.addClient(client);
+        }else{
+          room = cont.addClientExistingRoom(client, fid);
         }
 
         client.setContent(cont);
