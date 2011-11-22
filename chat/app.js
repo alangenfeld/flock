@@ -352,6 +352,7 @@ var Server = ClientList.extend({
               client.send("get_status",{"status":w});
               });
     }
+    ,
 
     'cmd_set_edge': function(client, data){
 	var id  = data["id"];
