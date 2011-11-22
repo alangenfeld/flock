@@ -14,7 +14,7 @@ var Class   = require("structr"),
 
 var io = sio.listen(app);
 
-io.set("log level", 10);
+io.set("log level", 0);
 
 var log = require('winston');
 log.add(log.transports.File, { filename: 'flock.log' });
