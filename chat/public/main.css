@@ -140,6 +140,10 @@ body {
   color: #454545;
 }
 
+#createRoomButton {
+  margin-top: 35px;
+}
+
 .contentListItemClear {
   clear: both;
 }
@@ -283,3 +287,21 @@ input#msg {
   opacity: 1.0;
 }
 
+.votes {
+  float: right;
+  margin-right: 4px;
+}
+
+.upvote {
+  display: inline;
+  float: right;
+  background: #888;
+  height: 15px;
+  width: 15px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.upvote.selected {
+  background: green;
+}

@@ -51,8 +51,10 @@ var Chat = {
 			      "uid=\"" + id + "\">" +
 			      troll + 
 			      "<span class=\"name\">" + 
-			      " <b>" + name + ":</b> " + m + "<br />" + 
-			      "</span>" + 
+			      " <b>" + name + ":</b> " + m + 
+			      "</span>" +
+			      "<div class=\"upvote\">+</div>" + 
+			      "<div class=\"votes\">?</div>" + 
 			      "</div>"
 			      );
 	    
@@ -61,6 +63,21 @@ var Chat = {
 	    
 	    $(".name").click(function(e) {
 		    $(e.currentTarget).parent().children(".troll").toggle();
+		});
+
+	    socket.emit("get_inc", {id: msgID});
+
+	    $(".upvote").click(function(e){
+		    var mid = $(e.currentTarget).parent().attr("id");
+		    if ($(e.currentTarget).hasClass("selected")) {
+			socket.emit("rm_edge", {id: mid});
+			socket.emit("get_inc", {id: mid});
+		    } else {
+			socket.emit("set_edge", {id: mid});
+			socket.emit("get_inc", {id: mid});
+		    }
+
+		    $(e.currentTarget).toggleClass("selected");
 		});
 
 	    $(".troll").click(function(e) {
@@ -150,6 +167,12 @@ var Room = {
 			});
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");}
+	    });
+
+	socket.on("update_count", function(data) {
+		console.log("update", data);
+		var id = data.msgID;
+		$("#" + id).children(".votes").text(data.cnt);
 	    });
 	
         $("#roomName").text("-- no room --");

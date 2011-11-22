@@ -100,6 +100,9 @@ function addChannels(channels)
           "<span class=\"contentTitle\">" + channel.title + "</span>" +
           "<span class=\"contentCategory\">" + channel.channel.category_title + "</span>" + 
         "</div>" +
+        "<div class=\"createRoom\">" +
+          "<button id=\"createRoomButton\" type=\"button\">Create New Flock</button>" +
+        "</div>" +
         "<div class=\"contentListItemClear\"></div>"
         "</div>";
       contentList.append(html);
