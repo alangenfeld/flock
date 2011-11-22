@@ -1,3 +1,4 @@
+
 // Copyright 2011 Remzi's Entrepreneurs. Or something. All rights potentially reserved.
 
 /**
@@ -16,7 +17,6 @@ var io = sio.listen(app);
 io.set("log level", 10);
 
 var log = require('winston');
-log.remove(log.transports.Console);
 log.add(log.transports.File, { filename: 'flock.log' });
 
 var ClientList = Class({
@@ -33,13 +33,6 @@ var ClientList = Class({
         return this.clients.length;
     },
 
-    'getClients': function(){
-		var clientData = [];
-		for(var i = 0; i < this.clients.length; i++){
-			clientData.push(this.clients[i].id);
-		}
-		return clientData;
-    },
     /**
      * Send a cmd with data to all clients on this object
      */
@@ -88,49 +81,66 @@ var Content = ClientList.extend({
     },
 
 	'addClient': function(client) {
-	    var selectedFlock = null;
+/*
+        var selectedFlock = null;
 	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
-
+ 
 	    if (this.rooms.length == 0)
-		selectedFlock = this.rooms[0] = new Flock(global_room_count++);
+		    selectedFlock = this.rooms[0] = new Flock(global_room_count++);
 	    else {
-		for (var i = 0; i < this.rooms.length; i++){
-
-		    var numTrolls = 0;
-		    var clientsList = this.rooms[i].getClients();
-
-		    log.info("NUM PEOPLE = " + clientsList.length);
-		
-		    // count number of trolls in each room
-		    for(var k = 0; k < clientsList.length; k++){
-			db.getAssoc(client.id, clientsList[k], function(weight){
-				// count number of trolls in room
-				if(weight == -1){
-				    numTrolls++;
-				}
-			    });
-			
-		    }
+		    for (var i = 0; i < this.rooms.length; i++){
+                
+		        var numTrolls = 0;
+                
+		        log.info("NUM PEOPLE = " + rooms[i].clients.length);
+		        
+		        // count number of trolls in each room
+		        for(var k = 0; k < rooms[i].clients.length; k++){
+			        db.getAssoc(client.id, rooms[i].clients[k].id, function(weight) {
+				        // count number of trolls in room
+				        if(weight == -1){
+				            numTrolls++;
+				        }
+			        });
+			        
+		        }
 				
-		    if(numTrolls < fewestTrolls){
-			fewestTrolls = numTrolls;
-			selectedFlock = this.rooms[i];
+		        if(numTrolls < fewestTrolls){
+			        fewestTrolls = numTrolls;
+			        selectedFlock = this.rooms[i];
 		    }
-
-		}
-
+                
+		    }
+            
+		    if (selectedFlock == null) {
+		        console.log("-- Creating new room");
+		        selectedFlock = new Flock(global_room_count++);
+		        this.rooms.push(selectedFlock);
+		    }
+	    }
+*/
+        
+        var selectedFlock = null;
+        var leastPeople   = MAX_ROOM_CLIENTS;
+        
+        for (var i = 0; i < this.rooms.length; i++) {
+            var num = this.rooms[i].numClients();
+            if (num < leastPeople) {
+                selectedFlock = this.rooms[i];
+                leastPeople = num;
+            }
+        }
+        
         if (selectedFlock == null) {
-            console.log("-- Creating new room");
+            console.log("- Creating new flock");
             selectedFlock = new Flock(global_room_count++);
             this.rooms.push(selectedFlock);
         }
-	    }
-
+ 
 	    this.clients.push(client);
 	    selectedFlock.addClient(client);
 	    return selectedFlock;
 	}
-
 });
 
 var Flock = ClientList.extend({
@@ -138,45 +148,48 @@ var Flock = ClientList.extend({
         this._super();
         this.id = fid;
         this.name = "Flock #" + fid;
+        this.cids = [];
+        this.nextId = 0;
     },
     
     'addClient': function(client) {
         if (client in this.clients)
             return;
 		
-		var userList = this.getClients();
-
 		//notify everyone that new user has joined	
-		var that = this;
-		for(var i = 0; i < that.clients.length; i++){
-			var j = i;
-			db.getAssoc(that.clients[j].id, client.id, function(weight){
-				that.clients[j].socket.emit("join", {uid:client.id,status:weight});
-			});
+		for(var i = 0; i < this.clients.length; i++){
+			this.clients[i].send("join", {uid: client.id, status:0});
 		};
 		
 		this.clients.push(client);
+        client.cidsIdx = this.cids.length;
+        this.cids.push({uid: client.id, status: 0});
+    },
+    
+    'override removeClient': function(client) {
+
+        this._super(client);
+        
+		for (var i in this.clients) {
+			this.clients[i].send("part", {uid: client.id});
+		}
+        
+        this.cids.splice(client.cidsIdx, 1);
+        
+        console.log("clients: ");
+        console.log(this.clients);
     },
 
     'sendRoomInfo': function(client){
-	//return listing of users in room to client
-	var that = this;
-	client.send("room_info", {room_name: that.name});
-	for(var i = 0; i < that.clients.length; i++){
-	    // HACK HACK THE PLANET HACK
-	    db.getAssoc(client.id, that.clients[j].id, function(weight){
-		    if (weight == null)
-			weight = 0;
-
-		    console.log("hack: ", that.clients[j].id, weight, j, i);
-		    client.send("update_relation", {uid:that.clients[j].id, status:weight});
-		});
-	    
-	    //this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
-	}
-	//return roomGraph;
+	    //return listing of users in room to client
+        
+        client.send("room_info", {
+            id: this.id,
+            name: this.name,
+            clients: this.cids
+        });
     }
-    });
+});
 
 var online_users = {};
 
@@ -191,15 +204,13 @@ var Client = Class({
     'override __construct': function(socket, server) {
         this.socket  = socket;
         this.server  = server;
-        this.id     = -1;
+        this.id      = -1;
         this.content = null;
         this.room    = null;
-        this.start = (new Date()).getTime();
-        this.acts = 0;
-        this.send    = function(cmd, data) { this.socket.emit(cmd, data); };
-        this.on      = function(ev, fn) { this.socket.on(ev, fn); };
-        this.friend_fbids = [];
-        this.friends = {};
+        this.start   = (new Date()).getTime();
+        this.acts    = 0;
+        this.send    = socket.emit.bind(socket);
+        this.on      = socket.on.bind(socket);
     },
     
     'info': function(text) {
@@ -211,25 +222,6 @@ var Client = Class({
      */
     'act': function() {
         this.acts += 1;
-    },
-
-    'online_friends' : function() {
-      var list = {};
-      for (var i = 0; i < this.friends.length; i++) {
-        list[this.friends[i].id] = this.friends[id].fid;
-      }
-      return list;
-    },
-    
-    'add_friends': function(fbids) {
-      this.friend_fbids = fbids;
-      log.debug(this.friend_fbids);
-      for (var i = 0; i < fbids.length; i++) {
-        var fbid = this.fbids[i];
-        if (fbid in online_users) {
-          this.friends[fbid] = online_users[fbid];
-        }
-      }
     },
 
     /**
@@ -269,12 +261,9 @@ var Client = Class({
     'removeRoom': function() {
         if (!this.hasRoom())
             return;
+        
         this.info("Removed from Room #" + this.room.id);
-        this.room.removeClient(this);
-		
-		for (var i in this.room.clients) {
-			this.room.clients[i].socket.emit("part", {uid: this.id});
-		}
+        this.room.removeClient(this);		
 		
         this.room = null;
     },
@@ -293,7 +282,6 @@ var COMMANDS = [
     "remove_content",
     "msg",
     "action",
-    "add_friends",
     "set_status",
     "rm_edge",
     "set_edge",
@@ -351,28 +339,22 @@ var Server = ClientList.extend({
 	
 	'cmd_disconnect': function(client, data) {
 		client.removeRoom();
+        client.removeContent();
 	},
 
     'cmd_set_status': function(client, data){
-          var fbid  = data["fbid"];
-          var setstatus  = data["status"];
-          log.info("setstatus: " + setstatus + "   fbid  " + fbid);
-          db.addAssoc(client.id, fbid, setstatus);
-    }
-    ,
+        var cid  = data["cid"];
+        var setstatus  = data["status"];
+        log.info("setstatus: " + setstatus + "   cid  " + cid);
+        // TODO
+    },
 
     'cmd_get_status': function(client, data){
-          var fbid  = data["fbid"];
-          log.info("getstatus:  fbid  " + fbid);
-          db.getAssoc(client.id, fbid, function(weight){
-              var w=weight;
-              if(weight == null){
-                w = 0;
-              }
-              client.send("get_status",{"status":w});
-              });
-    }
-    ,
+        var cid  = data["cid"];
+        log.info("getstatus:  cid  " + cid);
+        client.send("get_status",{"status":0});
+        // TODO
+    },
 
     'cmd_has_flock': function(client, data) {
           var cid  = String(data["contentID"]);
@@ -383,50 +365,23 @@ var Server = ClientList.extend({
     },
 
     'cmd_set_edge': function(client, data){
-	var id  = data["id"];
-	log.info("setedge: " + id);
-	db.addAssoc(client.id, id, "1", function(num) {
-		chat.get_inc(client, data, num);
-	    });
-    }
-    ,
+	    var id  = data["id"];
+	    log.info("setedge: " + id);
+        // TODO
+    },
     
     'cmd_rm_edge': function(client, data){
-	var id  = data["id"];
-	log.info("rmedge: " + id);
-	db.deleteAssoc(client.id, id, function(num) {
-		chat.get_inc(client, data, num);
-	    });
-    }
-    ,
+	    var id  = data["id"];
+	    log.info("rmedge: " + id);
+        // TODO
+    },
 
     'cmd_get_inc': function(client, data){
-	var id  = data["id"];
-	log.info("getinc: " + id);
-	db.getNumIncomingAssocs(id, function(num){
-		var w=num;
-		if(num == null){
-		    w = 0;
-		}
-		client.send("update_count",{"msgID":id, "cnt":w });
-	    });
-    }
-    ,
-    
-    'get_inc': function(client, data, num){
-	var id  = data["id"];
-	if (num)
-	    client.room.broadcast("update_count",{"msgID":id, "cnt":num });
-	else
-	    db.getNumIncomingAssocs(id, function(num){
-		var w=num;
-		if(num == null){
-		    w = 0;
-		}
-		client.room.broadcast("update_count",{"msgID":id, "cnt":num });
-	});
-    }
-    ,
+	    var id  = data["id"];
+	    log.info("getinc: " + id);
+        client.send("update_count",{"msgID":id,"cnt":0});
+        // TODO
+    },
     
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
@@ -469,7 +424,6 @@ var Server = ClientList.extend({
         client.setContent(cont);
         client.setRoom(room);
         room.sendRoomInfo(client);
-        //client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
 
     'cmd_remove_content':function(client) {
@@ -479,25 +433,12 @@ var Server = ClientList.extend({
 
     'cmd_msg': function(client, data) {
         client.act();
-//        db.logChat(client.content.id, client.room.id, client.id, data.msg);
-
-	db.getAssoc(client.id, 0, function(msgNum) {
-		msgNum = Number(msgNum);
-		msgNum += 1;
-		if (msgNum >= 999999)
-		    msgNum = 0;
-		db.addAssoc(client.id, 0, msgNum);
-		db.init(msgNum);
-		var newID = (client.id * 1000000) + msgNum;
-		client.room.broadcast("msg",
-				      {msg:data.msg, userID:client.id, msgID:newID});
-	    });
+        
+		client.room.broadcast("msg", {
+            msg:data.msg, userID:client.id, msgID:client.room.nextId++
+        });
     },
 
-    'cmd_add_friends': function(client, data) {
-      client.add_friends(data['friends']);
-    },
-    
     'cmd_action': function(client, data) {
         var action = String(data["action"]);
         var extra  = ("extra" in data) ? String(data["extra"]) : "";

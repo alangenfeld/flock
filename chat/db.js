@@ -5,55 +5,36 @@ var client = redis.createClient();
 exports.client = client;
 
 exports.save = function(key, obj) {
-  client.set(key, obj);
+    client.set(key, obj);
 };
 
 exports.load = function (key, callback) {
-  client.get(key, callback);
+    client.get(key, callback);
 };
 
-exports.addAssoc = function (fbid, fbid2, weight, cb) {
-  client.set("graph:" + fbid + ":" + fbid2, weight);
-
-  if (cb)
-      client.incr("graph:" + fbid2 + ":incoming", 
-		  function(err, x) { cb(x); });
-  else
-      client.incr("graph:" + fbid2 + ":incoming");
+exports.createMessage = function(cid, mid) {
+    client.set("r:" + cid + ":" + mid, 0);
 };
 
-exports.init = function (id) {
-    client.set("graph:" + id + ":incoming", "0");
+exports.rateMessage = function(cid, mid, weight, cb) {
+    client.incrby("r:" + cid + ":" + mid, weight, cb);
 };
 
-exports.getAssoc = function (fbid, fbid2, callback) {
-  client.get("graph:" + fbid + ":" + fbid2, function(err, x) { callback(x) });
-};
-
-exports.getNumIncomingAssocs = function (id, callback) {
-    client.get("graph:" + id + ":incoming", function(err, x) { callback(x) });
-};
-
-exports.deleteAssoc = function (fbid, fbid2, cb) {
-  client.del("graph:" + fbid + ":" + fbid2);
-
-  if (cb)
-      client.decr("graph:" + fbid2 + ":incoming", 
-		  function(err, x) { cb(x); });
-  else
-      client.decr("graph:" + fbid2 + ":incoming");
+exports.markUser = function(clOrigin, clTarget) {
+    client.incr("markc:" + cidTarget); // number of marks this user has
+    client.lpush("marks:" + cidOrigin, cidTarget); // list of people the marker has marked
 };
 
 /*
-exports.createUser = function(fbid) {
-  return {id:fbid}
+exports.createUser = function(cid) {
+  return {id:cid}
 }
 
-exports.addFriends = function(fbid, friends) {
+exports.addFriends = function(cid, friends) {
   for(var idx in friends) {
     exports.save(friends[idx], exports.createUser(friends[idx]))
-    exports.addAssoc(fbid, friends[idx], 1)
-    exports.addAssoc(fbid, friends[idx], 1)
+    exports.addAssoc(cid, friends[idx], 1)
+    exports.addAssoc(cid, friends[idx], 1)
   }
 }
 
@@ -61,13 +42,13 @@ exports.activateRoom = function(sid) {
   client.sadd("rooms", sid)
 }
 
-exports.joinRoom = function(sid, fbid) {
+exports.joinRoom = function(sid, cid) {
   client.sadd("rooms", sid)
-  client.sadd("rooms:" + sid, fbid);
+  client.sadd("rooms:" + sid, cid);
 }
 
-exports.partRoom = function(sid, fbid) {
-  client.srem("rooms:" + sid, fbid);
+exports.partRoom = function(sid, cid) {
+  client.srem("rooms:" + sid, cid);
   client.scard("rooms:" + sid, function(err, card) { 
       if (card == 0) {
         client.srem("rooms", sid)
