@@ -71,27 +71,51 @@ var Content = ClientList.extend({
         this.type = type;
         this.rooms = [];
     },
-    
-    'addClient': function(client) {
-        var room = null;
-        if (this.rooms.length == 0)
-            room = this.rooms[0] = new Flock(global_room_count++);
-        else {
-            for (var i = 0; i < this.rooms.length; i++)
-                if (this.rooms[i].numClients() < MAX_ROOM_CLIENTS) {
-                    room = this.rooms[i];
-                    break;
-                }
-            if (room == null) {
-                console.log("-- Creating new room");
-                room = new Flock(global_room_count++);
-                this.rooms.push(room);
-            }
-        }
-        this.clients.push(client);
-        room.addClient(client);
-        return room;
-    }
+
+	'addClient': function(client) {
+	    var selectedFlock = null;
+	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
+
+	    if (this.rooms.length == 0)
+		selectedFlock = this.rooms[0] = new Flock(global_room_count++);
+	    else {
+		for (var i = 0; i < this.rooms.length; i++){
+
+		    var numTrolls = 0;
+		    var clientsList = this.rooms[i].getClients();
+
+		    log.info("NUM PEOPLE = " + clientsList.length);
+		
+		    // count number of trolls in each room
+		    for(var k = 0; k < clientsList.length; k++){
+			db.getAssoc(client.id, clientsList[k], function(weight){
+				// count number of trolls in room
+				if(weight == -1){
+				    numTrolls++;
+				}
+			    });
+			
+		    }
+				
+		    if(numTrolls < fewestTrolls){
+			fewestTrolls = numTrolls;
+			selectedFlock = this.rooms[i];
+		    }
+
+		}
+
+		if (selectedFlock == null) {
+		    console.log("-- Creating new room");
+		    selectedFlock = new Flock(global_room_count++);
+		    this.rooms.push(selectedFlock);
+		}
+	    }
+
+	    this.clients.push(client);
+	    selectedFlock.addClient(client);
+	    return selectedFlock;
+	}
+
 });
 
 var Flock = ClientList.extend({
@@ -247,17 +271,14 @@ var Client = Class({
 // V0 client -> server commands
 var COMMANDS = [
     "login",
-    "disconnect",
+	"disconnect",
     "pick_content",
     "remove_content",
     "msg",
     "action",
     "add_friends",
     "set_status",
-    "get_status",
-    "get_inc",
-    "set_edge",
-    "rm_edge"
+    "get_status"
 ];
 
 /**
@@ -307,19 +328,19 @@ var Server = ClientList.extend({
         client.logIn(lid);
         log.info("Client logged in with ID " + lid);
     },
-    
-    'cmd_disconnect': function(client, data) {
-	client.removeRoom();
-    },
-    
+	
+	'cmd_disconnect': function(client, data) {
+		client.removeRoom();
+	},
+
     'cmd_set_status': function(client, data){
-	var fbid  = data["fbid"];
-	var setstatus  = data["status"];
-	log.info("setstatus: " + setstatus + "   fbid  " + fbid);
-	db.addAssoc(client.id, fbid, setstatus);
+          var fbid  = data["fbid"];
+          var setstatus  = data["status"];
+          log.info("setstatus: " + setstatus + "   fbid  " + fbid);
+          db.addAssoc(client.id, fbid, setstatus);
     }
     ,
-    
+
     'cmd_get_status': function(client, data){
           var fbid  = data["fbid"];
           log.info("getstatus:  fbid  " + fbid);
@@ -332,34 +353,7 @@ var Server = ClientList.extend({
               });
     }
     ,
-
-    'cmd_set_edge': function(client, data){
-	var id  = data["id"];
-	log.info("setedge: " + id);
-	db.addAssoc(client.id, id, "1");
-    }
-    ,
     
-    'cmd_rm_edge': function(client, data){
-	var id  = data["id"];
-	log.info("rmedge: " + id);
-	db.deleteAssoc(client.id, id);
-    }
-    ,
-
-    'cmd_get_inc': function(client, data){
-	var id  = data["id"];
-	log.info("getinc: " + id);
-	db.getAssoc(client.id, id, function(num){
-		var w=num;
-		if(num == null){
-		    w = 0;
-		}
-		client.send("update_count",{"msgID":id, "cnt":w });
-	    });
-    }
-    ,
-
     'cmd_pick_content': function(client, data) {
         var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
@@ -385,7 +379,7 @@ var Server = ClientList.extend({
         var room = cont.addClient(client);
         client.setContent(cont);
         client.setRoom(room);
-		    room.sendRoomInfo(client);
+		room.sendRoomInfo(client);
         //client.send("room_info", {room_name:room.name,room_dudes:dudes});
     },
     
@@ -397,17 +391,7 @@ var Server = ClientList.extend({
     'cmd_msg': function(client, data) {
         client.act();
 //        db.logChat(client.content.id, client.room.id, client.id, data.msg);
-
-	db.getAssoc(client.id, 0, function(msgNum) {
-		msgNum = Number(msgNum);
-		msgNum += 1;
-		if (msgNum >= 999999)
-		    msgNum = 0;
-		db.addAssoc(client.id, 0, msgNum);
-		var newID = (client.id * 1000000) + msgNum;
-		client.room.broadcast("msg",
-				      {msg:data.msg, userID:client.id, msgID:newID});
-	    });
+        client.room.broadcast("msg", {msg:data.msg, userID:client.id});
     },
 
     'cmd_add_friends': function(client, data) {
