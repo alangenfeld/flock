@@ -144,24 +144,7 @@ var Room = {
         socket.on("room_info", function(data) { 
 		that.updateRoomInfo(data);
 	    });
-	
-	socket.on("update_relation", function(data) { 
-	    console.log("got ur for "+data.uid);
-		that.dudes.push(data.uid);
-		that.dudes[that.dudes.length-1].status = data.status;
-        addUserToRoom(data.uid, data.status);
-	});
-/*
-		for (var i=0; i<that.dudes.length; i++) {
-		    if (that.dudes[i].uid == data.uid) {
-			that.dudes[i].status = data.status;
-			return;
-		    }
-		}
-		that.dudes.push(data);
-		updateUsersInRoom();
-	    });
-*/
+
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
@@ -215,8 +198,14 @@ var Room = {
     }, 
 	
     updateRoomInfo : function(data) {
-
         $("#roomName").text(data.room_name);
+
+        for (var i in data.clients) {
+	        console.log("got ur for "+data.clients[i].uid);
+		    that.dudes.push(data.clients[i].uid);
+		    that.dudes[that.dudes.length-1].status = data.clients[i].status;
+            addUserToRoom(data.clients[i].uid, data.clients[i].status);
+        }
     },
 
     pickContent : function(cid, type) {
