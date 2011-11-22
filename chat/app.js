@@ -109,7 +109,7 @@ var Content = ClientList.extend({
         var leastPeople   = MAX_ROOM_CLIENTS;
         
         for (var i = 0; i < this.rooms.length; i++) {
-            var num = this.rooms[i].clients.length;
+            var num = this.rooms[i].numClients();
             if (num < leastPeople) {
                 selectedFlock = this.rooms[i];
                 leastPeople = num;
@@ -126,7 +126,6 @@ var Content = ClientList.extend({
 	    selectedFlock.addClient(client);
 	    return selectedFlock;
 	}
-
 });
 
 var Flock = ClientList.extend({
@@ -150,11 +149,24 @@ var Flock = ClientList.extend({
 		this.clients.push(client);
         this.cids.push({uid: client.id, status: 0});
     },
+    
+    'override removeClient': function(client) {
+
+        this._super(client);
+        
+		for (var i in this.clients) {
+			this.clients[i].socket.emit("part", {uid: this.id});
+		}
+        
+        console.log("clients: ");
+        console.log(this.clients);
+        
+    },
 
     'sendRoomInfo': function(client){
 	    //return listing of users in room to client
-
-	    client.send("room_info", {
+        
+        client.send("room_info", {
             name: this.name,
             clients: this.cids
         });
@@ -230,12 +242,9 @@ var Client = Class({
     'removeRoom': function() {
         if (!this.hasRoom())
             return;
+        
         this.info("Removed from Room #" + this.room.id);
-        this.room.removeClient(this);
-		
-		for (var i in this.room.clients) {
-			this.room.clients[i].socket.emit("part", {uid: this.id});
-		}
+        this.room.removeClient(this);		
 		
         this.room = null;
     },
@@ -309,6 +318,7 @@ var Server = ClientList.extend({
 	
 	'cmd_disconnect': function(client, data) {
 		client.removeRoom();
+        client.removeContent();
 	},
 
     'cmd_set_status': function(client, data){
