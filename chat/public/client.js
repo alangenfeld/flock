@@ -271,6 +271,7 @@ function chooseContent(cid, type) {
 }
 
 function removeContent() {
+    $('#roomInfo').text("");
     this.dudes = Array();
     Room.removeContent();
 }
