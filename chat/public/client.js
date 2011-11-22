@@ -54,7 +54,7 @@ var Chat = {
 			      " <b>" + name + ":</b> " + m + 
 			      "</span>" +
 			      "<div class=\"upvote\">+</div>" + 
-			      "<div class=\"votes\">?</div>" + 
+			      "<div class=\"votes\">0</div>" + 
 			      "</div>"
 			      );
 	    
@@ -65,16 +65,12 @@ var Chat = {
 		    $(e.currentTarget).parent().children(".troll").toggle();
 		});
 
-	    socket.emit("get_inc", {id: msgID});
-
 	    $(".upvote").click(function(e){
 		    var mid = $(e.currentTarget).parent().attr("id");
 		    if ($(e.currentTarget).hasClass("selected")) {
 			socket.emit("rm_edge", {id: mid});
-			socket.emit("get_inc", {id: mid});
 		    } else {
 			socket.emit("set_edge", {id: mid});
-			socket.emit("get_inc", {id: mid});
 		    }
 
 		    $(e.currentTarget).toggleClass("selected");
@@ -148,18 +144,29 @@ var Room = {
         socket.on("room_info", function(data) { 
 		that.updateRoomInfo(data);
 	    });
+	
+	socket.on("update_relation", function(data) { 
+		for (var i=0; i<that.dudes.length; i++) {
+		    if (that.dudes[i].uid == data.uid) {
+			that.dudes[i].status = data.status;
+			return;
+		    }
+		}
+		that.dudes.push(data);
+		updateUsersInRoom();
+	    });
+
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
 			that.dudes.splice(i, 1);
 		    }
 		}
-		$('#roomInfo').text("there are "+that.dudes.length+" in here");
+		updateUsersInRoom();
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");});
 
 	socket.on("join", function(data) {
 		that.dudes.push(data);
-		$('#roomInfo').text("there are "+that.dudes.length+" in here");
 		if (!(data.uid in fbid_names)) {
 		    getUserName(data.uid, function(name) {
 			    fbid_names[data.uid] = name; 
@@ -167,10 +174,10 @@ var Room = {
 			});
 		} else {
 		    Chat.serverMsg(fbid_names[data.uid] + " joined the flock");}
+		updateUsersInRoom();
 	    });
 
 	socket.on("update_count", function(data) {
-		console.log("update", data);
 		var id = data.msgID;
 		$("#" + id).children(".votes").text(data.cnt);
 	    });
@@ -215,6 +222,7 @@ var Room = {
 	    }
 
 		  $('#roomInfo').text("there are "+this.dudes.length+" in here");
+    	updateUsersInRoom();
     },
 
     pickContent : function(cid, type) {
@@ -228,6 +236,10 @@ var Room = {
 
     removeContent : function() {
         socket.emit("remove_content");
+    },
+
+    getDudes: function(){
+      return this.dudes;
     }
 };
 
@@ -250,11 +262,29 @@ $(document).ready(
 		  }
 		  );
 
+<<<<<<< HEAD
 function getCid() {
   return $(".floatDiv").id;
 }
 
 function getUsersInRoom(){
+=======
+function updateUsersInRoom(){
+  $('#roomInfo').text("");
+  dudes = Room.getDudes();
+  console.log("peeps "+dudes.length);
+  that = this;
+  for(i in dudes){
+    if (!(dudes[i].uid in fbid_names)) {
+      getUserName(dudes[i].uid, function(name) {
+		    fbid_names[that.dudes[i].uid] = name; 
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+		});
+		} else {
+      $('#roomInfo').append("<a href=\"http://facebook.com/"+dudes[i].uid+"\" target=\"_blank\">"+fbid_names[dudes[i].uid]+"<\a> <br>");
+    }
+  }
+>>>>>>> 42955cfaac897dd3a020d1d2a52f00af745322a4
 }
 
 function chooseContent(cid, type) {
