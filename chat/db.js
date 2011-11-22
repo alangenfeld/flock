@@ -13,15 +13,31 @@ exports.load = function (key, callback) {
 };
 
 exports.addAssoc = function (fbid, fbid2, weight) {
-  client.set("graph:" + fbid + ":"+fbid2, weight);
+  client.set("graph:" + fbid + ":" + fbid2, weight);
+  client.get("graph:" + fbid + ":incoming",
+	     function(err, x) {
+		 var num = Number(x);
+		 num += 1;
+		 client.set("graph:" + fbid + ":incoming", num);
+	     });
 };
 
 exports.getAssoc = function (fbid, fbid2, callback) {
   client.get("graph:" + fbid + ":" + fbid2, function(err, x) { callback(x) });
 };
 
+exports.getNumIncomingAssocs = function (fbid, fbid2, callback) {
+    client.get("graph:" + fbid + ":incoming", function(err, x) { callback(x) });
+};
+
 exports.deleteAssoc = function (fbid, fbid2) {
   client.del("graph:" + fbid + ":" + fbid2);
+  client.get("graph:" + fbid + ":incoming",
+	     function(err, x) {
+		 var num = Number(x);
+		 num -= 1;
+		 client.set("graph:" + fbid + ":incoming", num);
+	     });
 };
 
 /*
