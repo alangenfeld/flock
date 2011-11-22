@@ -133,22 +133,21 @@ var Flock = ClientList.extend({
     'sendRoomInfo': function(client){
 	    //return listing of users in room to client
 	    var that = this;
-        
 	    client.send("room_info", {room_name: that.name});
-	    for(var i = 0; i < that.clients.length; i++){
-	        // HACK HACK THE PLANET HACK
-	        db.getAssoc(client.id, that.clients[j].id, function(weight){
-		        if (weight == null)
-			        weight = 0;
+	    for(var i = 0; i < that.clients.length; i++) { 
+	        var f = function(i) {
+	        var send = function(weight){
+		    var target = that.clients[i].id;
+		    if (weight == null)
+		    weight = 0;
                 
-		        console.log("hack: ", that.clients[j].id, weight, j, i);
-		        client.send("update_relation", {uid:that.clients[j].id, status:weight});
-		    });
-	        
-	        //this.clients[i].socket.emit("room_info",{room_dudes,roomGraph});
+		        client.send("update_relation", {uid:target, status:weight});
+	        };
+		        
+	            db.getAssoc(client.id, that.clients[i].id, send);
+	        }(i);
 	    }
-	    //return roomGraph;
-    }
+    }    
 });
 
 var online_users = {};
