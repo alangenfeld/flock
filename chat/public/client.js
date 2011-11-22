@@ -218,7 +218,6 @@ var Room = {
     
     pickContentWithFid : function(cid, type, fid) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type, "flockID" : fid});
-        alert("pick content with fid");
         $("#side").show();
     },
     
