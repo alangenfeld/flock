@@ -146,12 +146,22 @@ var Room = {
 	    });
 	
 	socket.on("update_relation", function(data) { 
-	  console.log("got ur for "+data.uid);
+	    console.log("got ur for "+data.uid);
 		that.dudes.push(data.uid);
 		that.dudes[this.dudes.length-1].status = data.status;
         addUserToRoom(data.uid);
 	});
-
+/*
+		for (var i=0; i<that.dudes.length; i++) {
+		    if (that.dudes[i].uid == data.uid) {
+			that.dudes[i].status = data.status;
+			return;
+		    }
+		}
+		that.dudes.push(data);
+		updateUsersInRoom();
+	    });
+*/
 	socket.on("part", function(data) {
 		for (var i=0; i<that.dudes.length; i++) {
 		    if (that.dudes[i].uid == data.uid) {
