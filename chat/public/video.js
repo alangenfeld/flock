@@ -112,45 +112,28 @@ function addChannels(channels)
   contentList.show();
 }
 
-function displayVideo(login, title)
+function displayVideo(cid)
 {
     $("#video").show();
     $("#contentList").hide();
     var videoClass = "floatDiv";
-    var videoId = login;
-	/*
-    if(!isFreeBird)
-    {
-        videoId = videoId + "_secondary";
-    }   
-    */
+    var videoId = cid;
 	
-    var html_code = 
+	  var html_code = 
             "<div class='dragHandle'></div><div class='" + videoClass + "' id='" + videoId + "'>"
-            + "<object wmode=transparent type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + login + " bgcolor=#000000>"
+            + "<object wmode=transparent type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + " bgcolor=#000000>"
             + "<param name=allowFullScreen value=true />"
             + "<param name=allowscriptaccess value=always />"
             + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
-            + "<param name=flashvars value=channel=" + login + " bgcolor=#000000>"
+            + "<param name=flashvars value=channel=" + cid + " bgcolor=#000000>"
             + "<param name=allowFullScreen value=true />"
             + "<param name=allowscriptaccess value=always />"
             + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
             + "</object>";
-    var leave_html =
-            "<br/>"
-            + "<center><p>"
-               + "<b>Title:</b> " + title.substring(0,35) + "<br/>"
-               + "<a onmouseout=this.style.textDecoration='none' onmouseover=this.style.textDecoration='underline';this.style.cursor='pointer' onclick=removeStream('" + videoId + "')>Click to Remove Stream</a>"
-            + "</p></center>"
-            + "</div>";
     
     var dropdown = document.getElementById("selectVideo");
-    /*
-    if(isFreeBird)
-    {
-	 */
-        chooseContent(login, 'justin.tv');
-        //dropdown.options[0] = new Option("Click to add a secondary stream", "-1");
+   
+    chooseContent(cid, 'justin.tv');
 
     $("#contentBody").append($("<div></div>").attr("id","overlay"));
 	
@@ -158,54 +141,14 @@ function displayVideo(login, title)
     var overlayDiv = $("#overlay");
     videoDiv.html(html_code + "<br/>");
 	
-	var children = $("#video").children();
+	  var children = $("#video").children();
     if (children && children.children()) {
-        children.children().height($("#side").height() * .96);
-        children.children().width($("#content").width() * .98);
-	}
+      children.children().height($("#side").height() * .96);
+      children.children().width($("#content").width() * .98);
+	  }
     
-    //var leave_button = "<img id='leave' src='leaving.jpg' onClick='window.location.reload()' title='Click to leave flock.'/>";
-    //$("#categorySelect").append(leave_button);
-        
     isFreeBird = false;    
- /*       
-        var dragHandle = $("div.dragHandle", overlayDiv);
-        overlayDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody",
-		    drag: function() 
-		    {
-			var e = $("#overlay");
-			var p = e.position();
-			$("#video").css({ "left": (p.left) + "px", 
-				    "top": (p.top) + "px"
-				    })
-
-		    }
-	    });
-        videoDiv.resizable({containment: "#contentBody",
-		    resize: function(event, ui)
-		    {
-			var e = $("#video");
-			var p = e.position();
-			$("#overlay").css({ "left": (p.left) + "px", 
-				    "top": (p.top) + "px",
-				    "height": e.height() - 25,
-				    "width": e.width()
-				    });
-		    }
-	    });
-  */
-/*
-    }
-    else  
-    {
-	$("#secondaryVideo").show();
-        var secondaryVideoDiv = $("#secondaryVideo");
-        secondaryVideoDiv.append(html_code + leave_html).css({"top": $("#video").height() + "px" });;
-        var dragHandle = $("div.dragHandle", secondaryVideoDiv);
-        secondaryVideoDiv.draggable({ handle: dragHandle, snap: true, containment: "#contentBody", stack: ".ui-draggable" });
-        secondaryVideoDiv.resizable({ containment: "#contentBody" });
-    }
- */  
+ 
     dropdown.selectedIndex = 0;
 }
 
