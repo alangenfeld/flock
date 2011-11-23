@@ -79,7 +79,10 @@ function resizeVideo() {
     if (children && cc) {
         cc.height($("#side").height() * .96);
         cc.width($("#content").width() * .98);
+        $("#overlay").width(cc.width());
+        $("#overlay").height(cc.height() * .96);
     }
+
 }
 
 function finishLoadingPage(data,fid,cid) {
@@ -135,19 +138,21 @@ function displayVideo(cid, contentAlreadyCalled, fid)
 {
     $("#video").show();
     $("#contentList").hide();
-    var videoClass = "floatDiv";
     var videoId = cid;
 	
 	var html_code = 
-         "<div class='dragHandle'></div><div class='" + videoClass + "' id='" + videoId + "'>"
-         + "<object wmode=transparent type=application/x-shockwave-flash height=100% width=100% data=http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + " bgcolor=#000000>"
-         + "<param name=allowFullScreen value=true />"
-         + "<param name=allowscriptaccess value=always />"
-         + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
-         + "<param name=flashvars value=channel=" + cid + " bgcolor=#000000>"
-         + "<param name=allowFullScreen value=true />"
-         + "<param name=allowscriptaccess value=always />"
-         + "<param name=movie value=http://www.justin.tv/widgets/jtv_player.swf />"
+         "<div class='dragHandle'></div><div id=\"video" + videoId + "\">"
+         + "<object wmode=\"opaque\" type=application/x-shockwave-flash " +
+         + "height=\"100%\" width=\"100%\""
+         + "data=\"http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + "\""
+         + " bgcolor=\"#000000\">"
+         + "<param name=\"allowFullScreen\" value=\"true\" />"
+         + "<param name=\"allowscriptaccess\" value=\"always\" />"
+         + "<param name=\"movie\" value=\"http://www.justin.tv/widgets/jtv_player.swf\" />"
+         + "<param name=\"flashvars\" value=\"channel=" + cid + "\" bgcolor=\"#000000\">"
+         + "<param name=\"allowFullScreen\" value=\"true\" />"
+         + "<param name=\"allowscriptaccess\" value=\"always\" />"
+         + "<param name=\"movie\" value=\"http://www.justin.tv/widgets/jtv_player.swf\" />"
          + "</object>";
     
     var dropdown = document.getElementById("selectVideo");
@@ -161,7 +166,6 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     $("#contentBody").append($("<div></div>").attr("id","overlay"));
 	
     var videoDiv = $("#video");
-    var overlayDiv = $("#overlay");
     videoDiv.html(html_code + "<br/>");
 	
     resizeVideo();

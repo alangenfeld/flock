@@ -39,7 +39,7 @@ var Chat = {
         var status = Room.getStatus(uid);
         var troll;
 
-        $("#text").append("<div class=\"message\" id=\"msg" + mid + "\"" +
+        this.txt.append("<div class=\"message\" id=\"msg" + mid + "\"" +
                           " uid=\"" + uid + "\">" +
                           "<span class=\"name\">" + name + ": </span>" + 
                           "<span class=\"msgbody\">" + body + "</span>" +
@@ -231,7 +231,6 @@ $(document).ready(function() {
 	$("#testLogin").click(function(){
 		Chat.loggedIn(0);
 	});
-	$('#side').tabs();
 });
 
 function chooseContent(cid, type) {

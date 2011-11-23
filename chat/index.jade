@@ -5,11 +5,9 @@ html(xmlns:fb="http://facebook.com/2008/fbfml")
     title Flock
 
     link(href="/main.css", rel="stylesheet", media="screen")
-    link(href="http://code.jquery.com/ui/1.8.16/themes/base/jquery-ui.css", rel="stylesheet", media="screen")
     link(href="jquery.cssemoticons.css", media="screen", rel="stylesheet")    
 
     script(src="http://code.jquery.com/jquery.min.js")
-    script(src="http://code.jquery.com/ui/1.8.16/jquery-ui.min.js")
     script(src="/jquery.ba-bbq.min.js")
     script(src="/jquery.cssemoticons.js")
     
@@ -19,10 +17,12 @@ html(xmlns:fb="http://facebook.com/2008/fbfml")
 
   body
     #fb-root
+
     #landing
       #landing-text Welcome to Flock
       fb:login-button.element(autologoutlink="true", perms="user_about_me, friends_about_me, publish_stream")
       button#testLogin TEST LOG IN
+
     #container
       #header
         a(href="/") Flock.
@@ -32,23 +32,18 @@ html(xmlns:fb="http://facebook.com/2008/fbfml")
             select#selectVideo
           #contentBody
             #video
-            //#secondaryVideo
             #contentList
             div(style="clear: both;")
-        #side 
-          ul
-            li
-              a(href="#messageTab") Messages
-            li
-              a(href="#roomInfo") Users
-          #messageTab         
-            #roomName
-            #text
-            #bottomBox
-              form#send
-                input#msg
+        #side
+          #roomName
+          #text
+          #bottomBox
+            form#send
+              input#msg
           #roomInfo
       #footer
-         Copyright &copy; 2011 Remzi's Entrepreneurs.<br />
+        Copyright &copy; 2011 Remzi's Entrepreneurs.
+        
   script(src="fb.js")
-    
+   
+  
