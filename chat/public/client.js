@@ -134,9 +134,21 @@ var Room = {
 		    var id = data.msgID;
 		    $("#msg" + id).children(".votes").text(data.cnt);
 	    });
-	
-        $("#roomName").text("-- no room --");
+	    
+        this.numClients = 0;
 	    this.clients = {};
+        this.name = "-- no room --";
+        $("#roomName").html("<span id=\"rnTitle\"></span> " +
+                            "(<a id=\"rnNum\" href=\"#\"></a>)");
+        $("#rnNum").click(function () {
+            $("#roomInfo").show();
+            return false;
+        });
+        $("#roomInfoX a").click(function() {
+            $("#roomInfo").hide();
+            return false;
+        });
+        this.updateTitle();
     },
 
     getStatus: function(uid) {
@@ -151,6 +163,11 @@ var Room = {
         this.clients[uid].status = st;
     },
     
+    updateTitle: function() {
+        $("#rnTitle").html(this.name);
+        $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
+    },
+    
     addUser : function(client) {
         var uid = client.uid;
         if (uid in this.clients)
@@ -159,11 +176,13 @@ var Room = {
         if (!(uid in fbid_names)) {
 	        getUserName(uid, function(uid2, name) {
 		        fbid_names[uid2] = name; 
-                $('#roomInfo').append("<div id=\"usr"+uid2+"\"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
+                $('#roomInfoText').append("<div id=\"usr"+uid2+"\"><a href=\"http://facebook.com/"+uid2+"\" target=\"_blank\">"+fbid_names[uid2]+"<\a></div>");
             });
 	    } else {
-            $('#roomInfo').append("<div id=\"usr"+uid+"\"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
+            $('#roomInfoText').append("<div id=\"usr"+uid+"\"><a href=\"http://facebook.com/"+uid+"\" target=\"_blank\">"+fbid_names[uid]+"<\a></div>");
         }
+        this.numClients++;
+        this.updateTitle();
     },
     
     removeUser : function(client) {
@@ -171,11 +190,13 @@ var Room = {
             return;
         delete this.clients[client.uid];
         $("#usr" + client.uid).remove();
+        this.numClients--;
+        this.updateTitle();
     },
     
     roomInfo : function(data) {
-        $("#roomName").text(data.name);
         
+        this.name = data.name;
         // update fid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
@@ -216,6 +237,11 @@ var Room = {
     },
     
     removeContent : function() {
+        $("#text").html("");
+        $("#roomInfoText").html("");
+        this.clients = {};
+        this.numClients = 0;
+        this.name = "--no room--";
         socket.emit("remove_content");
     }
 };

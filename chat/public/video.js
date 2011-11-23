@@ -77,12 +77,11 @@ function resizeVideo() {
     var children = $("#video").children();
     var cc = children.children();
     if (children && cc) {
-        cc.height($("#side").height() * .96);
+        cc.height($("#side").height() * .92);
         cc.width($("#content").width() * .98);
         $("#overlay").width(cc.width());
         $("#overlay").height(cc.height() * .96);
     }
-
 }
 
 function finishLoadingPage(data,fid,cid) {
