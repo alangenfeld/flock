@@ -74,11 +74,12 @@ var Content = ClientList.extend({
                 selectedFlock = this.rooms[i];
                 selectedFlock.addClient(client);
                 console.log("added client to room " + i);
-                break;
+                this.clients.push(client);
+	              selectedFlock.addClient(client);
+	              return selectedFlock;
             }
         }
-	    this.clients.push(client);
-	    return selectedFlock;
+	      return null;
     },
 
 	'addClient': function(client) {
