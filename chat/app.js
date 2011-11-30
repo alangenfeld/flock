@@ -276,6 +276,11 @@ var Client = Class({
         this.room.removeClient(this);		
 //        this.room = null;
     },
+
+    'isTroll': function() { 
+      return _.intersection(db.getHaters(this), 
+          this.room.uids).length / this.room.uids.length > .25; 
+    },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
