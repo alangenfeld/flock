@@ -364,7 +364,7 @@ var Server = ClientList.extend({
         var type = String(data["contentType"]);
         var fid  = String(data["flockID"]);
         var cont = null;
-
+console.log(data);
         console.log("1fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
@@ -388,7 +388,7 @@ var Server = ClientList.extend({
 
         //room should be set to fid if it exists
         var room;
-        if(fid == null){
+        if(fid == null || fid == "undefined"){
             room = cont.addClient(client);
         } else {
             room = cont.addClientExistingRoom(client, fid);
