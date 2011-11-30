@@ -239,6 +239,7 @@ var Room = {
     removeContent : function() {
         $("#text").html("");
         $("#roomInfoText").html("");
+        $("#side").hide();
         this.clients = {};
         this.numClients = 0;
         this.name = "--no room--";
