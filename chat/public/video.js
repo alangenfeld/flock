@@ -53,7 +53,7 @@ $(document).ready(function() {
 			    var child = document.getElementById("overlay");
 			    var parent = document.getElementById("contentBody");
 			    parent.removeChild(child);
-                Chat.removeContent();
+                Room.removeContent();
 		    }
 		    
 		    isFreeBird = true;

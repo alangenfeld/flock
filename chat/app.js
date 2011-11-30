@@ -273,7 +273,7 @@ var Client = Class({
         if (!this.hasRoom())
             return;
         this.room.removeClient(this);		
-        this.room = null;
+//        this.room = null;
     },
     
     'hasRoom': function() { return this.room !== null; },
