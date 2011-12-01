@@ -66,6 +66,8 @@ $(document).ready(function() {
 	    }
     });
 
+
+
     $("#content").scroll(function() {
         if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
             getMoreChannels();
@@ -74,6 +76,12 @@ $(document).ready(function() {
     
     $(window).resize(resizeVideo);
 });
+
+
+function hasFlock(cid, type, fid) {
+    socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
+}
+
 
 function resizeVideo() {
     var children = $("#video").children();
