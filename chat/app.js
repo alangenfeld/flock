@@ -46,7 +46,7 @@ var ClientList = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        // TODO: cache this
+        // TODO
         return _.reduce(this.clients, function(sum, c) {
             return sum + c.getActivity();
         }, 0);
@@ -125,6 +125,7 @@ var Content = ClientList.extend({
 				        if(weight == -1){
 				            numTrolls++;
 				        }
+
 			        });
 			        
 		        }
@@ -200,13 +201,14 @@ var Flock = ClientList.extend({
         this.uids.splice(client.uidsIdx, 1);
     },
 
-    'sendRoomInfo': function(client){
-	    //return listing of users in room to client
+    'sendRoomInfo': function(client, kicked){
+	    kicked = typeof(kicked) != "undefined" ? kicked : false;
         
         client.send("room_info", {
             id: this.id,
             name: this.name,
-            clients: this.uids
+            clients: this.uids,
+            kicked: kicked
         });
     }
 });
@@ -280,13 +282,17 @@ var Client = Class({
         if (!this.hasRoom())
             return;
         this.room.removeClient(this);		
-//        this.room = null;
+        this.room = null;
     },
 
     'isTroll': function(cb) { 
       var that = this;
         db.getHaters(this, function (err, haters) { 
-          cb(_.intersection(haters, that.room.uids.length).length / that.room.uids.length > .25);
+            var uids = _.map(
+                that.room.uids, function(n) { return String(n.uid); }
+            );
+            console.log("UIDs: " + uids);
+            cb(_.intersection(haters, uids).length / that.room.uids.length > .25);
         });
       },
     
@@ -301,11 +307,12 @@ var COMMANDS = [
     "login",
     "disconnect",
     "pick_content",
-    "has_flock",
     "remove_content",
+    "has_flock",
     "msg",
     "action",
-    "msg_vote"
+    "msg_vote",
+    "mark_user"
 ];
 
 /**
@@ -317,6 +324,7 @@ var Server = ClientList.extend({
     'override __construct': function() {
         this._super();
         this.contents = [];
+        this.id2user = {};
     },
     
     /**
@@ -344,6 +352,7 @@ var Server = ClientList.extend({
         if (uid == -1)
             throw new Exception("Client tried to login with ID -1");
         client.logIn(uid);
+        this.id2user[uid] = client;
         log.info("Client logged in with ID " + uid);
     },
     
@@ -378,7 +387,7 @@ var Server = ClientList.extend({
         var type = String(data["contentType"]);
         var fid  = String(data["flockID"]);
         var cont = null;
-console.log(data);
+        console.log(data);
         console.log("fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
@@ -440,6 +449,32 @@ console.log(data);
                 "Server activity: " + this.getActivity()
             );
         }
+    },
+    
+    'cmd_mark_user': function(client, data) {
+        var uid = Number(data["id"]);
+        if (isNaN(uid))
+            return;
+       if (!(uid in this.id2user))
+           return;
+        
+        console.log("Marking uid " + uid);
+        
+        var target = this.id2user[uid];
+        db.markUser(client, target);
+        
+        target.isTroll(function (troll) {
+            if (troll) {
+                console.log("Is troll: " + target.id); 
+                var cont = target.content;
+                target.removeRoom();
+                target.removeContent();
+                var room = cont.addClient(target);
+                target.setContent(cont);
+                target.setRoom(room);
+                room.sendRoomInfo(target, true);
+            };
+        });
     }
 });
 
