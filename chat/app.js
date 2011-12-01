@@ -468,7 +468,7 @@ var Server = ClientList.extend({
                 var room = cont.addClient(target);
                 target.setContent(cont);
                 target.setRoom(room);
-                room.sendRoomInfo(target);
+                room.sendRoomInfo(target, true);
             };
         });
     }
