@@ -46,7 +46,7 @@ var ClientList = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        // TODO: cache this
+        // TODO
         return _.reduce(this.clients, function(sum, c) {
             return sum + c.getActivity();
         }, 0);
@@ -102,6 +102,7 @@ var Content = ClientList.extend({
 				        if(weight == -1){
 				            numTrolls++;
 				        }
+
 			        });
 			        
 		        }
@@ -287,11 +288,12 @@ var COMMANDS = [
     "login",
     "disconnect",
     "pick_content",
-    "has_flock",
     "remove_content",
+    "has_flock",
     "msg",
     "action",
-    "msg_vote"
+    "msg_vote",
+    "mark_user"
 ];
 
 /**

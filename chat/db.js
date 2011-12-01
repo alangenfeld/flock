@@ -1,58 +1,27 @@
+
 var sys = require("sys");
 var redis =  require("redis");
 var client = redis.createClient();
 
 exports.client = client;
 
-exports.save = function(key, obj) {
-    client.set(key, obj);
+/*** VOTING ***/
+
+exports.markUser = function(origin, target) {
+    client.sadd("marked:" + origin.id, target.id); // list of people the marker has marked
+    client.sadd("marks:" + target.id, origin.id); // list of people the target has been marked by
 };
 
-exports.load = function (key, callback) {
-    client.get(key, callback);
+exports.getHaters(user, callback) {
+    client.smembers("marks:" + user.id, callback);
 };
 
-exports.createMessage = function(cid, mid) {
-    client.set("r:" + cid + ":" + mid, 0);
+exports.unmarkUser = function(origin, target) {
+    client.srem("marked:" + origin.id, target.id);
+    client.srem("marks:" + origin.id, target.id);
 };
 
-exports.rateMessage = function(cid, mid, weight, cb) {
-    client.incrby("r:" + cid + ":" + mid, weight, cb);
+exports.addPoints(user, count) {
+    client.incrby("score:" + user.id, count);
 };
 
-exports.markUser = function(clOrigin, clTarget) {
-    client.incr("markc:" + cidTarget); // number of marks this user has
-    client.lpush("marks:" + cidOrigin, cidTarget); // list of people the marker has marked
-};
-
-/*
-exports.createUser = function(cid) {
-  return {id:cid}
-}
-
-exports.addFriends = function(cid, friends) {
-  for(var idx in friends) {
-    exports.save(friends[idx], exports.createUser(friends[idx]))
-    exports.addAssoc(cid, friends[idx], 1)
-    exports.addAssoc(cid, friends[idx], 1)
-  }
-}
-
-exports.activateRoom = function(sid) {
-  client.sadd("rooms", sid)
-}
-
-exports.joinRoom = function(sid, cid) {
-  client.sadd("rooms", sid)
-  client.sadd("rooms:" + sid, cid);
-}
-
-exports.partRoom = function(sid, cid) {
-  client.srem("rooms:" + sid, cid);
-  client.scard("rooms:" + sid, function(err, card) { 
-      if (card == 0) {
-        client.srem("rooms", sid)
-      }
-    }
-}
-*/
