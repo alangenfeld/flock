@@ -31,6 +31,9 @@ var Chat = {
 		if (! $(e.currentTarget).hasClass("selected")) {
 			socket.emit("msg_vote", {id: mid, change: 1});
 		    $(e.currentTarget).addClass("selected");
+		} else {
+	        socket.emit("msg_vote", {id: mid, change: 0});
+		    $(e.currentTarget).removeClass("selected");
 		}
     },
     
@@ -40,6 +43,8 @@ var Chat = {
 
         this.txt.append("<div class=\"message\" id=\"msg" + mid + "\"" +
                           " uid=\"" + uid + "\">" +
+                          "<span class=\"troll\">X</span>" + 
+                          "<span class=\"hoverTxt\"> click to mark as troll </span>" + 
                           "<span class=\"name\">" + name + ": </span>" + 
                           "<span class=\"msgbody\">" + body + "</span>" +
                           "<div class=\"upvote\">+</div>" + 
@@ -50,30 +55,32 @@ var Chat = {
         this.txt.prop({ scrollTop: this.txt.prop("scrollHeight")});
 	    this.txt.emoticonize({});
         
-        /*
-	    nameObj.evt({ click : function(e) {
-		    $(e.currentTarget).parent().children(".troll").toggle();
-		}});
-        */
-
         $(".upvote").click(this.upvoteClicked);
         
-        /*
+        $(".troll").hover(
+            function(e) {
+                var uid = $(e.currentTarget).parent().children(".hoverTxt").show();
+                var uid = $(e.currentTarget).parent().children(".msgbody").hide();
+            }, function(e){
+                var uid = $(e.currentTarget).parent().children(".hoverTxt").hide();
+                var uid = $(e.currentTarget).parent().children(".msgbody").show();
+            });
+        
 	    $(".troll").click(function(e) {
 		    var uid = $(e.currentTarget).parent().attr("uid");
-		    if ($(e.currentTarget).hasClass("marked")) {
-			    $("[uid~=\"" + uid + "\"]").children(".troll").removeClass("marked");
+		    if (!$(e.currentTarget).hasClass("marked")) {
+			    $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
                 
-			        socket.emit("set_status", {status: "0", fbid: uid});
-			    Room.setStatus(uid, "0");
-		    } else {
+			    socket.emit("mark_user", {id: uid});
+			    Room.setStatus(uid, "-1");
+		    } /* else {
 			    $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
 			    
 			    socket.emit("set_status", {status: "-1", fbid: uid});
 			        Room.setStatus(uid, "-1");
 		    }
+               */
 		});
-         */
     },
     
     getMsg : function(data) {
