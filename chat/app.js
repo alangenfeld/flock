@@ -347,13 +347,13 @@ var Server = ClientList.extend({
         client.removeContent();
 	},
 
-    'cmd_has_flock': function(client, data) {
-        var cid  = String(data["contentID"]);
-        var type = String(data["contentType"]);
-        var fid = String(data["flockID"]);
-        //(hasRoom()&&hasContent())
-		client.send("has_flock", {hasFlock:true});
-    },
+  'cmd_has_flock': function(client, data) {
+      var cid  = String(data["contentID"]);
+      var type = String(data["contentType"]);
+      var fid = String(data["flockID"]);
+      //(hasRoom()&&hasContent())
+      client.send("has_flock", {hasFlock:true});
+  },
 
     'cmd_msg_vote': function(client, data) {
 	    var id     = Number(data["id"].substr(3));
