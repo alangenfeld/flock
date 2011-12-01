@@ -130,6 +130,10 @@ var Chat = {
     }
 };
 
+function hasFlock(cid, type, fid) {
+    Room.hasFlock(cid, type, fid);
+}
+
 var Room = {
     init : function() {
       socket.on("room_info", this.roomInfo.bind(this));
@@ -156,6 +160,10 @@ var Room = {
         });
         this.updateTitle();
     },
+
+    getStatus: function(cid, type, fid) {
+      socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
+     },
 
     getStatus: function(uid) {
         if (!(uid in this.clients))
@@ -213,7 +221,7 @@ var Room = {
           this.clearRoom();
         }
         // update fid hash in URL
-        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+        //window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
         for (var i in data.clients) {
             this.addUser(data.clients[i]);
@@ -242,7 +250,7 @@ var Room = {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
         // update cid hash in URL
-        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+        //window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
         
         $("#side").show();
     },
