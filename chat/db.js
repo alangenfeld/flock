@@ -12,7 +12,7 @@ exports.markUser = function(origin, target) {
     client.sadd("marks:" + target.id, origin.id); // list of people the target has been marked by
 };
 
-exports.getHaters(user, callback) {
+exports.getHaters = function(user, callback) {
     client.smembers("marks:" + user.id, callback);
 };
 
@@ -21,7 +21,7 @@ exports.unmarkUser = function(origin, target) {
     client.srem("marks:" + origin.id, target.id);
 };
 
-exports.addPoints(user, count) {
+exports.addPoints = function(user, count) {
     client.incrby("score:" + user.id, count);
 };
 
