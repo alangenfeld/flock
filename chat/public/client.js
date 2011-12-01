@@ -1,4 +1,3 @@
-
 var socket = 0;
 var fbid_names = {};
 
@@ -141,7 +140,7 @@ var Room = {
         $("#roomName").html("<span id=\"rnTitle\"></span> " +
                             "(<a id=\"rnNum\" href=\"#\"></a>)");
         $("#rnNum").click(function () {
-            $("#roomInfo").show();
+            $("#roomInfo").toggle();
             return false;
         });
         $("#roomInfoX a").click(function() {
@@ -195,7 +194,6 @@ var Room = {
     },
     
     roomInfo : function(data) {
-        
         this.name = data.name;
         // update fid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
@@ -239,6 +237,7 @@ var Room = {
     removeContent : function() {
         $("#text").html("");
         $("#roomInfoText").html("");
+        $("#side").hide();
         this.clients = {};
         this.numClients = 0;
         this.name = "--no room--";

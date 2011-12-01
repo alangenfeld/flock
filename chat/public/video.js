@@ -33,9 +33,11 @@ $(document).ready(function() {
         if (obj["cid"] && obj["fid"]) {
             cid = String(obj["cid"]);
             fid = String(obj["fid"]);
-
-            // TODO
-
+            
+            socket.on("has_flock", function(data) {
+                finishLoadingPage(data,fid,cid);
+            });
+            hasFlock(cid, 'justin.tv', fid);
         }
     }
   
@@ -53,7 +55,7 @@ $(document).ready(function() {
 			    var child = document.getElementById("overlay");
 			    var parent = document.getElementById("contentBody");
 			    parent.removeChild(child);
-                Chat.removeContent();
+                Room.removeContent();
 		    }
 		    
 		    isFreeBird = true;
