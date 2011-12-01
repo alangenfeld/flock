@@ -132,7 +132,7 @@ var Chat = {
 
 var Room = {
     init : function() {
-        socket.on("room_info", this.roomInfo.bind(this));
+      socket.on("room_info", this.roomInfo.bind(this));
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
         
@@ -173,6 +173,13 @@ var Room = {
         $("#rnTitle").html(this.name);
         $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
     },
+
+    clearRoom: function(){
+      this.clients = {};
+      this.numClients = 0;        
+      $("#text").html("");
+      $("#roomInfoText").html("");
+    },
     
     addUser : function(client) {
         var uid = client.uid;
@@ -202,12 +209,16 @@ var Room = {
     
     roomInfo : function(data) {
         this.name = data.name;
+        if(data.kicked == true){
+          this.clearRoom();
+        }
         // update fid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
         for (var i in data.clients) {
             this.addUser(data.clients[i]);
         }
+        this.updateTitle();
     },
     
     userJoin : function(data) {
@@ -242,11 +253,8 @@ var Room = {
     },
     
     removeContent : function() {
-        $("#text").html("");
-        $("#roomInfoText").html("");
+        this.clearRoom();
         $("#side").hide();
-        this.clients = {};
-        this.numClients = 0;
         this.name = "--no room--";
         socket.emit("remove_content");
     }
