@@ -72,6 +72,30 @@ body {
     width: 100%;
 }
 
+
+.ui-dialog-titlebar {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    background: #ccc;
+}
+
+.ui-dialog {
+    border: 2px solid;
+    border-radius: 15px;
+    border-color: #000;
+    text-align: center;
+}
+
+.ui-dialog-buttonset {
+   text-align: center;
+}
+
+#dialog {
+    height: 60px !important;
+    position: relative;
+}
+
+
 /**** STREAM LIST STYLES ****/
 
 #contentList {
