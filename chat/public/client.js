@@ -31,6 +31,9 @@ var Chat = {
 		if (! $(e.currentTarget).hasClass("selected")) {
 			socket.emit("msg_vote", {id: mid, change: 1});
 		    $(e.currentTarget).addClass("selected");
+		} else {
+	        socket.emit("msg_vote", {id: mid, change: 0});
+		    $(e.currentTarget).removeClass("selected");
 		}
     },
     
@@ -40,6 +43,8 @@ var Chat = {
 
         this.txt.append("<div class=\"message\" id=\"msg" + mid + "\"" +
                           " uid=\"" + uid + "\">" +
+                          "<span class=\"troll\">X</span>" + 
+                          "<span class=\"hoverTxt\"> click to mark as troll </span>" + 
                           "<span class=\"name\">" + name + ": </span>" + 
                           "<span class=\"msgbody\">" + body + "</span>" +
                           "<div class=\"upvote\">+</div>" + 
@@ -50,30 +55,32 @@ var Chat = {
         this.txt.prop({ scrollTop: this.txt.prop("scrollHeight")});
 	    this.txt.emoticonize({});
         
-        /*
-	    nameObj.evt({ click : function(e) {
-		    $(e.currentTarget).parent().children(".troll").toggle();
-		}});
-        */
-
         $(".upvote").click(this.upvoteClicked);
         
-        /*
+        $(".troll").hover(
+            function(e) {
+                var uid = $(e.currentTarget).parent().children(".hoverTxt").show();
+                var uid = $(e.currentTarget).parent().children(".msgbody").hide();
+            }, function(e){
+                var uid = $(e.currentTarget).parent().children(".hoverTxt").hide();
+                var uid = $(e.currentTarget).parent().children(".msgbody").show();
+            });
+        
 	    $(".troll").click(function(e) {
 		    var uid = $(e.currentTarget).parent().attr("uid");
-		    if ($(e.currentTarget).hasClass("marked")) {
-			    $("[uid~=\"" + uid + "\"]").children(".troll").removeClass("marked");
+		    if (!$(e.currentTarget).hasClass("marked")) {
+			    $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
                 
-			        socket.emit("set_status", {status: "0", fbid: uid});
-			    Room.setStatus(uid, "0");
-		    } else {
+			    socket.emit("mark_user", {id: uid});
+			    Room.setStatus(uid, "-1");
+		    } /* else {
 			    $("[uid~=\"" + uid + "\"]").children(".troll").addClass("marked");
 			    
 			    socket.emit("set_status", {status: "-1", fbid: uid});
 			        Room.setStatus(uid, "-1");
 		    }
+               */
 		});
-         */
     },
     
     getMsg : function(data) {
@@ -123,9 +130,13 @@ var Chat = {
     }
 };
 
+function hasFlock(cid, type, fid) {
+    Room.hasFlock(cid, type, fid);
+}
+
 var Room = {
     init : function() {
-        socket.on("room_info", this.roomInfo.bind(this));
+      socket.on("room_info", this.roomInfo.bind(this));
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
         
@@ -150,6 +161,10 @@ var Room = {
         this.updateTitle();
     },
 
+    getStatus: function(cid, type, fid) {
+      socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
+     },
+
     getStatus: function(uid) {
         if (!(uid in this.clients))
             return "0";
@@ -165,6 +180,13 @@ var Room = {
     updateTitle: function() {
         $("#rnTitle").html(this.name);
         $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
+    },
+
+    clearRoom: function(){
+      this.clients = {};
+      this.numClients = 0;        
+      $("#text").html("");
+      $("#roomInfoText").html("");
     },
     
     addUser : function(client) {
@@ -195,12 +217,16 @@ var Room = {
     
     roomInfo : function(data) {
         this.name = data.name;
+        if(data.kicked == true){
+          this.clearRoom();
+        }
         // update fid hash in URL
-        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+        //window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
         for (var i in data.clients) {
             this.addUser(data.clients[i]);
         }
+        this.updateTitle();
     },
     
     userJoin : function(data) {
@@ -224,7 +250,7 @@ var Room = {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
         // update cid hash in URL
-        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+        //window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
         
         $("#side").show();
     },
@@ -235,11 +261,8 @@ var Room = {
     },
     
     removeContent : function() {
-        $("#text").html("");
-        $("#roomInfoText").html("");
+        this.clearRoom();
         $("#side").hide();
-        this.clients = {};
-        this.numClients = 0;
         this.name = "--no room--";
         socket.emit("remove_content");
     }

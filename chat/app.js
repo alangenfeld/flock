@@ -162,10 +162,14 @@ var Flock = ClientList.extend({
     
     'rateMessage': function(client, mid, change) {
         var msg = this.messages[mid];
-        // so people can't vote more than once...
-        if (client.id in msg.voters)
+        // so people can't vote in one direction more than once...
+
+        if (client.id in msg.voters) {
+            if (msg.voters[client.id] == change)
             return;
-        msg.voters[client.id] = true;
+        }
+
+        msg.voters[client.id] = change;
         msg.count += change;
         return msg.count;
     },
@@ -352,13 +356,13 @@ var Server = ClientList.extend({
         client.removeContent();
 	},
 
-    'cmd_has_flock': function(client, data) {
-        var cid  = String(data["contentID"]);
-        var type = String(data["contentType"]);
-        var fid = String(data["flockID"]);
-        //(hasRoom()&&hasContent())
-		client.send("has_flock", {hasFlock:true});
-    },
+  'cmd_has_flock': function(client, data) {
+      var cid  = String(data["contentID"]);
+      var type = String(data["contentType"]);
+      var fid = String(data["flockID"]);
+      //(hasRoom()&&hasContent())
+      client.send("has_flock", {hasFlock:true});
+  },
 
     'cmd_msg_vote': function(client, data) {
 	    var id     = Number(data["id"].substr(3));

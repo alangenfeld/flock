@@ -37,7 +37,7 @@ $(document).ready(function() {
             socket.on("has_flock", function(data) {
                 finishLoadingPage(data,fid,cid);
             });
-            hasFlock(cid, 'justin.tv', fid);
+//            hasFlock(cid, 'justin.tv', fid);
         }
     }
   
@@ -66,6 +66,8 @@ $(document).ready(function() {
 	    }
     });
 
+
+
     $("#content").scroll(function() {
         if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
             getMoreChannels();
@@ -74,6 +76,9 @@ $(document).ready(function() {
     
     $(window).resize(resizeVideo);
 });
+
+
+
 
 function resizeVideo() {
     var children = $("#video").children();
