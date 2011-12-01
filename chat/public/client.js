@@ -130,13 +130,9 @@ var Chat = {
     }
 };
 
-function hasFlock(cid, type, fid) {
-    Room.hasFlock(cid, type, fid);
-}
-
 var Room = {
     init : function() {
-        socket.on("room_info", this.roomInfo.bind(this));
+      socket.on("room_info", this.roomInfo.bind(this));
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
         
@@ -161,8 +157,8 @@ var Room = {
         this.updateTitle();
     },
 
-    getStatus: function(cid, type, fid) {
-      socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
+    hasFlock: function(cid, type, fid) {
+      socket.emit("has_flock", {"contentID" : cid, "contentType" : type, "flockID" : fid});
      },
 
     getStatus: function(uid) {
@@ -273,13 +269,7 @@ $(document).ready(function() {
 	});
 });
 
-function chooseContent(cid, type) {
-    Room.pickContent(cid, type);
-}
 
-function chooseContentWithFid(cid, type, fid) {
-    Room.pickContentWithFid(cid, type, fid);
-}
 
 
 

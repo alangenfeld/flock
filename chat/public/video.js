@@ -37,7 +37,7 @@ $(document).ready(function() {
             socket.on("has_flock", function(data) {
                 finishLoadingPage(data,fid,cid);
             });
-//            hasFlock(cid, 'justin.tv', fid);
+            Room.hasFlock(cid, 'justin.tv', fid);
         }
     }
   
@@ -164,9 +164,9 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     var dropdown = document.getElementById("selectVideo");
     
     if(!contentAlreadyCalled) {
-        chooseContent(cid, 'justin.tv');
+        Room.pickContent(cid, 'justin.tv');
     } else {
-        chooseContentWithFid(cid, 'justin.tv', fid);
+        Room.pickContentWithFid(cid, 'justin.tv', fid);
     };
 
     $("#contentBody").append($("<div></div>").attr("id","overlay"));

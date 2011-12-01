@@ -83,6 +83,28 @@ var Content = ClientList.extend({
     },
 
 	'addClient': function(client) {
+
+        var selectedFlock = null;
+        var leastPeople   = MAX_ROOM_CLIENTS;
+        
+        for (var i = 0; i < this.rooms.length; i++) {
+            var num = this.rooms[i].numClients();
+            if (num < leastPeople) {
+                selectedFlock = this.rooms[i];
+                leastPeople = num;
+            }
+        }
+        
+        if (selectedFlock == null) {
+            console.log("- Creating new flock");
+            selectedFlock = new Flock(global_room_count++);
+            this.rooms.push(selectedFlock);
+        }
+ 
+	    this.clients.push(client);
+	    selectedFlock.addClient(client);
+	    return selectedFlock;
+
 /*
         var selectedFlock = null;
 	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
@@ -122,26 +144,6 @@ var Content = ClientList.extend({
 	    }
 */
         
-        var selectedFlock = null;
-        var leastPeople   = MAX_ROOM_CLIENTS;
-        
-        for (var i = 0; i < this.rooms.length; i++) {
-            var num = this.rooms[i].numClients();
-            if (num < leastPeople) {
-                selectedFlock = this.rooms[i];
-                leastPeople = num;
-            }
-        }
-        
-        if (selectedFlock == null) {
-            console.log("- Creating new flock");
-            selectedFlock = new Flock(global_room_count++);
-            this.rooms.push(selectedFlock);
-        }
- 
-	    this.clients.push(client);
-	    selectedFlock.addClient(client);
-	    return selectedFlock;
 	}
 });
 
@@ -177,7 +179,7 @@ var Flock = ClientList.extend({
         if (client in this.clients){
             return;
         }
-		
+		console.log("made it");
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
 			this.clients[i].send("join", {uid: client.id, status:0});
@@ -356,7 +358,7 @@ var Server = ClientList.extend({
       var type = String(data["contentType"]);
       var fid = String(data["flockID"]);
       //(hasRoom()&&hasContent())
-      client.send("has_flock", {hasFlock:true});
+      client.send("has_flock", { hasFlock :true});
   },
 
     'cmd_msg_vote': function(client, data) {
@@ -377,7 +379,7 @@ var Server = ClientList.extend({
         var fid  = String(data["flockID"]);
         var cont = null;
 console.log(data);
-        console.log("1fid is equal to " + fid + "  cid = "+cid);
+        console.log("fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
@@ -401,8 +403,10 @@ console.log(data);
         //room should be set to fid if it exists
         var room;
         if(fid == null || fid == "undefined"){
+          console.log("normal addclient");
             room = cont.addClient(client);
         } else {
+          console.log("other  addclient");
             room = cont.addClientExistingRoom(client, fid);
         }
 
