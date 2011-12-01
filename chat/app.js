@@ -286,7 +286,11 @@ var Client = Class({
     'isTroll': function(cb) { 
       var that = this;
         db.getHaters(this, function (err, haters) { 
-          cb(_.intersection(haters, that.room.uids).length / that.room.uids.length > .25);
+            var uids = _.map(
+                that.room.uids, function(n) { return String(n.uid); }
+            );
+            console.log("UIDs: " + uids);
+            cb(_.intersection(haters, uids).length / that.room.uids.length > .25);
         });
       },
     
@@ -450,11 +454,14 @@ var Server = ClientList.extend({
        if (!(uid in this.id2user))
            return;
         
+        console.log("Marking uid " + uid);
+        
         var target = this.id2user[uid];
         db.markUser(client, target);
         
         target.isTroll(function (troll) {
             if (troll) {
+                console.log("Is troll: " + target.id); 
                 var cont = target.content;
                 target.removeRoom();
                 target.removeContent();
