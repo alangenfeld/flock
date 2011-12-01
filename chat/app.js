@@ -161,10 +161,14 @@ var Flock = ClientList.extend({
     
     'rateMessage': function(client, mid, change) {
         var msg = this.messages[mid];
-        // so people can't vote more than once...
-        if (client.id in msg.voters)
+        // so people can't vote in one direction more than once...
+
+        if (client.id in msg.voters) {
+            if (msg.voters[client.id] == change)
             return;
-        msg.voters[client.id] = true;
+        }
+
+        msg.voters[client.id] = change;
         msg.count += change;
         return msg.count;
     },

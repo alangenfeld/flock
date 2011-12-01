@@ -37,7 +37,7 @@ $(document).ready(function() {
             socket.on("has_flock", function(data) {
                 finishLoadingPage(data,fid,cid);
             });
-            hasFlock(cid, 'justin.tv', fid);
+//            hasFlock(cid, 'justin.tv', fid);
         }
     }
   
