@@ -277,10 +277,12 @@ var Client = Class({
 //        this.room = null;
     },
 
-    'isTroll': function() { 
-      return _.intersection(db.getHaters(this), 
-          this.room.uids).length / this.room.uids.length > .25; 
-    },
+    'isTroll': function(cb) { 
+      var that = this;
+        db.getHaters(this, function (err, haters) { 
+          cb(_.intersection(haters, that.room.uids.length).length / that.room.uids.length > .25);
+        });
+      },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
