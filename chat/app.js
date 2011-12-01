@@ -161,10 +161,14 @@ var Flock = ClientList.extend({
     
     'rateMessage': function(client, mid, change) {
         var msg = this.messages[mid];
-        // so people can't vote more than once...
-        if (client.id in msg.voters)
+        // so people can't vote in one direction more than once...
+
+        if (client.id in msg.voters) {
+            if (msg.voters[client.id] == change)
             return;
-        msg.voters[client.id] = true;
+        }
+
+        msg.voters[client.id] = change;
         msg.count += change;
         return msg.count;
     },
@@ -276,6 +280,13 @@ var Client = Class({
         this.room.removeClient(this);		
 //        this.room = null;
     },
+
+    'isTroll': function(cb) { 
+      var that = this;
+        db.getHaters(this, function (err, haters) { 
+          cb(_.intersection(haters, that.room.uids.length).length / that.room.uids.length > .25);
+        });
+      },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
