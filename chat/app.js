@@ -46,7 +46,7 @@ var ClientList = Class({
      * @return acts per minute
      */
     'getActivity': function() {
-        // TODO: cache this
+        // TODO
         return _.reduce(this.clients, function(sum, c) {
             return sum + c.getActivity();
         }, 0);
@@ -74,53 +74,16 @@ var Content = ClientList.extend({
                 selectedFlock = this.rooms[i];
                 selectedFlock.addClient(client);
                 console.log("added client to room " + i);
-                break;
+                this.clients.push(client);
+	              selectedFlock.addClient(client);
+	              return selectedFlock;
             }
         }
-	    this.clients.push(client);
-	    return selectedFlock;
+	      return null;
     },
 
 	'addClient': function(client) {
-/*
-        var selectedFlock = null;
-	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
- 
-	    if (this.rooms.length == 0)
-		    selectedFlock = this.rooms[0] = new Flock(global_room_count++);
-	    else {
-		    for (var i = 0; i < this.rooms.length; i++){
-                
-		        var numTrolls = 0;
-                
-		        log.info("NUM PEOPLE = " + rooms[i].clients.length);
-		        
-		        // count number of trolls in each room
-		        for(var k = 0; k < rooms[i].clients.length; k++){
-			        db.getAssoc(client.id, rooms[i].clients[k].id, function(weight) {
-				        // count number of trolls in room
-				        if(weight == -1){
-				            numTrolls++;
-				        }
-			        });
-			        
-		        }
-				
-		        if(numTrolls < fewestTrolls){
-			        fewestTrolls = numTrolls;
-			        selectedFlock = this.rooms[i];
-		    }
-                
-		    }
-            
-		    if (selectedFlock == null) {
-		        console.log("-- Creating new room");
-		        selectedFlock = new Flock(global_room_count++);
-		        this.rooms.push(selectedFlock);
-		    }
-	    }
-*/
-        
+
         var selectedFlock = null;
         var leastPeople   = MAX_ROOM_CLIENTS;
         
@@ -141,6 +104,47 @@ var Content = ClientList.extend({
 	    this.clients.push(client);
 	    selectedFlock.addClient(client);
 	    return selectedFlock;
+
+/*
+        var selectedFlock = null;
+	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
+ 
+	    if (this.rooms.length == 0)
+		    selectedFlock = this.rooms[0] = new Flock(global_room_count++);
+	    else {
+		    for (var i = 0; i < this.rooms.length; i++){
+                
+		        var numTrolls = 0;
+                
+		        log.info("NUM PEOPLE = " + rooms[i].clients.length);
+		        
+		        // count number of trolls in each room
+		        for(var k = 0; k < rooms[i].clients.length; k++){
+			        db.getAssoc(client.id, rooms[i].clients[k].id, function(weight) {
+				        // count number of trolls in room
+				        if(weight == -1){
+				            numTrolls++;
+				        }
+
+			        });
+			        
+		        }
+				
+		        if(numTrolls < fewestTrolls){
+			        fewestTrolls = numTrolls;
+			        selectedFlock = this.rooms[i];
+		    }
+                
+		    }
+            
+		    if (selectedFlock == null) {
+		        console.log("-- Creating new room");
+		        selectedFlock = new Flock(global_room_count++);
+		        this.rooms.push(selectedFlock);
+		    }
+	    }
+*/
+        
 	}
 });
 
@@ -160,10 +164,14 @@ var Flock = ClientList.extend({
     
     'rateMessage': function(client, mid, change) {
         var msg = this.messages[mid];
-        // so people can't vote more than once...
-        if (client.id in msg.voters)
+        // so people can't vote in one direction more than once...
+
+        if (client.id in msg.voters) {
+            if (msg.voters[client.id] == change)
             return;
-        msg.voters[client.id] = true;
+        }
+
+        msg.voters[client.id] = change;
         msg.count += change;
         return msg.count;
     },
@@ -172,7 +180,7 @@ var Flock = ClientList.extend({
         if (client in this.clients){
             return;
         }
-		
+		console.log("made it");
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
 			this.clients[i].send("join", {uid: client.id, status:0});
@@ -193,13 +201,14 @@ var Flock = ClientList.extend({
         this.uids.splice(client.uidsIdx, 1);
     },
 
-    'sendRoomInfo': function(client){
-	    //return listing of users in room to client
+    'sendRoomInfo': function(client, kicked){
+	    kicked = typeof(kicked) != "undefined" ? kicked : false;
         
         client.send("room_info", {
             id: this.id,
             name: this.name,
-            clients: this.uids
+            clients: this.uids,
+            kicked: kicked
         });
     }
 });
@@ -273,8 +282,19 @@ var Client = Class({
         if (!this.hasRoom())
             return;
         this.room.removeClient(this);		
-//        this.room = null;
+        this.room = null;
     },
+
+    'isTroll': function(cb) { 
+      var that = this;
+        db.getHaters(this, function (err, haters) { 
+            var uids = _.map(
+                that.room.uids, function(n) { return String(n.uid); }
+            );
+            console.log("UIDs: " + uids);
+            cb(_.intersection(haters, uids).length / that.room.uids.length > .25);
+        });
+      },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
@@ -287,11 +307,12 @@ var COMMANDS = [
     "login",
     "disconnect",
     "pick_content",
-    "has_flock",
     "remove_content",
+    "has_flock",
     "msg",
     "action",
-    "msg_vote"
+    "msg_vote",
+    "mark_user"
 ];
 
 /**
@@ -303,6 +324,7 @@ var Server = ClientList.extend({
     'override __construct': function() {
         this._super();
         this.contents = [];
+        this.id2user = {};
     },
     
     /**
@@ -330,6 +352,7 @@ var Server = ClientList.extend({
         if (uid == -1)
             throw new Exception("Client tried to login with ID -1");
         client.logIn(uid);
+        this.id2user[uid] = client;
         log.info("Client logged in with ID " + uid);
     },
     
@@ -339,13 +362,13 @@ var Server = ClientList.extend({
         client.removeContent();
 	},
 
-    'cmd_has_flock': function(client, data) {
-        var cid  = String(data["contentID"]);
-        var type = String(data["contentType"]);
-        var fid = String(data["flockID"]);
-        //(hasRoom()&&hasContent())
-		client.send("has_flock", {hasFlock:true});
-    },
+  'cmd_has_flock': function(client, data) {
+      var cid  = String(data["contentID"]);
+      var type = String(data["contentType"]);
+      var fid = String(data["flockID"]);
+      //(hasRoom()&&hasContent())
+      client.send("has_flock", { hasFlock :true});
+  },
 
     'cmd_msg_vote': function(client, data) {
 	    var id     = Number(data["id"].substr(3));
@@ -364,8 +387,8 @@ var Server = ClientList.extend({
         var type = String(data["contentType"]);
         var fid  = String(data["flockID"]);
         var cont = null;
-console.log(data);
-        console.log("1fid is equal to " + fid + "  cid = "+cid);
+        console.log(data);
+        console.log("fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
@@ -389,8 +412,10 @@ console.log(data);
         //room should be set to fid if it exists
         var room;
         if(fid == null || fid == "undefined"){
+          console.log("normal addclient");
             room = cont.addClient(client);
         } else {
+          console.log("other  addclient");
             room = cont.addClientExistingRoom(client, fid);
         }
 
@@ -424,6 +449,32 @@ console.log(data);
                 "Server activity: " + this.getActivity()
             );
         }
+    },
+    
+    'cmd_mark_user': function(client, data) {
+        var uid = Number(data["id"]);
+        if (isNaN(uid))
+            return;
+       if (!(uid in this.id2user))
+           return;
+        
+        console.log("Marking uid " + uid);
+        
+        var target = this.id2user[uid];
+        db.markUser(client, target);
+        
+        target.isTroll(function (troll) {
+            if (troll) {
+                console.log("Is troll: " + target.id); 
+                var cont = target.content;
+                target.removeRoom();
+                target.removeContent();
+                var room = cont.addClient(target);
+                target.setContent(cont);
+                target.setRoom(room);
+                room.sendRoomInfo(target, true);
+            };
+        });
     }
 });
 

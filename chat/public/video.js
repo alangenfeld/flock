@@ -60,9 +60,11 @@ $(document).ready(function() {
         if (obj["cid"] && obj["fid"]) {
             cid = String(obj["cid"]);
             fid = String(obj["fid"]);
-
-            // TODO
-
+            
+            socket.on("has_flock", function(data) {
+                finishLoadingPage(data,fid,cid);
+            });
+            Room.hasFlock(cid, 'justin.tv', fid);
         }
     }
   
@@ -85,6 +87,8 @@ $(document).ready(function() {
 
     });
 
+
+
     $("#content").scroll(function() {
         if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
             getMoreChannels();
@@ -93,6 +97,9 @@ $(document).ready(function() {
     
     $(window).resize(resizeVideo);
 });
+
+
+
 
 function resizeVideo() {
     var children = $("#video").children();
@@ -178,9 +185,9 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     var dropdown = document.getElementById("selectVideo");
     
     if(!contentAlreadyCalled) {
-        chooseContent(cid, 'justin.tv');
+        Room.pickContent(cid, 'justin.tv');
     } else {
-        chooseContentWithFid(cid, 'justin.tv', fid);
+        Room.pickContentWithFid(cid, 'justin.tv', fid);
     };
 
     $("#contentBody").append($("<div></div>").attr("id","overlay"));

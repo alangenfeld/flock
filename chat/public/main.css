@@ -255,20 +255,25 @@ input#msg {
 
 .name { font-weight: bold; }
 
+.hoverTxt {
+  display:none;
+  font-style: italic;
+}
+
 .troll {
-  display: none;
   float: left;
   height: 12px;
   width: 12px;
-  margin-right: 2px;
-  background: red;
-  border-radius: 6px;
-  border: 1px solid #888;
-  opacity: .3;
+  opacity: .5;
+}
+
+.troll:hover {
+    cursor: pointer;
 }
 
 .marked.troll {
   opacity: 1.0;
+  color: red;
 }
 
 .votes {
