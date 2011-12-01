@@ -4,10 +4,37 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
+
+
 $(document).ready(function() {
 
     $("#video").hide();
     $("#secondaryVideo").hide();
+    $("#dialog").html("<br/>Are you sure you want to leave the flock?");
+    $("#dialog").dialog({
+        autoOpen: false, 
+        height: 50,
+        closeText: '',
+        title: "Confirmation",
+        buttons : {
+            "Confirm" : function() {
+                var child = document.getElementById("overlay");
+			    var parent = document.getElementById("contentBody");
+			    parent.removeChild(child);
+                Room.removeContent();
+                $(this).dialog("close");
+                isFreeBird = true;
+		        $("#contentList").html(""); // Clear the old content list
+		        globals.contentOffset = 0; // Reset the offset
+		        getMoreChannels();
+            },
+            "Cancel" : function() {
+                $(this).dialog("close");
+                $("#video").show();
+                $("#overlay").show();
+            }
+        }
+    });
 
     var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
     
@@ -41,27 +68,21 @@ $(document).ready(function() {
   
    
     $("#selectVideo").change(function() {
-	    var agree = false;
-	    
+              
 	    if(!isFreeBird)
-		    agree = confirm("This will remove you from the current flock");
-	    
-	    if(agree || isFreeBird)
-	    {
-		    if(agree)
-		    {
-			    var child = document.getElementById("overlay");
-			    var parent = document.getElementById("contentBody");
-			    parent.removeChild(child);
-                Room.removeContent();
-		    }
-		    
-		    isFreeBird = true;
+        {
+            $("#video").hide();
+		    $("#overlay").hide();
+            $("#dialog").dialog("open");
+        }
+	   else{
+           isFreeBird = true;
 		    $("#video").hide();		
 		    $("#contentList").html(""); // Clear the old content list
 		    globals.contentOffset = 0; // Reset the offset
 		    getMoreChannels();
 	    }
+
     });
 
     $("#content").scroll(function() {
