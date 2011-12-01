@@ -280,6 +280,13 @@ var Client = Class({
         this.room.removeClient(this);		
 //        this.room = null;
     },
+
+    'isTroll': function(cb) { 
+      var that = this;
+        db.getHaters(this, function (err, haters) { 
+          cb(_.intersection(haters, that.room.uids.length).length / that.room.uids.length > .25);
+        });
+      },
     
     'hasRoom': function() { return this.room !== null; },
     'loggedIn': function() { return this.id !== -1; },
