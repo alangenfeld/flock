@@ -130,6 +130,10 @@ var Chat = {
     }
 };
 
+function hasFlock(cid, type, fid) {
+    Room.hasFlock(cid, type, fid);
+}
+
 var Room = {
     init : function() {
         socket.on("room_info", this.roomInfo.bind(this));
@@ -156,6 +160,10 @@ var Room = {
         });
         this.updateTitle();
     },
+
+    getStatus: function(cid, type, fid) {
+      socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
+     },
 
     getStatus: function(uid) {
         if (!(uid in this.clients))

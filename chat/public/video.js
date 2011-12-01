@@ -78,9 +78,6 @@ $(document).ready(function() {
 });
 
 
-function hasFlock(cid, type, fid) {
-    socket.emit("has_flock", {"contentID" : cid, "contentType" : type, fid : "flockID"});
-}
 
 
 function resizeVideo() {
