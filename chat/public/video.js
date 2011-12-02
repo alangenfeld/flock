@@ -10,6 +10,7 @@ $(document).ready(function() {
 
     $("#video").hide();
     $("#secondaryVideo").hide();
+    $("#blanket").hide();
     $("#dialog").html("<br/>Are you sure you want to leave the flock?");
     $("#dialog").dialog({
         autoOpen: false, 
@@ -22,6 +23,7 @@ $(document).ready(function() {
 			    var parent = document.getElementById("contentBody");
 			    parent.removeChild(child);
                 Room.removeContent();
+                $("#blanket").hide();
                 $(this).dialog("close");
                 isFreeBird = true;
 		        $("#contentList").html(""); // Clear the old content list
@@ -30,6 +32,7 @@ $(document).ready(function() {
             },
             "Cancel" : function() {
                 $(this).dialog("close");
+                $("#blanket").hide();
                 $("#video").show();
                 $("#overlay").show();
             }
@@ -75,6 +78,7 @@ $(document).ready(function() {
         {
             $("#video").hide();
 		    $("#overlay").hide();
+            $("#blanket").show();
             $("#dialog").dialog("open");
         }
 	   else{

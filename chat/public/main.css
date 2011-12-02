@@ -72,6 +72,17 @@ body {
     width: 100%;
 }
 
+#blanket {
+    background-color:#111;
+    opacity: 0.65;
+    *background:none;
+    position:absolute;
+    z-index: 1000;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:100%;
+    }
 
 .ui-dialog-titlebar {
     border-top-left-radius: 15px;
@@ -84,6 +95,7 @@ body {
     border-radius: 15px;
     border-color: #000;
     text-align: center;
+    background: #fff;
 }
 
 .ui-dialog-buttonset {
@@ -198,7 +210,7 @@ body {
     display: block;
     position: absolute;
     padding-top: 5px;
-    z-index: 1002;
+    z-index: 102;
     opacity: 0;
 }
 
@@ -249,7 +261,7 @@ body {
     position: absolute;
     top: 40px; left: 5px; right: 5px;
     padding: 5px 5px;
-    z-index: 1001;
+    z-index: 101;
     background-color: #fff;
     border: 1px solid #888;
 }
