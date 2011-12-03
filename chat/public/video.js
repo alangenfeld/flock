@@ -4,14 +4,18 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
-
+function showDialog(message)
+{
+    $("#dialog").html("<br/>Are you sure you want to leave the flock?");
+    $("#blanket").show();
+    $("#dialog").dialog("open");
+}
 
 $(document).ready(function() {
 
     $("#video").hide();
     $("#secondaryVideo").hide();
     $("#blanket").hide();
-    $("#dialog").html("<br/>Are you sure you want to leave the flock?");
     $("#dialog").dialog({
         autoOpen: false, 
         height: 50,
@@ -19,9 +23,9 @@ $(document).ready(function() {
         title: "Confirmation",
         buttons : {
             "Confirm" : function() {
-                var child = document.getElementById("overlay");
-			    var parent = document.getElementById("contentBody");
-			    parent.removeChild(child);
+//              var child = document.getElementById("overlay");
+//			    var parent = document.getElementById("contentBody");
+//			    parent.removeChild(child);
                 Room.removeContent();
                 $("#blanket").hide();
                 $(this).dialog("close");
@@ -34,7 +38,7 @@ $(document).ready(function() {
                 $(this).dialog("close");
                 $("#blanket").hide();
                 $("#video").show();
-                $("#overlay").show();
+//              $("#overlay").show();
             }
         }
     });
@@ -77,9 +81,8 @@ $(document).ready(function() {
 	    if(!isFreeBird)
         {
             $("#video").hide();
-		    $("#overlay").hide();
-            $("#blanket").show();
-            $("#dialog").dialog("open");
+//		    $("#overlay").hide();
+            showDialog("Are you sure you want to leave the flock?");
         }
 	   else{
            isFreeBird = true;
@@ -111,8 +114,8 @@ function resizeVideo() {
     if (children && cc) {
         cc.height($("#side").height() * .92);
         cc.width($("#content").width() * .98);
-        $("#overlay").width(cc.width());
-        $("#overlay").height(cc.height() * .96);
+//        $("#overlay").width(cc.width());
+//        $("#overlay").height(cc.height() * .96);
     }
 }
 
@@ -194,7 +197,7 @@ function displayVideo(cid, contentAlreadyCalled, fid)
         Room.pickContentWithFid(cid, 'justin.tv', fid);
     };
 
-    $("#contentBody").append($("<div></div>").attr("id","overlay"));
+//    $("#contentBody").append($("<div></div>").attr("id","overlay"));
 	
     var videoDiv = $("#video");
     videoDiv.html(html_code + "<br/>");
