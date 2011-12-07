@@ -13,7 +13,7 @@ var Class   = require("structr"),
     db      = require("./db.js");
 
 var io = sio.listen(app);
-io.set("log level", 0);
+io.set("log level", 10);
 
 var log = require('winston');
 log.add(log.transports.File, { filename: 'flock.log' });
@@ -67,12 +67,10 @@ var Content = ClientList.extend({
     'addClientExistingRoom': function(client, fid) {
 
         var selectedFlock = null;
-        console.log("adding client to existing room hopefully");
+        console.log("adding client to existing room");
         for (var i = 0; i < this.rooms.length; i++) {    
-            console.log("i = "+ i + " fid = " + fid);
             if(this.rooms[i].id.toString() == fid) {
                 selectedFlock = this.rooms[i];
-                selectedFlock.addClient(client);
                 console.log("added client to room " + i);
                 this.clients.push(client);
 	              selectedFlock.addClient(client);
@@ -180,7 +178,6 @@ var Flock = ClientList.extend({
         if (client in this.clients){
             return;
         }
-		console.log("made it");
 		//notify everyone that new user has joined	
 		for(var i = 0; i < this.clients.length; i++){
 			this.clients[i].send("join", {uid: client.id, status:0});
@@ -388,7 +385,6 @@ var Server = ClientList.extend({
         var fid  = String(data["flockID"]);
         var cont = null;
         console.log(data);
-        console.log("fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
