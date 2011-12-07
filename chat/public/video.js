@@ -4,10 +4,46 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
-function showDialog(message)
+function showDialog(message, confirm)
 {
-    $("#dialog").html("<br/>Are you sure you want to leave the flock?");
+    $("#dialog").html("<br/>" + message);
     $("#blanket").show();
+    if(confirm){
+        $("#dialog").dialog({
+            buttons : {
+                "Confirm" : function() {
+                    //              var child = document.getElementById("overlay");
+                    //			    var parent = document.getElementById("contentBody");
+                    //			    parent.removeChild(child);
+                    Room.removeContent();
+                    $("#blanket").hide();
+                    $(this).dialog("close");
+                    isFreeBird = true;
+		            $("#contentList").html(""); // Clear the old content list
+		            globals.contentOffset = 0; // Reset the offset
+		            getMoreChannels();
+                },
+                "Cancel" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
+                    //              $("#overlay").show();
+                }
+                
+            }
+        });
+    }else {
+        $("#dialog").dialog({
+            buttons : {
+                "Ok" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
+                }
+            }
+        });
+    }
+    
     $("#dialog").dialog("open");
 }
 
@@ -20,8 +56,8 @@ $(document).ready(function() {
         autoOpen: false, 
         height: 50,
         closeText: '',
-        title: "Confirmation",
-        buttons : {
+        title: "Confirmation"
+/*        buttons : {
             "Confirm" : function() {
 //              var child = document.getElementById("overlay");
 //			    var parent = document.getElementById("contentBody");
@@ -40,7 +76,7 @@ $(document).ready(function() {
                 $("#video").show();
 //              $("#overlay").show();
             }
-        }
+        }*/
     });
 
     var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
@@ -82,7 +118,7 @@ $(document).ready(function() {
         {
             $("#video").hide();
 //		    $("#overlay").hide();
-            showDialog("Are you sure you want to leave the flock?");
+            showDialog("Are you sure you want to leave the flock?", true);
         }
 	   else{
            isFreeBird = true;

@@ -214,6 +214,7 @@ var Room = {
     roomInfo : function(data) {
         this.name = data.name;
         if(data.kicked == true){
+          showDialog("TROLL! Click to be placed in a new room.", false);
           this.clearRoom();
         }
         // update fid hash in URL
