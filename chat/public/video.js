@@ -4,49 +4,6 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
-function showDialog(message, confirm)
-{
-    $("#dialog").html("<br/>" + message);
-    $("#blanket").show();
-    if(confirm){
-        $("#dialog").dialog({
-            buttons : {
-                "Confirm" : function() {
-                    //              var child = document.getElementById("overlay");
-                    //			    var parent = document.getElementById("contentBody");
-                    //			    parent.removeChild(child);
-                    Room.removeContent();
-                    $("#blanket").hide();
-                    $(this).dialog("close");
-                    isFreeBird = true;
-		            $("#contentList").html(""); // Clear the old content list
-		            globals.contentOffset = 0; // Reset the offset
-		            getMoreChannels();
-                },
-                "Cancel" : function() {
-                    $(this).dialog("close");
-                    $("#blanket").hide();
-                    $("#video").show();
-                    //              $("#overlay").show();
-                }
-                
-            }
-        });
-    }else {
-        $("#dialog").dialog({
-            buttons : {
-                "Ok" : function() {
-                    $(this).dialog("close");
-                    $("#blanket").hide();
-                    $("#video").show();
-                }
-            }
-        });
-    }
-    
-    $("#dialog").dialog("open");
-}
-
 $(document).ready(function() {
 
     $("#video").hide();
@@ -118,7 +75,7 @@ $(document).ready(function() {
         {
             $("#video").hide();
 //		    $("#overlay").hide();
-            showDialog("Are you sure you want to leave the flock?", true);
+            showDialog("Are you sure you want to leave the flock?", 0);
         }
 	   else{
            isFreeBird = true;
