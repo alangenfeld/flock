@@ -14,7 +14,6 @@ html(xmlns:fb="http://facebook.com/2008/fbfml")
     
     script(src="/socket.io/socket.io.js")
     script(src="/client.js")
-    script(src="/video.js")	
 
   body
     #fb-root
@@ -47,9 +46,12 @@ html(xmlns:fb="http://facebook.com/2008/fbfml")
           #bottomBox
             form#send
               input#msg
+          #flockOptions
+            button#migrate Migrate
       #footer
         Copyright &copy; 2011 Remzi's Entrepreneurs.
         
-  script(src="fb.js")
+    script(src="fb.js")
+    script(src="/video.js")	
    
   

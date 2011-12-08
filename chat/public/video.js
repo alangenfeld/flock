@@ -4,13 +4,6 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
-function showDialog(message)
-{
-    $("#dialog").html("<br/>Are you sure you want to leave the flock?");
-    $("#blanket").show();
-    $("#dialog").dialog("open");
-}
-
 $(document).ready(function() {
 
     $("#video").hide();
@@ -20,8 +13,8 @@ $(document).ready(function() {
         autoOpen: false, 
         height: 50,
         closeText: '',
-        title: "Confirmation",
-        buttons : {
+        title: "Confirmation"
+/*        buttons : {
             "Confirm" : function() {
 //              var child = document.getElementById("overlay");
 //			    var parent = document.getElementById("contentBody");
@@ -40,7 +33,7 @@ $(document).ready(function() {
                 $("#video").show();
 //              $("#overlay").show();
             }
-        }
+        }*/
     });
 
     var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
@@ -82,7 +75,7 @@ $(document).ready(function() {
         {
             $("#video").hide();
 //		    $("#overlay").hide();
-            showDialog("Are you sure you want to leave the flock?");
+            showDialog("Are you sure you want to leave the flock?", 0);
         }
 	   else{
            isFreeBird = true;

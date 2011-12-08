@@ -268,15 +268,27 @@ body {
 
 #text {
     position: absolute;
-    width: 97%; top: 40px; bottom: 31px;
+    width: 97%; top: 40px; bottom: 35px;
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
 }
 
+#flockOptions {
+    position: absolute;
+    border-top: 1px solid #888;
+    background-color: #e0e0e0;
+    width: 100%; bottom: 0px; height: 23px;
+}
+
+#migrate {
+    position: absolute;
+    right: 5px;
+}
+
 #bottomBox {
     position: absolute;
-    bottom: 5px; left: 5px; right: 7px;
+    bottom: 30px; left: 5px; right: 7px;
 }
 
 input#msg {
