@@ -332,6 +332,9 @@ function showDialog(message, type)
                 "Let us choose.." : function() {
                     $(this).dialog("close");
                     $("#blanket").hide();
+                    
+                    var cid = $("#video:first-child").attr("id");
+                    Room.pickContent(cid, 'justin.tv');
                 }
                 
             }

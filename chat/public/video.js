@@ -168,7 +168,7 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     var videoId = cid;
 	
 	var html_code = 
-         "<div class='dragHandle'></div><div id=\"video" + videoId + "\">"
+         "<div id=\"video" + videoId + "\">"
          + "<object wmode=\"opaque\" type=application/x-shockwave-flash " +
          + "height=\"100%\" width=\"100%\""
          + "data=\"http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + "\""
