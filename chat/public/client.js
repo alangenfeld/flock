@@ -12,6 +12,7 @@ var Chat = {
     loggedIn : function(uid) {
         socket.emit("login", {"userID":uid});
         this.uid = uid;
+        globals.video.init();
         $("#landing").hide();
         $("#side").hide();
         $("#container").show();
@@ -218,7 +219,7 @@ var Room = {
           this.clearRoom();
         }
         // update fid hash in URL
-        //window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
+        window.location.href = $.param.fragment( window.location.href, $.param({ fid: data.id }));
         
         for (var i in data.clients) {
             this.addUser(data.clients[i]);
@@ -247,7 +248,7 @@ var Room = {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
         // update cid hash in URL
-        //window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+        window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
         
         $("#side").show();
     },

@@ -4,6 +4,10 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
+globals.video = {
+  init: initVideo
+}
+
 function showDialog(message, confirm)
 {
     $("#dialog").html("<br/>" + message);
@@ -47,9 +51,9 @@ function showDialog(message, confirm)
     $("#dialog").dialog("open");
 }
 
-$(document).ready(function() {
-
-    $("#video").hide();
+//$(document).ready(function() {
+function initVideo() {  
+  $("#video").hide();
     $("#secondaryVideo").hide();
     $("#blanket").hide();
     $("#dialog").dialog({
@@ -139,7 +143,7 @@ $(document).ready(function() {
     });
     
     $(window).resize(resizeVideo);
-});
+}
 
 
 
@@ -242,3 +246,4 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     isFreeBird = false;
     dropdown.selectedIndex = 0;
 }
+
