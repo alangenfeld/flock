@@ -13,7 +13,7 @@ var Class   = require("structr"),
     db      = require("./db.js");
 
 var io = sio.listen(app);
-io.set("log level", 0);
+io.set("log level", 10);
 
 var log = require('winston');
 log.add(log.transports.File, { filename: 'flock.log' });
@@ -271,6 +271,7 @@ var Client = Class({
 var COMMANDS = [
     "login",
     "disconnect",
+    "create_flock",
     "pick_content",
     "remove_content",
     "has_flock",
@@ -345,6 +346,27 @@ var Server = Class({
             msgID: id,
             cnt: newCount
         });
+    },
+    
+    'cmd_create_flock': function(client, data) {
+        var cid  = String(data["contentID"]);
+        var type = String(data["contentType"]);
+        var current = String(data["current"]);
+        var fid  = String(data["flockID"]);
+        var cont = null;
+        console.log(data);
+        console.log("fid is equal to " + fid + "  cid = "+cid);
+
+        var cont = new Content(cid, type);
+        this.contents.push(cont);
+        //this means the content didn't exist so url was wrong  
+        
+        client.removeRoom();
+        client.removeContent();
+
+        console.log("normal addclient");
+        cont.pickFlock(client, current, false);
+        client.setContent(cont);
     },
     
     'cmd_pick_content': function(client, data) {

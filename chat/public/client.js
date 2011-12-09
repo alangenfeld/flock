@@ -243,6 +243,12 @@ var Room = {
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
     },
 
+    createFlock : function(cid, type) {
+        socket.emit("create_flock", {"contentID" : cid, "contentType" : type});
+        
+        $("#side").show();
+    },
+    
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
@@ -323,17 +329,19 @@ function showDialog(message, type)
             }
         });
     }else {
+        var cid = $("#video:first-child").attr("id");
+        
         $("#dialog").dialog({
             buttons : {
                 "Create New Flock" : function() {
                     $(this).dialog("close");
                     $("#blanket").hide();
+                    Room.createFlock(cid, 'justin.tv');
                 },
                 "Let us choose.." : function() {
                     $(this).dialog("close");
                     $("#blanket").hide();
                     
-                    var cid = $("#video:first-child").attr("id");
                     Room.pickContent(cid, 'justin.tv');
                 }
                 
