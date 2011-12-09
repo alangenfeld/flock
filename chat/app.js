@@ -18,18 +18,91 @@ io.set("log level", 10);
 var log = require('winston');
 log.add(log.transports.File, { filename: 'flock.log' });
 
-var ClientList = Class({
+var num_flocks = 0;
+
+function clearQueue(content) {
+  // TODO add check for trolls in the queue (if two haters are in the same we
+  // need some behavior
+  if (content.queue.length == 0) {
+    return;
+  }
+  if (content.queue.length == 1 && content.flocks.length > 0) {
+    // make sure we actually *can* pick this flock (because of haters)
+    console.log("Only 1 in queue, picking flock");
+    client = content.queue[0];
+    content.pickFlock(client[0], client[1], true);
+    content.queue = [];
+    return;
+  }
+
+  // we have more than one person, make a new room
+  // or we have no rooms...
+  // ignore trolls for now
+
+  var f = new Flock();
+  content.addFlock(f);
+  for(var k in content.queue) {
+    client = content.queue[k][0];
+    console.log("clearQueue putting in flock; client : " + client);
+    content.forceFlock(client, f.id);
+  }
+  content.queue = [];
+}
+
+var Content = Class({
+    '__construct': function(uid, type) {
+        this.id = String(uid);
+        this.type = type;
+        this.flocks = [];
+        this.queue = [];
+        setInterval(clearQueue, 3000, this);
+    },
+
+    'addFlock': function(flock) {
+      this.flocks.push(flock);
+    },
+
+    'forceFlock': function(client, fid) {
+      // check for trolls?
+        console.log("Adding " + client.id + " to a null flockk " + fid);
+      var flock = _.find(this.flocks, function(x) { return x.id == Number(fid); });
+      if (flock == "undefined") {
+        return;
+      }
+      flock.addClient(client);
+      console.log("added client to room " + fid);
+    },
+
+    'pickFlock': function(client, current, force) {
+      // TODO check for trolls
+      console.log("pickFlock client: " + client);
+      possible = _.reject(this.flocks, 
+        function(x) { 
+          return (force && x.clients.length > 10) || x.id == Number(current); 
+        });
+
+      if (possible.length == 0) {
+        this.queue.push([client, current]);
+      } else {
+        room = _.reduce(possible, 
+          function(memo, o) { 
+            return (o.clients.length < memo.clients.length) ? o : memo; 
+          }, 
+          possible[0] 
+        );
+
+        this.forceFlock(client, room.id);
+      }
+    }
+});
+
+var Flock = Class({
     '__construct': function() {
+        this.id = num_flocks++;
+        this.name = "Flock #" + (this.id + 1);
+        this.uids = [];
+        this.messages = [];
         this.clients = [];
-        this.start = (new Date()).getTime();
-    },
-    
-    'removeClient': function(client) {
-        this.clients = _.without(this.clients, client);
-    },
-    
-    'numClients': function () {
-        return this.clients.length;
     },
 
     /**
@@ -40,119 +113,9 @@ var ClientList = Class({
             this.clients[i].send(cmd, data);
         }
     },
-    
-    /**
-     * Return the total of all client activity from the start
-     * @return acts per minute
-     */
-    'getActivity': function() {
-        // TODO
-        return _.reduce(this.clients, function(sum, c) {
-            return sum + c.getActivity();
-        }, 0);
-    }
-});
 
-var MAX_ROOM_CLIENTS = 20;
-var global_room_count = 0;
-
-var Content = ClientList.extend({
-    'override __construct': function(uid, type) {
-        this._super();
-        this.id = uid;
-        this.type = type;
-        this.rooms = [];
-    },
-
-    'addClientExistingRoom': function(client, fid) {
-
-        var selectedFlock = null;
-        console.log("adding client to existing room");
-        for (var i = 0; i < this.rooms.length; i++) {    
-            if(this.rooms[i].id.toString() == fid) {
-                selectedFlock = this.rooms[i];
-                console.log("added client to room " + i);
-                this.clients.push(client);
-	              selectedFlock.addClient(client);
-	              return selectedFlock;
-            }
-        }
-	      return null;
-    },
-
-	'addClient': function(client) {
-
-        var selectedFlock = null;
-        var leastPeople   = MAX_ROOM_CLIENTS;
-        
-        for (var i = 0; i < this.rooms.length; i++) {
-            var num = this.rooms[i].numClients();
-            if (num < leastPeople) {
-                selectedFlock = this.rooms[i];
-                leastPeople = num;
-            }
-        }
-        
-        if (selectedFlock == null) {
-            console.log("- Creating new flock");
-            selectedFlock = new Flock(global_room_count++);
-            this.rooms.push(selectedFlock);
-        }
- 
-	    this.clients.push(client);
-	    selectedFlock.addClient(client);
-	    return selectedFlock;
-
-/*
-        var selectedFlock = null;
-	    var fewestTrolls = MAX_ROOM_CLIENTS + 1; //not possible
- 
-	    if (this.rooms.length == 0)
-		    selectedFlock = this.rooms[0] = new Flock(global_room_count++);
-	    else {
-		    for (var i = 0; i < this.rooms.length; i++){
-                
-		        var numTrolls = 0;
-                
-		        log.info("NUM PEOPLE = " + rooms[i].clients.length);
-		        
-		        // count number of trolls in each room
-		        for(var k = 0; k < rooms[i].clients.length; k++){
-			        db.getAssoc(client.id, rooms[i].clients[k].id, function(weight) {
-				        // count number of trolls in room
-				        if(weight == -1){
-				            numTrolls++;
-				        }
-
-			        });
-			        
-		        }
-				
-		        if(numTrolls < fewestTrolls){
-			        fewestTrolls = numTrolls;
-			        selectedFlock = this.rooms[i];
-		    }
-                
-		    }
-            
-		    if (selectedFlock == null) {
-		        console.log("-- Creating new room");
-		        selectedFlock = new Flock(global_room_count++);
-		        this.rooms.push(selectedFlock);
-		    }
-	    }
-*/
-        
-	}
-});
-
-var Flock = ClientList.extend({
-    'override __construct': function(fid) {
-        this._super();
-        this.id = fid;
-        this.name = "Flock #" + (fid + 1);
-        this.uids = [];
-        this.messages = [];
+    'removeClient': function(client) {
+        this.clients = _.without(this.clients, client);
     },
     
     'addMessage': function(client) {
@@ -178,24 +141,26 @@ var Flock = ClientList.extend({
         if (client in this.clients){
             return;
         }
-		//notify everyone that new user has joined	
-		for(var i = 0; i < this.clients.length; i++){
-			this.clients[i].send("join", {uid: client.id, status:0});
-		};
-		
-		this.clients.push(client);
+        console.log("made it");
+        //notify everyone that new user has joined	
+        for(var i = 0; i < this.clients.length; i++){
+          this.clients[i].send("join", {uid: client.id, status:0});
+        };
+        
+        this.clients.push(client);
         client.uidsIdx = this.uids.length;
         this.uids.push({uid: client.id, status: 0});
+        client.setRoom(this);
+        this.sendRoomInfo(client);
     },
     
-    'override removeClient': function(client) {
-        this._super(client);
+    'removeClient': function(client) {
         
-		for (var i in this.clients) {
-			this.clients[i].send("part", {uid: client.id});
-		}
+      for (var i in this.clients) {
+        this.clients[i].send("part", {uid: client.id});
+      }
         
-        this.uids.splice(client.uidsIdx, 1);
+      this.uids.splice(client.uidsIdx, 1);
     },
 
     'sendRoomInfo': function(client, kicked){
@@ -234,6 +199,10 @@ var Client = Class({
     'info': function(text) {
         this.send("msg", {"msg": text, userID: -1});
     },
+
+    'kick': function() {
+      this.send("kicked");
+    },
     
     /**
      * Record one unit of activity on this client
@@ -266,7 +235,6 @@ var Client = Class({
     'removeContent': function() {
         if (!this.hasContent())
             return;
-        this.content.removeClient(this);
         this.content = null;
     },
     
@@ -303,6 +271,7 @@ var Client = Class({
 var COMMANDS = [
     "login",
     "disconnect",
+    "create_flock",
     "pick_content",
     "remove_content",
     "has_flock",
@@ -316,12 +285,12 @@ var COMMANDS = [
  * ChatServer is responsible for managing the clients and coordinating
  * messages between them.
  */
-var Server = ClientList.extend({
+var Server = Class({
     
-    'override __construct': function() {
-        this._super();
+    '__construct': function() {
         this.contents = [];
         this.id2user = {};
+        this.clients = [];
     },
     
     /**
@@ -379,12 +348,35 @@ var Server = ClientList.extend({
         });
     },
     
-    'cmd_pick_content': function(client, data) {
+    'cmd_create_flock': function(client, data) {
         var cid  = String(data["contentID"]);
         var type = String(data["contentType"]);
+        var current = String(data["current"]);
         var fid  = String(data["flockID"]);
         var cont = null;
         console.log(data);
+        console.log("fid is equal to " + fid + "  cid = "+cid);
+
+        var cont = new Content(cid, type);
+        this.contents.push(cont);
+        //this means the content didn't exist so url was wrong  
+        
+        client.removeRoom();
+        client.removeContent();
+
+        console.log("normal addclient");
+        cont.pickFlock(client, current, false);
+        client.setContent(cont);
+    },
+    
+    'cmd_pick_content': function(client, data) {
+        var cid  = String(data["contentID"]);
+        var type = String(data["contentType"]);
+        var current = String(data["current"]);
+        var fid  = String(data["flockID"]);
+        var cont = null;
+        console.log(data);
+        console.log("fid is equal to " + fid + "  cid = "+cid);
 
         // try for existing instance of this Content
         for (var i = 0; i < this.contents.length; i++) {
@@ -405,19 +397,15 @@ var Server = ClientList.extend({
         client.removeRoom();
         client.removeContent();
 
-        //room should be set to fid if it exists
-        var room;
         if(fid == null || fid == "undefined"){
           console.log("normal addclient");
-            room = cont.addClient(client);
+          cont.pickFlock(client, current, false);
         } else {
           console.log("other  addclient");
-            room = cont.addClientExistingRoom(client, fid);
+          cont.forceFlock(client, fid);
         }
 
         client.setContent(cont);
-        client.setRoom(room);
-        room.sendRoomInfo(client);
     },
 
     'cmd_remove_content':function(client) {
@@ -459,16 +447,16 @@ var Server = ClientList.extend({
         var target = this.id2user[uid];
         db.markUser(client, target);
         
+        var that = this;
         target.isTroll(function (troll) {
             if (troll) {
                 console.log("Is troll: " + target.id); 
-                var cont = target.content;
-                target.removeRoom();
-                target.removeContent();
-                var room = cont.addClient(target);
-                target.setContent(cont);
-                target.setRoom(room);
-                room.sendRoomInfo(target, true);
+                target.kick();
+                that.cmd_pick_content(target, 
+                  {"contentID": target.content.id,
+                   "contentType": target.content.type,
+                   "current": target.room.id,
+                   "fid": null });
             };
         });
     }

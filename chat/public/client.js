@@ -215,7 +215,7 @@ var Room = {
     roomInfo : function(data) {
         this.name = data.name;
         if(data.kicked == true){
-          showDialog("TROLL! Click to be placed in a new room.", false);
+          showDialog("TROLL! Click to be placed in a new room.", 1);
           this.clearRoom();
         }
         // update fid hash in URL
@@ -244,6 +244,12 @@ var Room = {
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
     },
 
+    createFlock : function(cid, type) {
+        socket.emit("create_flock", {"contentID" : cid, "contentType" : type});
+        
+        $("#side").show();
+    },
+    
     pickContent : function(cid, type) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type});
         
@@ -277,9 +283,72 @@ $(document).ready(function() {
 	$("#testLogin").click(function(){
 		Chat.loggedIn(0);
 	});
+   
+    
+    $("#migrate").click(function() {
+        showDialog("Please select a method of migration", 2);
+    });
+
 });
 
-
-
-
-
+function showDialog(message, type)
+{
+    $("#dialog").html("<br/>" + message);
+    $("#blanket").show();
+    if(type == 0){
+        $("#dialog").dialog({
+            buttons : {
+                "Confirm" : function() {
+                    //              var child = document.getElementById("overlay");
+                    //			    var parent = document.getElementById("contentBody");
+                    //			    parent.removeChild(child);
+                    Room.removeContent();
+                    $("#blanket").hide();
+                    $(this).dialog("close");
+                    isFreeBird = true;
+		            $("#contentList").html(""); // Clear the old content list
+		            globals.contentOffset = 0; // Reset the offset
+		            getMoreChannels();
+                },
+                "Cancel" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
+                    //              $("#overlay").show();
+                }
+                
+            }
+        });
+    }else if(type == 1) {
+        $("#dialog").dialog({
+            buttons : {
+                "Ok" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
+                }
+            }
+        });
+    }else {
+        var cid = $("#video:first-child").attr("id");
+        
+        $("#dialog").dialog({
+            buttons : {
+                "Create New Flock" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    Room.createFlock(cid, 'justin.tv');
+                },
+                "Let us choose.." : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    
+                    Room.pickContent(cid, 'justin.tv');
+                }
+                
+            }
+        });
+    }
+    
+    $("#dialog").dialog("open");
+}

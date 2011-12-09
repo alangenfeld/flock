@@ -1,4 +1,3 @@
-
 var globals = {};
 globals.contentLimit = 20;
 globals.contentOffset = 0;
@@ -53,7 +52,7 @@ function showDialog(message, confirm)
 
 //$(document).ready(function() {
 function initVideo() {  
-  $("#video").hide();
+    $("#video").hide();
     $("#secondaryVideo").hide();
     $("#blanket").hide();
     $("#dialog").dialog({
@@ -122,7 +121,7 @@ function initVideo() {
         {
             $("#video").hide();
 //		    $("#overlay").hide();
-            showDialog("Are you sure you want to leave the flock?", true);
+            showDialog("Are you sure you want to leave the flock?", 0);
         }
 	   else{
            isFreeBird = true;
@@ -179,6 +178,37 @@ function getMoreChannels()
     });
 }
 
+function createFlock(cid){
+    $("#video").show();
+    $("#contentList").hide();
+	
+	var html_code = 
+         "<div id=\"video" + cid + "\">"
+         + "<object wmode=\"opaque\" type=application/x-shockwave-flash "
+         + "height=\"100%\" width=\"100%\""
+         + "data=\"http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + "\""
+         + " bgcolor=\"#000000\">"
+         + "<param name=\"allowFullScreen\" value=\"true\" />"
+         + "<param name=\"allowscriptaccess\" value=\"always\" />"
+         + "<param name=\"movie\" value=\"http://www.justin.tv/widgets/jtv_player.swf\" />"
+         + "<param name=\"flashvars\" value=\"channel=" + cid + "\" bgcolor=\"#000000\">"
+         + "<param name=\"allowFullScreen\" value=\"true\" />"
+         + "<param name=\"allowscriptaccess\" value=\"always\" />"
+         + "<param name=\"movie\" value=\"http://www.justin.tv/widgets/jtv_player.swf\" />"
+         + "</object>";
+    
+    var dropdown = document.getElementById("selectVideo");
+    
+    Room.createFlock(cid, 'justin.tv');
+    
+    var videoDiv = $("#video");
+    videoDiv.html(html_code + "<br/>");
+	
+    resizeVideo();
+    isFreeBird = false;
+    dropdown.selectedIndex = 0;
+}
+
 function addChannels(channels)
 {
     var contentList = $("#contentList");
@@ -197,7 +227,7 @@ function addChannels(channels)
                     "<span class=\"contentCategory\">" + channel.channel.category_title + "</span>" + 
                     "</div>" +
                     "<div class=\"createRoom\">" +
-                    "<button id=\"createRoomButton\" type=\"button\">Create New Flock</button>" +
+                    "<button id=\"createRoomButton\" onclick=createFlock(\'" + channel.channel.login + "\') type=\"button\">Create New Flock</button>" +
                     "</div>" +
                     "<div class=\"contentListItemClear\"></div>" +
                     "</div>";
@@ -215,7 +245,7 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     var videoId = cid;
 	
 	var html_code = 
-         "<div class='dragHandle'></div><div id=\"video" + videoId + "\">"
+         "<div id=\"video" + videoId + "\">"
          + "<object wmode=\"opaque\" type=application/x-shockwave-flash " +
          + "height=\"100%\" width=\"100%\""
          + "data=\"http://www.justin.tv/widgets/jtv_player.swf?channel=" + cid + "\""
