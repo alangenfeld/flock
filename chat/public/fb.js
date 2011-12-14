@@ -6,18 +6,18 @@ window.fbAsyncInit = function() {
 	/* All the events registered */
 	FB.Event.subscribe('auth.login', function(response) {
 	    // do something with response
-		Chat.loggedIn(getUserInfo());
-		token = response.session.access_token;
+        token = response.authResponse.accessToken;
+        Chat.loggedIn(response.authResponse.userID);
 	});
 	FB.Event.subscribe('auth.logout', function(response) {
 	    // do something with response
 	});
 
 	FB.getLoginStatus(function(response) {
-	    if (response.session) {
+	    if (response.authResponse) {
 		// logged in and connected user, someone you know
-          token = response.session.access_token;
-            Chat.loggedIn(response.session.uid);
+            token = response.authResponse.accessToken;
+            Chat.loggedIn(response.authResponse.userID);
 	    }
 	});
 };

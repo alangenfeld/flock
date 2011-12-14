@@ -3,8 +3,12 @@ globals.contentLimit = 20;
 globals.contentOffset = 0;
 var isFreeBird = true; // fix for prevent streams from loading on scroll while in a flock
 
-$(document).ready(function() {
+globals.video = {
+  init: initVideo
+}
 
+//$(document).ready(function() {
+function initVideo() {  
     $("#video").hide();
     $("#secondaryVideo").hide();
     $("#blanket").hide();
@@ -13,26 +17,6 @@ $(document).ready(function() {
         height: 50,
         closeText: '',
         title: "Confirmation"
-/*        buttons : {
-            "Confirm" : function() {
-//              var child = document.getElementById("overlay");
-//			    var parent = document.getElementById("contentBody");
-//			    parent.removeChild(child);
-                Room.removeContent();
-                $("#blanket").hide();
-                $(this).dialog("close");
-                isFreeBird = true;
-		        $("#contentList").html(""); // Clear the old content list
-		        globals.contentOffset = 0; // Reset the offset
-		        getMoreChannels();
-            },
-            "Cancel" : function() {
-                $(this).dialog("close");
-                $("#blanket").hide();
-                $("#video").show();
-//              $("#overlay").show();
-            }
-        }*/
     });
 
     var category_query = 'http://api.justin.tv/api/category/list.json?jsonp=?';
@@ -95,7 +79,7 @@ $(document).ready(function() {
     });
     
     $(window).resize(resizeVideo);
-});
+}
 
 
 
@@ -229,3 +213,4 @@ function displayVideo(cid, contentAlreadyCalled, fid)
     isFreeBird = false;
     dropdown.selectedIndex = 0;
 }
+
