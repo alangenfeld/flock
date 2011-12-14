@@ -242,7 +242,7 @@ var Client = Class({
     
     'setRoom': function(r) {
         this.room = r;
-        this.info("Connected to Room #" + this.room.id);
+        this.info("Connected to Flock #" + Number(this.room.id));
     },
     
     'removeRoom': function() {

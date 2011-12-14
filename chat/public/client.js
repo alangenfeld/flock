@@ -216,7 +216,7 @@ var Room = {
     
     roomInfo : function(data) {
         this.name = data.name;
-        debugger
+
         if(data.kicked == true){
           showDialog("TROLL! Click to be placed in a new room.", 1);
           this.clearRoom();
