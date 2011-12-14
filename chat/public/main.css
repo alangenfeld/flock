@@ -337,6 +337,7 @@ input#msg {
   width: 15px;
   text-align: center;
   vertical-align: top;
+  cursor: pointer;
 }
 
 .upvote.selected {
