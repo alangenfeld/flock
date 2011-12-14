@@ -101,7 +101,7 @@ var Content = Class({
 var Flock = Class({
     '__construct': function() {
         this.id = num_flocks++;
-        this.name = "Flock #" + (this.id + 1);
+        this.name = "Flock #" + (this.id);
         this.uids = [];
         this.messages = [];
         this.clients = [];
