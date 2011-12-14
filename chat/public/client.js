@@ -225,6 +225,13 @@ var Room = {
         }
         this.updateTitle();
     },
+
+    updateBulletin : function(data){
+        $('#stickyBulletin').text("");
+        for(var i=0; i< data.topMessages.length;i++){
+          $('#stickyBulletin').append('<div id=smsg1>'+topMessages[i].msg+'</div>');
+        }
+    },
     
     userJoin : function(data) {
         this.addUser(data);

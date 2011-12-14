@@ -103,6 +103,7 @@ var Flock = Class({
         this.uids = [];
         this.messages = [];
         this.clients = [];
+        this.topMessages = [];
     },
 
     /**
@@ -134,6 +135,20 @@ var Flock = Class({
 
         msg.voters[client.id] = change;
         msg.count += change;
+        if(this.topMessages.length < 2){
+          this.topMessages.push(this.messages[mid]);
+        } else {
+          if(!msg in this.topMessages){
+            for(var i=0;i<this.topMessages.length; i++){
+              if(this.topMessages[i].count < msg.count){
+                this.topMessages[i] = msg;
+                this.broadcast("updateBulletin",this.topMessages);
+                break;
+              }
+            }
+          }
+        }
+
         return msg.count;
     },
     

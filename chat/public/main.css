@@ -241,6 +241,13 @@ body {
     position: absolute;
 }
 
+#stickyBulletin {
+    position: absolute;
+    display:block;
+    width: 100%;top: 31px;
+    background-color: #fff000;
+}
+
 #roomInfoX {
     text-align: right;
     width: 100%;
