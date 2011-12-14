@@ -26,7 +26,7 @@ function clearQueue(content) {
   if (content.queue.length == 0) {
     return;
   }
-  if (content.queue.length == 1 && content.flocks.length > 0) {
+  if (content.queue.length == 1 && content.flocks.length > 1) {
     // make sure we actually *can* pick this flock (because of haters)
     console.log("Only 1 in queue, picking flock");
     client = content.queue[0];
@@ -82,8 +82,10 @@ var Content = Class({
         });
 
       if (possible.length == 0) {
+        console.log("No possible rooms... put back in queue");
         this.queue.push([client, current]);
       } else {
+        console.log("looking for smallest");
         room = _.reduce(possible, 
           function(memo, o) { 
             return (o.clients.length < memo.clients.length) ? o : memo; 
