@@ -33,7 +33,7 @@ var Chat = {
 			socket.emit("msg_vote", {id: mid, change: 1});
 		    $(e.currentTarget).addClass("selected");
 		} else {
-	        socket.emit("msg_vote", {id: mid, change: 0});
+	        socket.emit("msg_vote", {id: mid, change: -1});
 		    $(e.currentTarget).removeClass("selected");
 		}
     },
@@ -155,6 +155,7 @@ var Room = {
             $("#roomInfo").hide();
             return false;
         });
+        $("#bottomBox").hide();
         this.updateTitle();
     },
 
@@ -175,6 +176,7 @@ var Room = {
     },
     
     updateTitle: function() {
+        $("#bottomBox").show();
         $("#rnTitle").html(this.name);
         $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
     },
@@ -214,6 +216,7 @@ var Room = {
     
     roomInfo : function(data) {
         this.name = data.name;
+        debugger
         if(data.kicked == true){
           showDialog("TROLL! Click to be placed in a new room.", 1);
           this.clearRoom();
@@ -242,6 +245,10 @@ var Room = {
     userPart : function(data) {
         this.removeUser(data);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
+        if (data.uid == Chat.uid) {
+            //bandaid
+            $("#bottomBox").hide();
+        }
     },
 
     createFlock : function(cid, type) {
@@ -267,6 +274,7 @@ var Room = {
     removeContent : function() {
         this.clearRoom();
         $("#side").hide();
+        $("#bottomBox").hide();
         this.name = "--no room--";
         socket.emit("remove_content");
     }
