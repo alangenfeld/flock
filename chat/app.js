@@ -145,7 +145,7 @@ var Flock = Class({
         msg.voters[client.id] = change;
         msg.count += change;
         if(this.topMessages.length < 2){
-          this.topMessages.push({mid: mid,count: msg.count,voters: msg.voters, text:msg.text});
+          this.topMessages.push({uid: msg.cl.id,mid: mid,count: msg.count,voters: msg.voters, text:msg.text});
           console.log("broadcast bulletin update");
           console.log(msg.text);
           this.broadcast("updateBulletin",this.topMessages);
@@ -154,7 +154,7 @@ var Flock = Class({
           if(!(mid in topMids)){
             for(var i=0;i<this.topMessages.length; i++){
               if(this.topMessages[i].count < msg.count){
-                this.topMessages[i] = {mid: mid, count: msg.count,voters: msg.voters, text:msg.text};
+                this.topMessages[i] = {uid: msg.cl.id,mid: mid, count: msg.count,voters: msg.voters, text:msg.text};
                 this.broadcast("updateBulletin",this.topMessages);
                 console.log("updating Bulletin");
                 break;

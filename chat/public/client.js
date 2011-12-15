@@ -144,6 +144,7 @@ var Room = {
 	    socket.on("update_count", function(data) {
 		    var id = data.msgID;
 		    $("#msg" + id).children(".votes").text(data.cnt);
+		    $("#smsg" + id).children(".votes").text(data.cnt);
 	    });
 	    
         this.clearRoom();
@@ -188,8 +189,18 @@ var Room = {
         console.log("updating bulletin");
         $('#stickyBulletin').text("");
         for(var i=0; i< data.length;i++){
-          $('#stickyBulletin').append('<div id=smsg1>'+data[i].text+'</div>');
+          //$('#stickyBulletin').append('<div id=smsg1>'+data[i].text+'</div>');
+          $('#stickyBulletin').append("<div class=\"sticky_message\" id=\"smsg" + data[i].mid + "\"" +
+                          " uid=\"" + data[i].uid + "\">" +
+                          "<span class=\"name\">" + fbid_names[data[i].uid] + ": </span>" + 
+                          "<span class=\"msgbody\" alt=\"SPECIAL COMMENT!!!11\">" + data[i].text + "</span>" +
+                   //       "<div class=\"upvote\">+</div>" + 
+                          "<div class=\"votes\">"+data[i].count +"</div>" + 
+                          "</div>"
+                         );
+
         }
+        $('#text').css('top',40+$('#stickyBulletin').height());
     },
 
 
