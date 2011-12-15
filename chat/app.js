@@ -427,6 +427,9 @@ var Server = Class({
     },
 
     'cmd_msg': function(client, data) {
+        if (!client.room || client.room == "undefined") {
+            return;
+        }
         client.act();
         
 		client.room.broadcast("msg", {

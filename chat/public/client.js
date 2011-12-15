@@ -255,7 +255,8 @@ var Room = {
     },
     
     userKick : function(data) {
-        showDialog("Trolled!", 1);
+        showDialog("quit trollin yo.", 1);
+        Room.clearRoom();
     },
 
     createFlock : function(cid, type) {
