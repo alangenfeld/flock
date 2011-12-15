@@ -273,8 +273,7 @@ var Room = {
         this.removeUser(data);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
         if (data.uid == Chat.uid) {
-            //bandaid
-            $("#bottomBox").hide();
+            Room.clearRoom();
         }
     },
     
@@ -294,15 +293,17 @@ var Room = {
         
         // update cid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
+        this.clearRoom();
+        $("#side").show();
     },
     
     pickContentWithFid : function(cid, type, fid) {
         socket.emit("pick_content", {"contentID" : cid, "contentType" : type, "flockID" : fid});
+        this.clearRoom();
         $("#side").show();
     },
     
     removeContent : function() {
-        this.clearRoom();
         $("#side").hide();
         this.clearRoom();
         socket.emit("remove_content");
