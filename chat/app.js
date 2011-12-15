@@ -173,7 +173,7 @@ var Flock = Class({
       }
         
       this.clients = _.without(this.clients, client);
-      this.uids.splice(client.uidsIdx, 1);
+      this.uids = _.without(this.uids, client.id);
     },
 
     'sendRoomInfo': function(client, kicked){
