@@ -66,7 +66,7 @@ var Content = Class({
       // check for trolls?
       console.log("Adding " + client.id + " to a flockk " + fid);
       var flock = _.find(this.flocks, function(x) { return x.id == Number(fid); });
-      if (flock == "undefined") {
+      if (flock == "undefined" || client == "undefined") {
         return;
       }
       for (var f in this.flocks) {

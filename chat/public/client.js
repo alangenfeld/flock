@@ -143,9 +143,8 @@ var Room = {
 		    $("#msg" + id).children(".votes").text(data.cnt);
 	    });
 	    
-        this.numClients = 0;
-	    this.clients = {};
-        this.name = "-- no room --";
+        this.clearRoom();
+        
         $("#roomName").html("<span id=\"rnTitle\"></span> " +
                             "(<a id=\"rnNum\" href=\"#\"></a>)");
         $("#rnNum").click(function () {
@@ -156,7 +155,7 @@ var Room = {
             $("#roomInfo").hide();
             return false;
         });
-        $("#bottomBox").hide();
+
         this.updateTitle();
     },
 
@@ -183,10 +182,13 @@ var Room = {
     },
 
     clearRoom: function(){
-      this.clients = {};
-      this.numClients = 0;        
-      $("#text").html("");
-      $("#roomInfoText").html("");
+        this.name = "-- no room --";
+        this.clients = {};
+        this.numClients = 0;        
+        this.updateTitle();
+        $("#bottomBox").hide();
+        this.name = "--no room--";
+        $("#text").html("");
     },
     
     addUser : function(client) {
@@ -253,12 +255,12 @@ var Room = {
     },
     
     userKick : function(data) {
-        showDialog("Trolled!", 1);
+        showDialog("Quit being a TROLL!", 1);
     },
 
     createFlock : function(cid, type) {
         socket.emit("create_flock", {"contentID" : cid, "contentType" : type});
-        
+        this.clearRoom();
         $("#side").show();
     },
     
@@ -267,8 +269,6 @@ var Room = {
         
         // update cid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
-        
-        $("#side").show();
     },
     
     pickContentWithFid : function(cid, type, fid) {
@@ -279,8 +279,7 @@ var Room = {
     removeContent : function() {
         this.clearRoom();
         $("#side").hide();
-        $("#bottomBox").hide();
-        this.name = "--no room--";
+        this.clearRoom();
         socket.emit("remove_content");
     }
 };
@@ -327,6 +326,8 @@ function showDialog(message, type)
                     $(this).dialog("close");
                     $("#blanket").hide();
                     $("#video").show();
+                    var dropdown = document.getElementById("selectVideo");
+                    dropdown.selectedIndex = 0;
                     //              $("#overlay").show();
                 }
                 

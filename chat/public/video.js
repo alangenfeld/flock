@@ -134,10 +134,10 @@ function createFlock(cid){
          + "<param name=\"movie\" value=\"http://www.justin.tv/widgets/jtv_player.swf\" />"
          + "</object>";
     
-    var dropdown = document.getElementById("selectVideo");
-    
     Room.createFlock(cid, 'justin.tv');
     
+    var dropdown = document.getElementById("selectVideo");
+
     var videoDiv = $("#video");
     videoDiv.html(html_code + "<br/>");
 	
