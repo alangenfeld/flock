@@ -253,7 +253,7 @@ var Room = {
     },
     
     userKick : function(data) {
-        showDialog("Trolled!", 1);
+        showDialog("Quit being a TROLL!", 1);
     },
 
     createFlock : function(cid, type) {
@@ -327,6 +327,8 @@ function showDialog(message, type)
                     $(this).dialog("close");
                     $("#blanket").hide();
                     $("#video").show();
+                    var dropdown = document.getElementById("selectVideo");
+                    dropdown.selectedIndex = 0;
                     //              $("#overlay").show();
                 }
                 
