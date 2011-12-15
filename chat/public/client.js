@@ -33,7 +33,7 @@ var Chat = {
 			socket.emit("msg_vote", {id: mid, change: 1});
 		    $(e.currentTarget).addClass("selected");
 		} else {
-	        socket.emit("msg_vote", {id: mid, change: 0});
+	        socket.emit("msg_vote", {id: mid, change: -1});
 		    $(e.currentTarget).removeClass("selected");
 		}
     },
@@ -139,15 +139,15 @@ var Room = {
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
 	    socket.on("updateBulletin", this.updateBulletin.bind(this));
+        socket.on("kicked", this.userKick.bind(this));
         
 	    socket.on("update_count", function(data) {
 		    var id = data.msgID;
 		    $("#msg" + id).children(".votes").text(data.cnt);
 	    });
 	    
-        this.numClients = 0;
-	    this.clients = {};
-        this.name = "-- no room --";
+        this.clearRoom();
+        
         $("#roomName").html("<span id=\"rnTitle\"></span> " +
                             "(<a id=\"rnNum\" href=\"#\"></a>)");
         $("#rnNum").click(function () {
@@ -158,6 +158,7 @@ var Room = {
             $("#roomInfo").hide();
             return false;
         });
+
         this.updateTitle();
     },
 
@@ -178,6 +179,7 @@ var Room = {
     },
     
     updateTitle: function() {
+        $("#bottomBox").show();
         $("#rnTitle").html(this.name);
         $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
     },
@@ -192,10 +194,13 @@ var Room = {
 
 
     clearRoom: function(){
-      this.clients = {};
-      this.numClients = 0;        
-      $("#text").html("");
-      $("#roomInfoText").html("");
+        this.name = "-- no room --";
+        this.clients = {};
+        this.numClients = 0;        
+        this.updateTitle();
+        $("#bottomBox").hide();
+        this.name = "--no room--";
+        $("#text").html("");
     },
     
     addUser : function(client) {
@@ -226,6 +231,7 @@ var Room = {
     
     roomInfo : function(data) {
         this.name = data.name;
+
         if(data.kicked == true){
           showDialog("TROLL! Click to be placed in a new room.", 1);
           this.clearRoom();
@@ -255,11 +261,20 @@ var Room = {
     userPart : function(data) {
         this.removeUser(data);
 		Chat.serverMsg(fbid_names[data.uid] + " has left the flock");
+        if (data.uid == Chat.uid) {
+            //bandaid
+            $("#bottomBox").hide();
+        }
+    },
+    
+    userKick : function(data) {
+        showDialog("Quit being a TROLL!", 1);
+        Room.clearRoom();
     },
 
     createFlock : function(cid, type) {
         socket.emit("create_flock", {"contentID" : cid, "contentType" : type});
-        
+        this.clearRoom();
         $("#side").show();
     },
     
@@ -268,8 +283,6 @@ var Room = {
         
         // update cid hash in URL
         window.location.href = $.param.fragment( window.location.href, $.param({ cid: cid }));
-        
-        $("#side").show();
     },
     
     pickContentWithFid : function(cid, type, fid) {
@@ -280,7 +293,7 @@ var Room = {
     removeContent : function() {
         this.clearRoom();
         $("#side").hide();
-        this.name = "--no room--";
+        this.clearRoom();
         socket.emit("remove_content");
     }
 };
@@ -327,6 +340,8 @@ function showDialog(message, type)
                     $(this).dialog("close");
                     $("#blanket").hide();
                     $("#video").show();
+                    var dropdown = document.getElementById("selectVideo");
+                    dropdown.selectedIndex = 0;
                     //              $("#overlay").show();
                 }
                 
@@ -357,11 +372,15 @@ function showDialog(message, type)
                     $("#blanket").hide();
                     
                     Room.pickContent(cid, 'justin.tv');
+                },
+                "Cancel" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
                 }
-                
             }
         });
     }
-    
+        
     $("#dialog").dialog("open");
 }

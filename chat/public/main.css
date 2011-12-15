@@ -275,7 +275,7 @@ body {
 
 #text {
     position: absolute;
-    width: 97%; top: 40px; bottom: 35px;
+    width: 97%; top: 40px; bottom: 60px;
     overflow: auto;
     padding: 3px; 
     word-wrap: break-word;
@@ -344,6 +344,7 @@ input#msg {
   width: 15px;
   text-align: center;
   vertical-align: top;
+  cursor: pointer;
 }
 
 .upvote.selected {

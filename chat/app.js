@@ -26,7 +26,7 @@ function clearQueue(content) {
   if (content.queue.length == 0) {
     return;
   }
-  if (content.queue.length == 1 && content.flocks.length > 0) {
+  if (content.queue.length == 1 && content.flocks.length > 1) {
     // make sure we actually *can* pick this flock (because of haters)
     console.log("Only 1 in queue, picking flock");
     client = content.queue[0];
@@ -64,10 +64,13 @@ var Content = Class({
 
     'forceFlock': function(client, fid) {
       // check for trolls?
-        console.log("Adding " + client.id + " to a null flockk " + fid);
+      console.log("Adding " + client.id + " to a flockk " + fid);
       var flock = _.find(this.flocks, function(x) { return x.id == Number(fid); });
-      if (flock == "undefined") {
+      if (flock == "undefined" || client == "undefined") {
         return;
+      }
+      for (var f in this.flocks) {
+        this.flocks[f].removeClient(client);
       }
       flock.addClient(client);
       console.log("added client to room " + fid);
@@ -76,14 +79,19 @@ var Content = Class({
     'pickFlock': function(client, current, force) {
       // TODO check for trolls
       console.log("pickFlock client: " + client);
+      for (var f in this.flocks) {
+        this.flocks[f].removeClient(client);
+      }
       possible = _.reject(this.flocks, 
         function(x) { 
           return (force && x.clients.length > 10) || x.id == Number(current); 
         });
 
       if (possible.length == 0) {
+        console.log("No possible rooms... put back in queue");
         this.queue.push([client, current]);
       } else {
+        console.log("looking for smallest");
         room = _.reduce(possible, 
           function(memo, o) { 
             return (o.clients.length < memo.clients.length) ? o : memo; 
@@ -99,7 +107,7 @@ var Content = Class({
 var Flock = Class({
     '__construct': function() {
         this.id = num_flocks++;
-        this.name = "Flock #" + (this.id + 1);
+        this.name = "Flock #" + (this.id);
         this.uids = [];
         this.messages = [];
         this.clients = [];
@@ -176,12 +184,17 @@ var Flock = Class({
     },
     
     'removeClient': function(client) {
-        
+      if (!_.include(this.clients, client)) {
+        console.log("REmove " + client.id + " from flock " + this.id);
+          return;
+      }
+
       for (var i in this.clients) {
         this.clients[i].send("part", {uid: client.id});
       }
         
-      this.uids.splice(client.uidsIdx, 1);
+      this.clients = _.without(this.clients, client);
+      this.uids = _.without(this.uids, client.id);
     },
 
     'sendRoomInfo': function(client, kicked){
@@ -261,7 +274,7 @@ var Client = Class({
     
     'setRoom': function(r) {
         this.room = r;
-        this.info("Connected to Room #" + this.room.id);
+        this.info("Connected to Flock #" + Number(this.room.id));
     },
     
     'removeRoom': function() {
@@ -435,6 +448,9 @@ var Server = Class({
     },
 
     'cmd_msg': function(client, data) {
+        if (!client.room || client.room == "undefined") {
+            return;
+        }
         client.act();
 		client.room.broadcast("msg", {
             msg:data.msg.toString(), userID:client.id, msgID:client.room.addMessage(client,data.msg.toString())
