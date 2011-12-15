@@ -359,11 +359,15 @@ function showDialog(message, type)
                     $("#blanket").hide();
                     
                     Room.pickContent(cid, 'justin.tv');
+                },
+                "Cancel" : function() {
+                    $(this).dialog("close");
+                    $("#blanket").hide();
+                    $("#video").show();
                 }
-                
             }
         });
     }
-    
+        
     $("#dialog").dialog("open");
 }
