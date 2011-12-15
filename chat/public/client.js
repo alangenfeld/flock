@@ -136,6 +136,7 @@ var Room = {
       socket.on("room_info", this.roomInfo.bind(this));
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
+        socket.on("kicked", this.userKick.bind(this));
         
 	    socket.on("update_count", function(data) {
 		    var id = data.msgID;
@@ -249,6 +250,10 @@ var Room = {
             //bandaid
             $("#bottomBox").hide();
         }
+    },
+    
+    userKick : function(data) {
+        showDialog("Trolled!", 1);
     },
 
     createFlock : function(cid, type) {
