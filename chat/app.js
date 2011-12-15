@@ -66,8 +66,11 @@ var Content = Class({
       // check for trolls?
       console.log("Adding " + client.id + " to a flockk " + fid);
       var flock = _.find(this.flocks, function(x) { return x.id == Number(fid); });
-      if (flock == "undefined") {
+      if (flock == "undefined" || client == "undefined") {
         return;
+      }
+      for (var f in this.flocks) {
+        this.flocks[f].removeClient(client);
       }
       flock.addClient(client);
       console.log("added client to room " + fid);
@@ -76,6 +79,9 @@ var Content = Class({
     'pickFlock': function(client, current, force) {
       // TODO check for trolls
       console.log("pickFlock client: " + client);
+      for (var f in this.flocks) {
+        this.flocks[f].removeClient(client);
+      }
       possible = _.reject(this.flocks, 
         function(x) { 
           return (force && x.clients.length > 10) || x.id == Number(current); 
@@ -157,11 +163,16 @@ var Flock = Class({
     },
     
     'removeClient': function(client) {
-        
+      if (!_.include(this.clients, client)) {
+        console.log("REmove " + client.id + " from flock " + this.id);
+          return;
+      }
+
       for (var i in this.clients) {
         this.clients[i].send("part", {uid: client.id});
       }
         
+      this.clients = _.without(this.clients, client);
       this.uids.splice(client.uidsIdx, 1);
     },
 
