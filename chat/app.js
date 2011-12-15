@@ -119,8 +119,8 @@ var Flock = Class({
         this.clients = _.without(this.clients, client);
     },
     
-    'addMessage': function(client) {
-        this.messages.push({cl: client, count: 0, voters: {}});
+    'addMessage': function(client,message) {
+        this.messages.push({cl: client, text: message, count: 0, voters: {}});
         return this.messages.length-1;
     },
     
@@ -128,6 +128,7 @@ var Flock = Class({
         var msg = this.messages[mid];
         // so people can't vote in one direction more than once...
 
+          console.log(msg);
         if (client.id in msg.voters) {
             if (msg.voters[client.id] == change)
             return;
@@ -136,13 +137,18 @@ var Flock = Class({
         msg.voters[client.id] = change;
         msg.count += change;
         if(this.topMessages.length < 2){
-          this.topMessages.push(this.messages[mid]);
+          this.topMessages.push({mid: mid,count: msg.count,voters: msg.voters, text:msg.text});
+          console.log("broadcast bulletin update");
+          console.log(msg.text);
+          this.broadcast("updateBulletin",this.topMessages);
         } else {
-          if(!msg in this.topMessages){
+          var topMids = new Array(this.topMessages[0].mid, this.topMessages[1].mid);
+          if(!(mid in topMids)){
             for(var i=0;i<this.topMessages.length; i++){
               if(this.topMessages[i].count < msg.count){
-                this.topMessages[i] = msg;
+                this.topMessages[i] = {mid: mid, count: msg.count,voters: msg.voters, text:msg.text};
                 this.broadcast("updateBulletin",this.topMessages);
+                console.log("updating Bulletin");
                 break;
               }
             }
@@ -430,9 +436,8 @@ var Server = Class({
 
     'cmd_msg': function(client, data) {
         client.act();
-        
 		client.room.broadcast("msg", {
-            msg:data.msg.toString(), userID:client.id, msgID:client.room.addMessage(client)
+            msg:data.msg.toString(), userID:client.id, msgID:client.room.addMessage(client,data.msg.toString())
         });
     },
 

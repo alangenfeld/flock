@@ -38,6 +38,8 @@ var Chat = {
 		}
     },
     
+
+    
     addMsg : function(uid, name, mid, body) {
         var status = Room.getStatus(uid);
         var troll;
@@ -136,6 +138,7 @@ var Room = {
       socket.on("room_info", this.roomInfo.bind(this));
 	    socket.on("part", this.userPart.bind(this));
 	    socket.on("join", this.userJoin.bind(this));
+	    socket.on("updateBulletin", this.updateBulletin.bind(this));
         
 	    socket.on("update_count", function(data) {
 		    var id = data.msgID;
@@ -178,6 +181,15 @@ var Room = {
         $("#rnTitle").html(this.name);
         $("#rnNum").html(this.numClients + (this.numClients == 1 ? " user" : " users"));
     },
+
+    updateBulletin : function(data){
+        console.log("updating bulletin");
+        $('#stickyBulletin').text("");
+        for(var i=0; i< data.length;i++){
+          $('#stickyBulletin').append('<div id=smsg1>'+data[i].text+'</div>');
+        }
+    },
+
 
     clearRoom: function(){
       this.clients = {};
@@ -227,12 +239,6 @@ var Room = {
         this.updateTitle();
     },
 
-    updateBulletin : function(data){
-        $('#stickyBulletin').text("");
-        for(var i=0; i< data.topMessages.length;i++){
-          $('#stickyBulletin').append('<div id=smsg1>'+topMessages[i].msg+'</div>');
-        }
-    },
     
     userJoin : function(data) {
         this.addUser(data);
